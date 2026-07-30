@@ -46,7 +46,7 @@ function Opt({ on, onClick, icon, title, sub }: { on: boolean; onClick: () => vo
 }
 
 // --- Tap test: prompted single keys, measures reaction & habit signals ---
-function TapTest({ layout, count, onDone, onCancel }: { layout: LayoutId; count: number; onDone: (r: { taps: number[]; errs: number; keys: Record<string, { ms: number[]; err: number }> }) => void; onCancel: () => void }) {
+function TapTest({ layout, count, onDone, onSkip }: { layout: LayoutId; count: number; onDone: (r: { taps: number[]; errs: number; keys: Record<string, { ms: number[]; err: number }> }) => void; onSkip: () => void }) {
   const seq = useMemo(() => {
     const g = layoutGroups(layout);
     const pool = [...g.homeCore, ...g.homeCore, ...g.top.slice(0, 3), ...g.bottom.slice(0, 2)];
@@ -100,7 +100,7 @@ function TapTest({ layout, count, onDone, onCancel }: { layout: LayoutId; count:
       <p className="center muted small">{i + 1} / {seq.length}</p>
       <input
         ref={inputRef} className="ghost-input" aria-label="Press the shown key"
-        onKeyDown={(e) => { if (e.key === 'Escape') { onCancel(); return; } if (!e.metaKey && !e.ctrlKey && e.key.length === 1) { handle(e.key); e.preventDefault(); } }}
+        onKeyDown={(e) => { if (e.key === 'Escape') { onSkip(); return; } if (!e.metaKey && !e.ctrlKey && e.key.length === 1) { handle(e.key); e.preventDefault(); } }}
         onInput={(e) => { const v = e.currentTarget.value; e.currentTarget.value = ''; if (v) handle(v[v.length - 1]); }}
         autoCapitalize="off" autoCorrect="off" spellCheck={false}
       />
@@ -108,17 +108,17 @@ function TapTest({ layout, count, onDone, onCancel }: { layout: LayoutId; count:
         <KeyboardVisual layout={layout} guide="zones" compact />
       </div>
       <div className="center" style={{ marginTop: 14 }}>
-        <Btn kind="ghost" onClick={onCancel}>✕ Cancel test</Btn>
+        <Btn kind="ghost" onClick={onSkip}>Skip test →</Btn>
       </div>
     </div>
   );
 }
 
 // --- Timed typing step used for words & sentence phases ---
-function TypeStep({ text, seconds, layout, label, onDone, onCancel }: { text: string; seconds: number; layout: LayoutId; label: string; onDone: (r: SessionResult) => void; onCancel: () => void }) {
+function TypeStep({ text, seconds, layout, label, onDone, onSkip }: { text: string; seconds: number; layout: LayoutId; label: string; onDone: (r: SessionResult) => void; onSkip: () => void }) {
   const session = useTypingSession(
     { text, mode: 'assessment', label, correction: 'standard', timeLimitSec: seconds, stopOnComplete: true, keepTimeline: false },
-    { onFinish: onDone, soundOn: true, onEscape: onCancel },
+    { onFinish: onDone, soundOn: true, onEscape: onSkip },
   );
   useEffect(() => { session.focus(); }, []);
   const rem = session.engine.remainingSec();
@@ -133,7 +133,7 @@ function TypeStep({ text, seconds, layout, label, onDone, onCancel }: { text: st
         <KeyboardVisual layout={layout} guide="zones" compact nextChar={session.engine.text[session.engine.pos]} lastPress={session.engine.lastPress} />
       </div>
       <div className="center" style={{ marginTop: 14 }}>
-        <Btn kind="ghost" onClick={onCancel}>✕ Cancel test</Btn>
+        <Btn kind="ghost" onClick={onSkip}>Skip test →</Btn>
       </div>
     </div>
   );
@@ -189,12 +189,6 @@ export default function Onboarding() {
   const [assessment, setAssessment] = useState<AssessmentResult | null>(null);
   const [planStage, setPlanStage] = useState(0);
   const [usedDefault, setUsedDefault] = useState(false);
-
-  const cancelTest = () => {
-    tapRes.current = null;
-    typeParts.current = [];
-    goTo('assessIntro');
-  };
 
   // Build texts once
   const wordText = useMemo(() => {
@@ -276,41 +270,59 @@ export default function Onboarding() {
     };
   };
 
+  /** Creates (or updates) the profile from the current answers + an assessment. */
+  const commitProfile = (res: AssessmentResult) => {
+    setAssessment(res);
+    setPlanStage(res.level);
+    if (retest) {
+      finishAssessment(res, res.level, false);
+      return;
+    }
+    const name = a.name.trim() || (a.age === 'kid' ? randomKidName() : 'Explorer');
+    createProfile({
+      name, avatar: a.avatar, ageGroup: a.age, goal: a.goal, looksAtKeyboard: a.looks,
+      experience: a.path === 'new' ? 'new' : a.exp, layout: a.layout, competitive: a.competitive, coach: a.coach,
+    });
+    useStore.getState().patch((d) => {
+      d.settings.soundOn = a.sound;
+      d.settings.fontScale = a.fontScale;
+      d.settings.reducedMotion = a.reducedMotion;
+      d.settings.dyslexiaFont = a.dyslexia;
+      d.settings.untimed = a.untimed;
+      if (a.contrast) d.settings.theme = 'contrast';
+      if (a.age === 'kid') d.settings.correction = 'strict';
+      if (!a.competitive) d.settings.hideLeaderboards = true;
+    });
+    finishAssessment(res, res.level, true);
+  };
+
+  /** Skip the entire remaining setup: build a default profile and go straight in.
+   *  Anything already chosen (name, avatar, age) is kept. */
+  const skipAll = () => {
+    commitProfile(defaultAssessment());
+    nav('/app');
+  };
+
+  /** Skip the assessment but still show the resulting starter plan. */
   const skipToStarterPlan = () => {
     pendingDefault.current = defaultAssessment();
     setUsedDefault(true);
     goTo('computing');
   };
 
+  /** Mid-test escape: retakers return to Practise, first-timers get a starter plan. */
+  const skipTest = () => {
+    tapRes.current = null;
+    typeParts.current = [];
+    if (retest) nav('/app/practice');
+    else skipToStarterPlan();
+  };
+
   useEffect(() => {
     if (step === 'computing') {
       const res = pendingDefault.current ?? compute();
       pendingDefault.current = null;
-      const t = setTimeout(() => {
-        setAssessment(res);
-        setPlanStage(res.level);
-        if (retest) {
-          finishAssessment(res, res.level, false);
-        } else {
-          const name = a.name.trim() || (quick ? 'Explorer' : a.age === 'kid' ? randomKidName() : 'Explorer');
-          createProfile({
-            name, avatar: a.avatar, ageGroup: a.age, goal: a.goal, looksAtKeyboard: a.looks,
-            experience: a.path === 'new' ? 'new' : a.exp, layout: a.layout, competitive: a.competitive, coach: a.coach,
-          });
-          useStore.getState().patch((d) => {
-            d.settings.soundOn = a.sound;
-            d.settings.fontScale = a.fontScale;
-            d.settings.reducedMotion = a.reducedMotion;
-            d.settings.dyslexiaFont = a.dyslexia;
-            d.settings.untimed = a.untimed;
-            if (a.contrast) d.settings.theme = 'contrast';
-            if (a.age === 'kid') d.settings.correction = 'strict';
-            if (!a.competitive) d.settings.hideLeaderboards = true;
-          });
-          finishAssessment(res, res.level, true);
-        }
-        next();
-      }, 1600);
+      const t = setTimeout(() => { commitProfile(res); next(); }, 1600);
       return () => clearTimeout(t);
     }
   }, [step]);
@@ -332,7 +344,7 @@ export default function Onboarding() {
             <Opt on={a.path === 'place'} onClick={() => upd({ path: 'place' })} icon="compass" title="I can type — place me" sub="A short test finds your level" />
           </div>
           {hasProfile && !retest && <p className="small muted">Already have a profile on this device? <Link to="/app" style={{ color: 'var(--accent)' }}>Continue where you left off →</Link></p>}
-          <div className="ob-nav"><span /><Btn onClick={next}>Continue →</Btn></div>
+          <div className="ob-nav"><Btn kind="ghost" onClick={skipAll}>Skip setup</Btn><Btn onClick={next}>Continue →</Btn></div>
         </div>
       )}
 
@@ -346,7 +358,7 @@ export default function Onboarding() {
             <Opt on={a.ageLabel === '13–17'} onClick={() => upd({ age: 'teen', ageLabel: '13–17', coach: 'competitive' })} icon="headphones" title="13–17" sub="Challenges & races" />
             <Opt on={a.ageLabel === '18+'} onClick={() => upd({ age: 'adult', ageLabel: '18+', coach: 'teacher' })} icon="briefcase" title="18+" sub="Focused, practical training" />
           </div>
-          <div className="ob-nav">{!quick && <Btn kind="ghost" onClick={back}>← Back</Btn>}<Btn onClick={next}>Continue →</Btn></div>
+          <div className="ob-nav">{!quick ? <Btn kind="ghost" onClick={back}>← Back</Btn> : <span />}<span className="row gap"><Btn kind="ghost" onClick={skipAll}>Skip setup</Btn><Btn onClick={next}>Continue →</Btn></span></div>
         </div>
       )}
 
@@ -379,8 +391,8 @@ export default function Onboarding() {
               );
             })}
           </div>
-          <p className="small muted" style={{ marginTop: 14 }}>Everything stays on this device — no account or email needed. From here on, every step can be skipped.</p>
-          <div className="ob-nav"><Btn kind="ghost" onClick={back}>← Back</Btn><Btn onClick={next}>Continue →</Btn></div>
+          <p className="small muted" style={{ marginTop: 14 }}>Everything stays on this device — no account or email needed. You can hit <strong>Skip setup</strong> at any point to jump straight in with sensible defaults.</p>
+          <div className="ob-nav"><Btn kind="ghost" onClick={back}>← Back</Btn><span className="row gap"><Btn kind="ghost" onClick={skipAll}>Skip setup</Btn><Btn onClick={next}>Continue →</Btn></span></div>
         </div>
       )}
 
@@ -397,7 +409,7 @@ export default function Onboarding() {
             {a.age !== 'kid' && <Opt on={a.goal === 'code'} onClick={() => upd({ goal: 'code' })} icon="braces" title="Code & symbols" sub="Brackets, syntax, terminals" />}
             <Opt on={a.goal === 'fun'} onClick={() => upd({ goal: 'fun' })} icon="party" title="Fun & games" sub="Play your way to skill" />
           </div>
-          <div className="ob-nav"><Btn kind="ghost" onClick={back}>← Back</Btn><span className="row gap"><Btn kind="ghost" onClick={next}>Skip</Btn><Btn onClick={next}>Continue →</Btn></span></div>
+          <div className="ob-nav"><Btn kind="ghost" onClick={back}>← Back</Btn><span className="row gap"><Btn kind="ghost" onClick={skipAll}>Skip setup</Btn><Btn onClick={next}>Continue →</Btn></span></div>
         </div>
       )}
 
@@ -420,7 +432,7 @@ export default function Onboarding() {
               </div>
             </>
           )}
-          <div className="ob-nav"><Btn kind="ghost" onClick={back}>← Back</Btn><span className="row gap"><Btn kind="ghost" onClick={next}>Skip</Btn><Btn onClick={next}>Continue →</Btn></span></div>
+          <div className="ob-nav"><Btn kind="ghost" onClick={back}>← Back</Btn><span className="row gap"><Btn kind="ghost" onClick={skipAll}>Skip setup</Btn><Btn onClick={next}>Continue →</Btn></span></div>
         </div>
       )}
 
@@ -441,7 +453,7 @@ export default function Onboarding() {
             <Opt on={a.sound} onClick={() => upd({ sound: !a.sound })} icon="volume" title={a.sound ? 'Sound on' : 'Sound off'} sub="Key clicks & gentle cues" />
             <Opt on={a.competitive} onClick={() => upd({ competitive: !a.competitive })} icon="flag" title={a.competitive ? 'Competition on' : 'Competition off'} sub="Races, boards & rivals" />
           </div>
-          <div className="ob-nav"><Btn kind="ghost" onClick={back}>← Back</Btn><span className="row gap"><Btn kind="ghost" onClick={next}>Skip</Btn><Btn onClick={next}>Continue →</Btn></span></div>
+          <div className="ob-nav"><Btn kind="ghost" onClick={back}>← Back</Btn><span className="row gap"><Btn kind="ghost" onClick={skipAll}>Skip setup</Btn><Btn onClick={next}>Continue →</Btn></span></div>
         </div>
       )}
 
@@ -456,7 +468,7 @@ export default function Onboarding() {
             <Opt on={a.contrast} onClick={() => upd({ contrast: !a.contrast })} icon="eye" title="High contrast theme" />
             <Opt on={a.untimed} onClick={() => upd({ untimed: !a.untimed })} icon="hourglass" title="Untimed lessons" sub="No countdown pressure" />
           </div>
-          <div className="ob-nav"><Btn kind="ghost" onClick={back}>← Back</Btn><span className="row gap"><Btn kind="ghost" onClick={next}>Skip</Btn><Btn onClick={next}>Continue →</Btn></span></div>
+          <div className="ob-nav"><Btn kind="ghost" onClick={back}>← Back</Btn><span className="row gap"><Btn kind="ghost" onClick={skipAll}>Skip setup</Btn><Btn onClick={next}>Continue →</Btn></span></div>
         </div>
       )}
 
@@ -470,7 +482,7 @@ export default function Onboarding() {
                 ? 'Press the keys as they appear. This teaches us your starting point — there is no way to fail.'
                 : `Quick reactions, then ${a.age === 'kid' ? 'a short word run' : 'a word run and one sentence'}. We measure speed, accuracy, rhythm and hesitation — then build your personal path.`}
           </p>
-          <p className="small muted">Sit comfortably. Rest your index fingers on the two bump keys (F and J on most keyboards). You can cancel anytime with Esc.</p>
+          <p className="small muted">Sit comfortably. Rest your index fingers on the two bump keys (F and J on most keyboards). You can skip the test anytime with Esc.</p>
           <div className="ob-nav">
             {retest ? <Btn kind="ghost" onClick={() => nav('/app/practice')}>← Back to Practise</Btn> : <Btn kind="ghost" onClick={back}>← Back</Btn>}
             <span className="row gap wrap" style={{ justifyContent: 'flex-end' }}>
@@ -484,21 +496,21 @@ export default function Onboarding() {
       {step === 'tap' && (
         <div className="ob-card">
           <h1 className="center" style={{ fontSize: '1.2rem' }}>Key reflexes</h1>
-          <TapTest layout={a.layout} count={a.path === 'new' && !retest ? 16 : 10} onDone={(r) => { tapRes.current = r; next(); }} onCancel={cancelTest} />
+          <TapTest layout={a.layout} count={a.path === 'new' && !retest ? 16 : 10} onDone={(r) => { tapRes.current = r; next(); }} onSkip={skipTest} />
         </div>
       )}
 
       {step === 'words' && (
         <div className="ob-card">
           <h1 className="center" style={{ fontSize: '1.2rem' }}>Word run</h1>
-          <TypeStep text={wordText} seconds={30} layout={a.layout} label="30 seconds · common words" onDone={(r) => { typeParts.current.push(r); next(); }} onCancel={cancelTest} />
+          <TypeStep text={wordText} seconds={30} layout={a.layout} label="30 seconds · common words" onDone={(r) => { typeParts.current.push(r); next(); }} onSkip={skipTest} />
         </div>
       )}
 
       {step === 'sentence' && (
         <div className="ob-card">
           <h1 className="center" style={{ fontSize: '1.2rem' }}>Real sentences</h1>
-          <TypeStep text={sentText} seconds={30} layout={a.layout} label="30 seconds · capitals & punctuation" onDone={(r) => { typeParts.current.push(r); next(); }} onCancel={cancelTest} />
+          <TypeStep text={sentText} seconds={30} layout={a.layout} label="30 seconds · capitals & punctuation" onDone={(r) => { typeParts.current.push(r); next(); }} onSkip={skipTest} />
         </div>
       )}
 

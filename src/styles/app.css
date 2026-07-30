@@ -413,3 +413,17 @@ h1 .ic, h2 .ic, h3 .ic { margin-right: 4px; color: var(--accent); }
 .duel-diffs .opt-tile { padding: 11px 14px; }
 .duel-diffs .opt-tile strong { font-size: 0.9rem; }
 .duel-lane .race-wpm { min-width: 44px; }
+
+/* ---------- Duel: rival's live typing line ---------- */
+.duel-ghost { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.duel-ghostline {
+  font-family: var(--font-type); font-size: 0.92rem; line-height: 1.35;
+  white-space: pre-wrap; overflow-wrap: anywhere; display: flex; flex-wrap: wrap; align-items: baseline;
+}
+.gl-done { color: var(--accent2); }
+.gl-rest { color: var(--muted); opacity: 0.42; }
+.gl-caret { display: inline-block; width: 2px; align-self: stretch; min-height: 1.1em; background: var(--accent2); opacity: 0; border-radius: 2px; }
+.gl-live { opacity: 1; animation: blink 0.85s steps(2) infinite; }
+.duel-ghost-track { height: 8px; }
+.duel-ghost-track::before { border-radius: 999px; }
+.duel-lane-rival { align-items: flex-start; }

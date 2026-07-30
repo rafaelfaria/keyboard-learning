@@ -268,8 +268,15 @@ export default function DuelGame() {
               </div>
               <div className="duel-lane duel-lane-rival">
                 <BlockAvatar preset={rival.avatar} size={26} />
-                <div className="race-track">
-                  <div className="race-trail duel-rival-trail" style={{ width: `${Math.max(2, rivalPct)}%` }} />
+                <div className="duel-ghost">
+                  <div className="duel-ghostline" aria-hidden>
+                    <span className="gl-done">{phrase.slice(0, Math.min(rivalPos, phrase.length))}</span>
+                    <span className={`gl-caret ${phase === 'live' ? 'gl-live' : ''}`} />
+                    <span className="gl-rest">{phrase.slice(Math.min(rivalPos, phrase.length))}</span>
+                  </div>
+                  <div className="race-track duel-ghost-track">
+                    <div className="race-trail duel-rival-trail" style={{ width: `${Math.max(2, rivalPct)}%` }} />
+                  </div>
                 </div>
                 <span className="race-wpm">{Math.round(rivalPct)}%</span>
               </div>
