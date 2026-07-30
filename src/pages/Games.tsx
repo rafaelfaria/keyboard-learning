@@ -34,8 +34,8 @@ const QUESTS = [
   },
   {
     id: 'keyforge', name: 'Keyforge', icon: 'hammer', to: '/app/games/keyforge',
-    desc: 'Forge artifacts from flawless rune-words. No timer — perfection makes rarity. Collect Mythics.',
-    trains: 'Perfect-word streaks',
+    desc: 'The fire only burns while you type — misses vent heat, every treasure makes it hungrier. Forge before it goes cold.',
+    trains: 'Fast, flawless words',
   },
   {
     id: 'wordflight', name: 'Wordflight', icon: 'send', to: '/app/games/wordflight',
