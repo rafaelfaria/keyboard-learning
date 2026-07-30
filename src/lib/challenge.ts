@@ -2,6 +2,7 @@ import { mulberry32, hashStr, pick, pickN, avatarIndexFor, type Rng } from './rn
 import { dayKey, weekKey, median } from './metrics';
 import type { AgeGroup, Mission, ProfileData } from './types';
 import { SENTENCES, KID_SENTENCES, PARAGRAPHS, RACER_NAMES, CLASSMATE_NAMES } from './words';
+import { kidAvatarValueFor } from '../components/avatars';
 
 export interface DailySpec {
   key: string;
@@ -57,7 +58,7 @@ export function dailyBoard(age: AgeGroup, spec: DailySpec, you?: { name: string;
     const acc = Math.round(90 + rng() * 9.5);
     const score = scoreFor(spec.mode, wpm, acc, 55 + rng() * 40);
     const nm = pick(rng, names) + (age === 'kid' ? '' : String(Math.floor(rng() * 89) + 10));
-    rows.push({ name: nm, avatar: `bk:${avatarIndexFor(nm)}`, wpm, acc, score });
+    rows.push({ name: nm, avatar: age === 'kid' ? kidAvatarValueFor(nm) : `bk:${avatarIndexFor(nm)}`, wpm, acc, score });
   }
   if (you) {
     rows.push({ ...you, score: scoreFor(spec.mode, you.wpm, you.acc, 70), you: true });
@@ -172,7 +173,7 @@ export function activityFeed(age: AgeGroup): { name: string; avatar: string; wha
   ];
   return pickN(rng, names, 4).map((name) => ({
     name,
-    avatar: `bk:${avatarIndexFor(name)}`,
+    avatar: age === 'kid' ? kidAvatarValueFor(name) : `bk:${avatarIndexFor(name)}`,
     what: pick(rng, whats),
     when: `${Math.floor(rng() * 5) + 1}h ago`,
   }));

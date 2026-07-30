@@ -74,16 +74,16 @@ export default function Games() {
       <h2 className="section-title"><Ic n="swords" size={19} /> Competitive arena</h2>
       <div className="grid3">
         {COMPETITIVE.map((g) => <GameCard key={g.id} g={g} best={data.gameBests[g.id]} />)}
-        <Link to="/app/race" className="card card-link">
-          <Ic n="rocket" size={34} />
-          <h3 style={{ margin: '10px 0 6px' }}>The Lightstream</h3>
-          <p className="small muted" style={{ minHeight: '4em' }}>Full comet racing — CPU rivals, your ghost, private rooms with friends. The big league lives in its own hall.</p>
-          <div className="row gap wrap" style={{ marginTop: 10 }}>
-            <Chip tone="accent">Head-to-head speed</Chip>
-            {data.race.wins > 0 && <Chip tone="gold"><Ic n="trophy" size={12} /> {data.race.wins} wins</Chip>}
-          </div>
-        </Link>
       </div>
+      <Link to="/app/race" className="race-banner" aria-label="Open the Race hub">
+        <Ic n="rocket" size={30} />
+        <span className="race-banner-txt">
+          <strong>Looking for full races? That's The Lightstream — the Race hub.</strong>
+          <small className="muted">CPU rivals, your ghost, private rooms with friends. Not a mini-game: its own hall, one click away.</small>
+        </span>
+        <span className="race-banner-cta">Open Race hub →</span>
+        {data.race.wins > 0 && <Chip tone="gold"><Ic n="trophy" size={12} /> {data.race.wins} wins</Chip>}
+      </Link>
 
       <h2 className="section-title"><Ic n="map" size={19} /> Skill quests</h2>
       <div className="grid3">

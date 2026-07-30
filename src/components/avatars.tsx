@@ -5,7 +5,7 @@ import { hashStr } from '../lib/rng';
 interface Preset {
   skin: string;
   hair: string;
-  style: 'flat' | 'spiky' | 'side' | 'long' | 'buzz' | 'beanie' | 'none' | 'bot' | 'creeper';
+  style: 'flat' | 'spiky' | 'side' | 'long' | 'buzz' | 'beanie' | 'none' | 'bot' | 'creeper' | 'cat' | 'fox' | 'frog' | 'panda';
   eyes: string;
   acc?: 'glasses' | 'cheeks' | 'visor' | 'freckles';
   level: number;
@@ -35,7 +35,16 @@ export const AVATAR_PRESETS: Preset[] = [
   P('#ffd28a', '#e07b28', 'spiky', '#5c3a12', 'freckles', 11),      // ember sprite
   P('#a8dcff', '#3a7ac9', 'beanie', '#123a5c', undefined, 12),      // glacier sprite
   P('#ffe9a8', '#c9a13a', 'flat', '#5c4a12', 'visor', 14),          // aurum sprite
+  // pixel pals — animal characters, loved by the youngest explorers
+  P('#b8b2c9', '#6d6584', 'cat', '#2b2622', undefined, 0),
+  P('#e8955c', '#c96b2f', 'fox', '#2b2622', undefined, 0),
+  P('#9fd8a8', '#5aa964', 'frog', '#123318', undefined, 0),
+  P('#f2f2f2', '#1c1c1c', 'panda', '#1c1c1c', undefined, 0),
 ];
+
+/** Index of the first animal preset; kid-mode sims draw from this range. */
+export const ANIMAL_START = AVATAR_PRESETS.length - 4;
+export const ANIMAL_COUNT = 4;
 
 function px(x: number, y: number, c: string, key: string) {
   return <rect key={key} x={x} y={y} width="1" height="1" fill={c} />;
@@ -64,12 +73,42 @@ export function BlockAvatar({ preset, size = 40, className = '' }: { preset: num
     cells.push(px(3, 7, p.hair, 'cm5'), px(4, 7, p.hair, 'cm6'), px(5, 7, p.hair, 'cm7'), px(6, 7, p.hair, 'cm8'));
     cells.push(px(3, 8, p.hair, 'cm9'), px(6, 8, p.hair, 'cma'));
   }
-  // eyes
-  const ey = p.style === 'creeper' ? 4 : 4;
-  cells.push(px(2, ey, '#ffffff', 'ew1'), px(3, ey, p.eyes, 'ep1'));
-  cells.push(px(7, ey, '#ffffff', 'ew2'), px(6, ey, p.eyes, 'ep2'));
-  // mouth (skip creeper — has its own)
-  if (p.style !== 'creeper') {
+  if (p.style === 'cat' || p.style === 'fox') {
+    // ears
+    cells.push(px(1, 0, p.hair, 'e1'), px(2, 0, p.hair, 'e2'), px(1, 1, p.hair, 'e3'), px(2, 1, p.hair, 'e4'));
+    cells.push(px(7, 0, p.hair, 'e5'), px(8, 0, p.hair, 'e6'), px(7, 1, p.hair, 'e7'), px(8, 1, p.hair, 'e8'));
+    cells.push(px(2, 1, '#f0b7c9', 'ei1'), px(7, 1, '#f0b7c9', 'ei2'));
+    // snout + nose
+    const snout = p.style === 'fox' ? '#ffe9d6' : '#e8e2f0';
+    cells.push(px(4, 6, snout, 'sn1'), px(5, 6, snout, 'sn2'), px(4, 7, snout, 'sn3'), px(5, 7, snout, 'sn4'));
+    cells.push(px(4, 6, '#3a2a20', 'nz1'), px(5, 6, '#3a2a20', 'nz2'));
+    // whisker dots
+    cells.push(px(1, 6, p.hair, 'w1'), px(8, 6, p.hair, 'w2'));
+  }
+  if (p.style === 'frog') {
+    // eye bumps on top
+    cells.push(px(1, 0, p.skin, 'fb1'), px(2, 0, p.skin, 'fb2'), px(7, 0, p.skin, 'fb3'), px(8, 0, p.skin, 'fb4'));
+    cells.push(px(1, 1, '#ffffff', 'fw1'), px(2, 1, p.eyes, 'fp1'), px(8, 1, '#ffffff', 'fw2'), px(7, 1, p.eyes, 'fp2'));
+    // wide smile
+    for (let x = 2; x <= 7; x++) cells.push(px(x, 7, p.hair, `fm${x}`));
+    cells.push(px(2, 6, p.hair, 'fmc1'), px(7, 6, p.hair, 'fmc2'));
+  }
+  if (p.style === 'panda') {
+    // ears + eye patches
+    cells.push(px(0, 0, p.hair, 'pe1'), px(1, 0, p.hair, 'pe2'), px(8, 0, p.hair, 'pe3'), px(9, 0, p.hair, 'pe4'));
+    cells.push(px(1, 3, p.hair, 'pp1'), px(2, 3, p.hair, 'pp2'), px(2, 5, p.hair, 'pp3'), px(1, 5, p.hair, 'pp4'));
+    cells.push(px(7, 3, p.hair, 'pp5'), px(8, 3, p.hair, 'pp6'), px(7, 5, p.hair, 'pp7'), px(8, 5, p.hair, 'pp8'));
+    cells.push(px(4, 6, p.hair, 'pn1'), px(5, 6, p.hair, 'pn2'));
+  }
+  // eyes (frog draws its own on the bumps)
+  const skipFace = p.style === 'frog';
+  const ey = 4;
+  if (!skipFace) {
+    cells.push(px(2, ey, '#ffffff', 'ew1'), px(3, ey, p.eyes, 'ep1'));
+    cells.push(px(7, ey, '#ffffff', 'ew2'), px(6, ey, p.eyes, 'ep2'));
+  }
+  // mouth (creeper/animals draw their own)
+  if (!['creeper', 'cat', 'fox', 'frog', 'panda'].includes(p.style)) {
     if (p.style === 'bot') { for (let x = 3; x <= 6; x++) cells.push(px(x, 7, p.eyes, `m${x}`)); }
     else { cells.push(px(3, 7, '#7a4030', 'm1'), px(4, 7, '#7a4030', 'm2'), px(5, 7, '#7a4030', 'm3'), px(6, 7, '#7a4030', 'm4')); }
   }
@@ -102,6 +141,11 @@ export function Avatar({ v, size = 40, className = '' }: { v: string; size?: num
 /** Stable preset index for simulated players, from their name. */
 export function hashAvatar(name: string): number {
   return hashStr(name) % 14; // only free-tier presets for sim players
+}
+
+/** Animal preset for kid-mode sims — friendly faces at the starting line. */
+export function kidAvatarValueFor(name: string): string {
+  return `bk:${ANIMAL_START + (hashStr(name) % ANIMAL_COUNT)}`;
 }
 
 export function avatarValueFor(name: string): string {

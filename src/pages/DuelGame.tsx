@@ -10,6 +10,7 @@ import { snd } from '../lib/sound';
 import { RewardsBanner } from '../components/ResultsPanel';
 import { Ic } from '../components/icons';
 import { Avatar, BlockAvatar } from '../components/avatars';
+import { MobileKeys, useGameKeys } from '../components/gamekit';
 import type { Rewards } from '../lib/types';
 
 const TARGET_WINS = 4;
@@ -79,7 +80,6 @@ export default function DuelGame() {
   const timer = useRef(0);
   const readyTimer = useRef(0);
   const nextTimer = useRef(0);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   rivalWpmRef.current = rivalWpm;
   const setPhaseBoth = (p: typeof phase) => { phaseRef.current = p; setPhase(p); };
@@ -111,7 +111,6 @@ export default function DuelGame() {
       setPhaseBoth('live');
       setBanner('GO!');
       window.setTimeout(() => setBanner((b) => (b === 'GO!' ? '' : b)), 550);
-      inputRef.current?.focus();
       // Rival types on a wall-clock accumulator so its pace is frame-rate independent.
       const startedTick = performance.now();
       let typed = 0;
@@ -191,13 +190,17 @@ export default function DuelGame() {
     if (posRef.current >= text.length) endRound(true);
   };
 
+  useGameKeys(phase === 'live' || phase === 'ready' || phase === 'roundEnd', handleKey, {
+    onEscape: () => { clearTimers(); finishMatch(scoresRef.current); },
+  });
+
   if (!data) return null;
   const running = phase === 'ready' || phase === 'live' || phase === 'roundEnd';
   const myPct = (pos / Math.max(1, phrase.length)) * 100;
   const rivalPct = (Math.min(rivalPos, phrase.length) / Math.max(1, phrase.length)) * 100;
 
   return (
-    <div className="train-page" onClick={() => inputRef.current?.focus()}>
+    <div className="train-page">
       <div className="train-top">
         <Btn kind="ghost" onClick={() => { clearTimers(); nav('/app/games'); }} ariaLabel="Exit game">←</Btn>
         <h1><Ic n="swords" size={20} /> Quill Duel</h1>
@@ -304,15 +307,7 @@ export default function DuelGame() {
           )}
         </div>
       </div>
-      <input
-        ref={inputRef} className="ghost-input" aria-label="Duel typing input"
-        onKeyDown={(e) => {
-          if (e.key === 'Escape' && running) { clearTimers(); finishMatch(scoresRef.current); return; }
-          if (!e.metaKey && !e.ctrlKey && !e.altKey && e.key.length === 1) { handleKey(e.key); e.preventDefault(); }
-        }}
-        onInput={(e) => { const v = e.currentTarget.value; e.currentTarget.value = ''; for (const ch of v) handleKey(ch); }}
-        autoCapitalize="off" autoCorrect="off" spellCheck={false}
-      />
+      <MobileKeys active={running} />
     </div>
   );
 }

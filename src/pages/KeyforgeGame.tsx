@@ -8,6 +8,9 @@ import { resultFromStrokes, type GameStroke } from '../components/typing';
 import { snd } from '../lib/sound';
 import { RewardsBanner } from '../components/ResultsPanel';
 import { Ic } from '../components/icons';
+import { MobileKeys, useGameKeys } from '../components/gamekit';
+import { sparkBurst, screenShake, popIn } from '../lib/fx';
+import gsap from 'gsap';
 import type { ForgeItem, Rewards } from '../lib/types';
 
 const RARITY_NAMES = ['', 'Common', 'Fine', 'Rare', 'Mythic'];
@@ -28,24 +31,37 @@ export default function KeyforgeGame() {
   }, [kid]);
 
   const [phase, setPhase] = useState<'intro' | 'run' | 'over'>('intro');
-  const [runeIdx, setRuneIdx] = useState(0);       // which rune in current forge (0..2)
+  const [runeIdx, setRuneIdx] = useState(0);
   const [runes, setRunes] = useState<string[]>([]);
-  const [hit, setHit] = useState(0);               // chars typed in current rune
-  const [missed, setMissed] = useState(false);     // error in current rune?
+  const [hit, setHit] = useState(0);
+  const [missed, setMissed] = useState(false);
   const [perfects, setPerfects] = useState(0);
   const [streak, setStreak] = useState(0);
   const [forged, setForged] = useState<ForgeItem[]>([]);
   const [justForged, setJustForged] = useState<ForgeItem | null>(null);
-  const [sparks, setSparks] = useState<{ id: number; x: number; y: number; dx: number; dy: number }[]>([]);
-  const [overInfo, setOverInfo] = useState<{ rewards: Rewards | null; result: ReturnType<typeof resultFromStrokes> } | null>(null);
+  const [overInfo, setOverInfo] = useState<{ rewards: Rewards | null; acc: number } | null>(null);
+
   const strokes = useRef<GameStroke[]>([]);
   const startedAt = useRef(0);
-  const sparkId = useRef(1);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const sceneRef = useRef<HTMLDivElement>(null);
+  const hammerRef = useRef<SVGGElement>(null);
+  const phaseRef = useRef(phase);
+  const streakRef = useRef(0);
+  const stateRef = useRef({ runeIdx: 0, hit: 0, missed: false, perfects: 0, runes: [] as string[], busy: false });
+  phaseRef.current = phase;
+  streakRef.current = streak;
+
+  const sync = () => {
+    const st = stateRef.current;
+    setRuneIdx(st.runeIdx); setHit(st.hit); setMissed(st.missed); setPerfects(st.perfects); setRunes([...st.runes]);
+  };
 
   const newRunes = () => {
-    setRunes([pick(rng.current, pool), pick(rng.current, pool), pick(rng.current, pool)]);
-    setRuneIdx(0); setHit(0); setMissed(false); setPerfects(0); setJustForged(null);
+    const st = stateRef.current;
+    st.runes = [pick(rng.current, pool), pick(rng.current, pool), pick(rng.current, pool)];
+    st.runeIdx = 0; st.hit = 0; st.missed = false; st.perfects = 0; st.busy = false;
+    setJustForged(null);
+    sync();
   };
 
   const start = () => {
@@ -54,11 +70,26 @@ export default function KeyforgeGame() {
     setForged([]); setStreak(0);
     newRunes();
     setPhase('run');
-    setTimeout(() => inputRef.current?.focus(), 50);
+  };
+
+  const strikeFx = (good: boolean) => {
+    const scene = sceneRef.current;
+    if (hammerRef.current) {
+      gsap.fromTo(hammerRef.current, { rotation: -52 }, { rotation: 0, duration: 0.11, ease: 'power3.in' });
+      gsap.to(hammerRef.current, { rotation: -52, duration: 0.28, delay: 0.13, ease: 'power2.out' });
+    }
+    if (scene) {
+      const w = scene.clientWidth;
+      const h = scene.clientHeight;
+      sparkBurst(scene, w / 2 + 6, h * 0.6, good ? 7 : 4, good ? '' : 'fx-spark-bad');
+      if (!good) screenShake(scene, 4);
+    }
   };
 
   const finishForge = (perf: number) => {
-    const rarity = Math.min(4, Math.max(1, perf + (streak >= 3 ? 1 : 0)));
+    const st = stateRef.current;
+    st.busy = true;
+    const rarity = Math.min(4, Math.max(1, perf + (streakRef.current >= 3 ? 1 : 0)));
     const item: ForgeItem = {
       id: uid(),
       name: `${pick(rng.current, FORGE_MATERIALS)} ${pick(rng.current, FORGE_ITEMS)} ${pick(rng.current, FORGE_SUFFIX)}`,
@@ -72,62 +103,69 @@ export default function KeyforgeGame() {
     if (rarity >= 3) pushToast({ kind: 'badge', icon: item.icon, title: `${RARITY_NAMES[rarity]} forge!`, body: item.name });
     if (data?.settings.soundOn) (rarity >= 3 ? snd.badge() : snd.done());
     setStreak((s) => (perf === 3 ? s + 1 : 0));
+    window.setTimeout(() => popIn(sceneRef.current?.querySelector<HTMLElement>('.forge-item-card') ?? null), 30);
   };
 
   const endGame = () => {
-    if (strokes.current.length > 10) {
-      const result = resultFromStrokes('game', 'Keyforge', strokes.current, startedAt.current, performance.now(), { game: 'keyforge', forged: forged.length });
-      const rewards = recordSession(result);
-      patch((d) => {
-        const cur = d.gameBests['keyforge'];
-        const score = forged.reduce((a, f) => a + f.rarity * 25, 0);
-        if (!cur || score > cur.score) d.gameBests['keyforge'] = { score, level: forged.length };
-      });
-      setOverInfo({ rewards, result });
-    } else {
-      setOverInfo(null);
-    }
+    if (phaseRef.current !== 'run') return;
+    setForged((f) => {
+      if (strokes.current.length > 10) {
+        const result = resultFromStrokes('game', 'Keyforge', strokes.current, startedAt.current, performance.now(), { game: 'keyforge', forged: f.length });
+        const rewards = recordSession(result);
+        patch((d) => {
+          const cur = d.gameBests['keyforge'];
+          const score = f.reduce((a, x) => a + x.rarity * 25, 0);
+          if (!cur || score > cur.score) d.gameBests['keyforge'] = { score, level: f.length };
+        });
+        setOverInfo({ rewards, acc: result.acc });
+      } else {
+        setOverInfo({ rewards: null, acc: 100 });
+      }
+      return f;
+    });
     setPhase('over');
   };
 
   const handleKey = (key: string) => {
-    if (phase !== 'run' || key.length !== 1 || justForged) return;
-    const word = runes[runeIdx];
+    const st = stateRef.current;
+    if (phaseRef.current !== 'run' || st.busy) return;
+    const word = st.runes[st.runeIdx];
     if (!word) return;
-    const want = word[hit];
+    const want = word[st.hit];
     const t = performance.now();
     if (key === want) {
       strokes.current.push({ t, exp: want, ok: true });
       if (data?.settings.soundOn) snd.key();
-      const el = document.querySelector('.forge-word');
-      if (el) {
-        const id = sparkId.current++;
-        setSparks((sp) => [...sp.slice(-14), { id, x: 50 + (hit - word.length / 2) * 3, y: 50, dx: (Math.random() - 0.5) * 120, dy: -40 - Math.random() * 60 }]);
-        setTimeout(() => setSparks((sp) => sp.filter((s) => s.id !== id)), 700);
-      }
-      if (hit + 1 >= word.length) {
-        const perfect = !missed;
-        const newPerf = perfects + (perfect ? 1 : 0);
-        setPerfects(newPerf);
-        if (runeIdx + 1 >= 3) {
-          finishForge(newPerf);
+      strikeFx(true);
+      if (st.hit + 1 >= word.length) {
+        const perfect = !st.missed;
+        st.perfects += perfect ? 1 : 0;
+        if (st.runeIdx + 1 >= 3) {
+          sync();
+          finishForge(st.perfects);
         } else {
-          setRuneIdx((i) => i + 1); setHit(0); setMissed(false);
+          st.runeIdx += 1; st.hit = 0; st.missed = false;
           if (data?.settings.soundOn) snd.step();
+          sync();
         }
       } else {
-        setHit((h) => h + 1);
+        st.hit += 1;
+        sync();
       }
     } else {
       strokes.current.push({ t, exp: want ?? key, ok: false });
-      setMissed(true);
+      st.missed = true;
       if (data?.settings.soundOn) snd.err();
+      strikeFx(false);
+      sync();
     }
   };
 
+  useGameKeys(phase === 'run' && !justForged, handleKey, { onEscape: endGame });
+
   useEffect(() => {
     if (justForged) {
-      const t = setTimeout(() => { newRunes(); inputRef.current?.focus(); }, 1900);
+      const t = setTimeout(() => newRunes(), 2100);
       return () => clearTimeout(t);
     }
   }, [justForged]);
@@ -136,12 +174,12 @@ export default function KeyforgeGame() {
   const word = runes[runeIdx] ?? '';
 
   return (
-    <div className="train-page" onClick={() => inputRef.current?.focus()}>
+    <div className="train-page">
       <div className="train-top">
         <Btn kind="ghost" onClick={() => nav('/app/games')} ariaLabel="Exit game">←</Btn>
         <h1><Ic n="hammer" size={20} /> Keyforge</h1>
         <Chip tone="accent">Trains: perfect-word streaks</Chip>
-        {phase === 'run' && <Btn kind="soft" onClick={endGame}>Finish session</Btn>}
+        {phase === 'run' && <Btn kind="soft" onClick={endGame}>Finish & collect</Btn>}
       </div>
 
       <div className="game-frame">
@@ -150,60 +188,78 @@ export default function KeyforgeGame() {
             <span>Forged {forged.length}</span>
             <span className="row" style={{ gap: 4 }}>Streak {streak > 0 ? <><Ic n="flame" size={13} /> {streak}</> : '—'}</span>
             <span className="grow" />
-            <span>Rune {Math.min(runeIdx + 1, 3)}/3 · {perfects}✦ perfect</span>
+            <span>{perfects} of 3 parts perfect</span>
           </div>
         )}
-        <div className="game-board" style={{ minHeight: 420 }}>
+        <div className="game-board" ref={sceneRef} style={{ minHeight: 440 }}>
           {phase === 'intro' && (
             <div className="game-over">
               <Ic n="hammer" size={50} />
-              <h2>The Glyph Foundry is open</h2>
-              <p className="muted" style={{ maxWidth: 460 }}>
-                Every artifact takes three rune-words. Type a rune with <strong>zero mistakes</strong> to add a perfect part.
-                Three perfect runes — and a hot streak — forge <strong>Mythic</strong> treasures.
-                There is no timer. Precision is the only fire here.
+              <h2>Three runes forge one treasure</h2>
+              <p className="muted" style={{ maxWidth: 470 }}>
+                Type the rune above the anvil — <strong>every correct letter is a hammer strike</strong>.
+                Finish a rune with zero mistakes and that part is <em>perfect</em>; three perfect parts
+                (and a hot streak) forge <strong>Mythic</strong> treasure. No timer. Precision is the only fire here.
               </p>
-              <Chip tone="gold">Collection: {data.forge.length} artifacts</Chip>
+              <Chip tone="gold"><Ic n="lamp" size={12} /> Collection: {data.forge.length} artifacts</Chip>
               <Btn big onClick={start}>Light the forge →</Btn>
             </div>
           )}
           {phase === 'run' && (
-            <div className="forge-anvil">
+            <div className="forge-scene">
               {justForged ? (
-                <div className={`forge-item-card rarity-${justForged.rarity}`}>
-                  <Ic n={justForged.icon} size={44} />
-                  <strong>{justForged.name}</strong>
-                  <Chip tone={justForged.rarity >= 3 ? 'gold' : 'default'}>{RARITY_NAMES[justForged.rarity]}</Chip>
+                <div className="forge-reveal">
+                  <div className={`forge-item-card rarity-${justForged.rarity}`}>
+                    <Ic n={justForged.icon} size={44} />
+                    <strong>{justForged.name}</strong>
+                    <Chip tone={justForged.rarity >= 3 ? 'gold' : 'default'}>{RARITY_NAMES[justForged.rarity]}</Chip>
+                  </div>
+                  <p className="muted small">next treasure warming up…</p>
                 </div>
               ) : (
                 <>
-                  <p className="muted small">rune {runeIdx + 1} of 3 {missed && <span className="bad">· cracked (a miss slipped in)</span>}</p>
-                  <div className="forge-word" style={{ position: 'relative' }}>
+                  <div className="forge-progress" aria-label={`Rune ${runeIdx + 1} of 3`}>
+                    {[0, 1, 2].map((i) => (
+                      <span key={i} className={`forge-part ${i < runeIdx ? 'part-done' : i === runeIdx ? 'part-cur' : ''}`}>
+                        <Ic n={i < runeIdx ? 'check' : 'gem'} size={13} /> part {i + 1}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="forge-say muted small">{missed ? 'a crack slipped in — finish strong, the next rune is a fresh start' : 'strike true — type the glowing rune'}</p>
+                  <div className="forge-word">
                     <span className="done">{word.slice(0, hit)}</span>
                     <span className="cur">{word[hit] ?? ''}</span>
                     <span>{word.slice(hit + 1)}</span>
-                    {sparks.map((s) => (
-                      <span key={s.id} className="forge-spark" style={{ left: `${s.x}%`, top: `${s.y}%`, ['--dx' as string]: `${s.dx}px`, ['--dy' as string]: `${s.dy}px` }} aria-hidden>✦</span>
-                    ))}
                   </div>
-                  <p className="muted small">anvil heat: {'▮'.repeat(perfects + 1)}{'▯'.repeat(Math.max(0, 3 - perfects - 1))}</p>
+                  <svg viewBox="0 0 220 120" className="forge-anvil-svg" aria-hidden>
+                    <rect x="60" y="58" width="100" height="18" rx="6" fill="var(--surface2)" stroke="var(--border)" strokeWidth="2.5" />
+                    <rect x="88" y="76" width="44" height="14" rx="4" fill="var(--surface2)" stroke="var(--border)" strokeWidth="2.5" />
+                    <rect x="76" y="90" width="68" height="12" rx="4" fill="var(--surface2)" stroke="var(--border)" strokeWidth="2.5" />
+                    <rect x="96" y="46" width="30" height="12" rx="3" fill="var(--gold)" opacity="0.9" className="forge-ingot" />
+                    <g ref={hammerRef} className="forge-hammer">
+                      <rect x="120" y="30" width="54" height="8" rx="4" fill="var(--text)" opacity="0.7" transform="rotate(32 147 34)" />
+                      <rect x="150" y="6" width="28" height="24" rx="5" fill="var(--accent)" />
+                    </g>
+                  </svg>
                 </>
               )}
-              {forged.length > 0 && (
-                <div className="row gap wrap" style={{ justifyContent: 'center', marginTop: 26 }}>
-                  {forged.slice(-6).map((f) => <span key={f.id} title={f.name} style={{ opacity: 0.5 + f.rarity * 0.12 }}><Ic n={f.icon} size={22} /></span>)}
+              {forged.length > 0 && !justForged && (
+                <div className="row gap wrap" style={{ justifyContent: 'center', marginTop: 12 }}>
+                  {forged.slice(-6).map((f) => (
+                    <span key={f.id} title={f.name} style={{ opacity: 0.5 + f.rarity * 0.12 }}><Ic n={f.icon} size={20} /></span>
+                  ))}
                 </div>
               )}
             </div>
           )}
-          {phase === 'over' && (
+          {phase === 'over' && overInfo && (
             <div className="game-over">
               <Ic n="lamp" size={44} />
               <h2>The forge cools</h2>
               <div className="row gap wrap" style={{ justifyContent: 'center' }}>
                 <Stat v={forged.length} l="artifacts" tone="accent" />
                 <Stat v={forged.filter((f) => f.rarity >= 3).length} l="rare+" />
-                {overInfo && <Stat v={`${overInfo.result.acc}%`} l="accuracy" />}
+                <Stat v={`${overInfo.acc}%`} l="accuracy" />
               </div>
               {forged.length > 0 && (
                 <div className="row gap wrap" style={{ justifyContent: 'center', maxWidth: 480 }}>
@@ -215,7 +271,7 @@ export default function KeyforgeGame() {
                   ))}
                 </div>
               )}
-              {overInfo && <RewardsBanner rewards={overInfo.rewards} />}
+              <RewardsBanner rewards={overInfo.rewards} />
               <p className="small muted">Artifacts live in your Profile's display case.</p>
               <div className="row gap">
                 <Btn onClick={start}>↻ Forge again</Btn>
@@ -225,12 +281,7 @@ export default function KeyforgeGame() {
           )}
         </div>
       </div>
-      <input
-        ref={inputRef} className="ghost-input" aria-label="Game typing input"
-        onKeyDown={(e) => { if (!e.metaKey && !e.ctrlKey && e.key.length === 1) { handleKey(e.key); e.preventDefault(); } if (e.key === 'Escape' && phase === 'run') endGame(); }}
-        onInput={(e) => { const v = e.currentTarget.value; e.currentTarget.value = ''; for (const ch of v) handleKey(ch); }}
-        autoCapitalize="off" autoCorrect="off" spellCheck={false}
-      />
+      <MobileKeys active={phase === 'run'} />
     </div>
   );
 }

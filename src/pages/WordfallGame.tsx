@@ -8,9 +8,11 @@ import { resultFromStrokes, type GameStroke } from '../components/typing';
 import { snd } from '../lib/sound';
 import { RewardsBanner } from '../components/ResultsPanel';
 import { Ic } from '../components/icons';
+import { Cannon, CityWall, MobileKeys, useGameKeys } from '../components/gamekit';
+import { fireBolt, floatText, screenShake, shatterWord } from '../lib/fx';
 import type { Rewards } from '../lib/types';
 
-interface Fall { id: number; text: string; x: number; y: number; speed: number; hit: number; popping?: boolean }
+interface Fall { id: number; text: string; x: number; y: number; speed: number; hit: number; dying?: boolean }
 
 export default function WordfallGame() {
   const data = useData();
@@ -24,43 +26,37 @@ export default function WordfallGame() {
 
   const [phase, setPhase] = useState<'intro' | 'run' | 'over'>('intro');
   const [, force] = useState(0);
+  const [waveBanner, setWaveBanner] = useState('');
   const [overInfo, setOverInfo] = useState<{ score: number; wave: number; acc: number; rewards: Rewards | null; newBest: boolean } | null>(null);
 
   const st = useRef({
     words: [] as Fall[],
-    nextId: 1,
-    shield: 100,
-    score: 0,
-    combo: 0,
-    wave: 1,
-    cleared: 0,
-    targetId: 0,
+    nextId: 1, shield: 100, score: 0, combo: 0, wave: 1, cleared: 0, targetId: 0,
     strokes: [] as GameStroke[],
-    startedAt: 0,
-    lastSpawn: 0,
-    lastTick: 0,
+    startedAt: 0, lastSpawn: 0, lastTick: 0,
     rng: mulberry32(Date.now() % 1e9),
   });
   const boardRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
   const timer = useRef(0);
   const endedRef = useRef(false);
 
+  const speedMult = () => 1 + (st.current.wave - 1) * 0.22;
+
   const spawn = useCallback(() => {
     const s = st.current;
-    const text = pick(s.rng, pool);
     s.words.push({
-      id: s.nextId++, text,
+      id: s.nextId++,
+      text: pick(s.rng, pool),
       x: 8 + s.rng() * 84,
       y: -30,
-      speed: (kid ? 16 : 26) * (1 + (s.wave - 1) * 0.16) * (0.8 + s.rng() * 0.5),
+      speed: (kid ? 15 : 24) * speedMult() * (0.8 + s.rng() * 0.5),
       hit: 0,
     });
   }, [pool, kid]);
 
   const endGame = useCallback(() => {
     const s = st.current;
-    if (endedRef.current) return;
+    if (endedRef.current || !s.startedAt) return;
     endedRef.current = true;
     window.clearInterval(timer.current);
     const result = resultFromStrokes('game', 'Wordfall Defence', s.strokes, s.startedAt, performance.now(), { game: 'wordfall', score: s.score, wave: s.wave });
@@ -83,21 +79,24 @@ export default function WordfallGame() {
     const dt = Math.min(0.05, (t - s.lastTick) / 1000 || 0.016);
     s.lastTick = t;
 
-    const interval = Math.max(kid ? 2100 : 1500, (kid ? 3400 : 2600) - s.wave * 160);
-    if (t - s.lastSpawn > interval && s.words.filter((w) => !w.popping).length < 3 + s.wave) {
+    const interval = Math.max(kid ? 1900 : 1300, (kid ? 3300 : 2500) - s.wave * 190);
+    if (t - s.lastSpawn > interval && s.words.filter((w) => !w.dying).length < 3 + s.wave) {
       s.lastSpawn = t;
       spawn();
     }
     for (const w of s.words) {
-      if (w.popping) continue;
+      if (w.dying) continue;
       w.y += w.speed * dt;
-      if (w.y > h - 74) {
-        w.popping = true;
+      if (w.y > h - 108) {
+        w.dying = true;
         s.shield -= 12;
         s.combo = 0;
         if (s.targetId === w.id) s.targetId = 0;
         if (data?.settings.soundOn) snd.err();
-        setTimeout(() => { s.words = s.words.filter((x) => x.id !== w.id); }, 60);
+        screenShake(board, 5);
+        const px = (w.x / 100) * board.clientWidth;
+        shatterWord(board, w.text, px, h - 112, 'var(--bad)');
+        s.words = s.words.filter((x) => x.id !== w.id);
       }
     }
     if (s.shield <= 0) { endGame(); return; }
@@ -107,21 +106,53 @@ export default function WordfallGame() {
   const start = () => {
     st.current = { ...st.current, words: [], shield: 100, score: 0, combo: 0, wave: 1, cleared: 0, targetId: 0, strokes: [], startedAt: performance.now(), lastSpawn: 0, lastTick: performance.now(), nextId: 1 };
     endedRef.current = false;
+    setWaveBanner('');
     setPhase('run');
-    setTimeout(() => inputRef.current?.focus(), 50);
     window.clearInterval(timer.current);
     timer.current = window.setInterval(() => loop(performance.now()), 33);
   };
 
   useEffect(() => () => window.clearInterval(timer.current), []);
 
+  const destroyWord = (w: Fall) => {
+    const s = st.current;
+    const board = boardRef.current;
+    w.dying = true;
+    s.targetId = 0;
+    s.cleared++;
+    s.combo++;
+    const gained = Math.round(w.text.length * 10 * (1 + Math.min(1.5, s.combo * 0.08)) * (1 + (s.wave - 1) * 0.1));
+    s.score += gained;
+    if (board) {
+      const bw = board.clientWidth;
+      const bh = board.clientHeight;
+      const tx = (w.x / 100) * bw;
+      const ty = w.y + 14;
+      fireBolt(board, bw / 2, bh - 96, tx, ty, () => {
+        shatterWord(board, w.text, tx, ty, 'var(--accent)');
+        floatText(board, `+${gained}`, tx, ty - 8, 'fx-score');
+        if (data?.settings.soundOn) snd.pop();
+        st.current.words = st.current.words.filter((x) => x.id !== w.id);
+      });
+    } else {
+      s.words = s.words.filter((x) => x.id !== w.id);
+    }
+    if (s.cleared % 10 === 0) {
+      s.wave++;
+      s.shield = Math.min(100, s.shield + 8);
+      setWaveBanner(`Wave ${s.wave} — faster!`);
+      window.setTimeout(() => setWaveBanner(''), 1400);
+      if (data?.settings.soundOn) snd.step();
+    }
+  };
+
   const handleKey = (key: string) => {
     const s = st.current;
-    if (key.length !== 1 || phase !== 'run') return;
+    if (phase !== 'run') return;
     const t = performance.now();
-    let target = s.words.find((w) => w.id === s.targetId && !w.popping);
+    let target = s.words.find((w) => w.id === s.targetId && !w.dying);
     if (!target) {
-      const candidates = s.words.filter((w) => !w.popping && w.text[0] === key).sort((a, b) => b.y - a.y);
+      const candidates = s.words.filter((w) => !w.dying && w.text[0] === key).sort((a, b) => b.y - a.y);
       target = candidates[0];
       if (target) s.targetId = target.id;
     }
@@ -136,21 +167,7 @@ export default function WordfallGame() {
       s.strokes.push({ t, exp: want, ok: true });
       target.hit++;
       if (data?.settings.soundOn) snd.key();
-      if (target.hit >= target.text.length) {
-        target.popping = true;
-        s.targetId = 0;
-        s.cleared++;
-        s.combo++;
-        s.score += Math.round(target.text.length * 10 * (1 + Math.min(1.5, s.combo * 0.08)));
-        if (data?.settings.soundOn) snd.pop();
-        if (s.cleared % 10 === 0) {
-          s.wave++;
-          s.shield = Math.min(100, s.shield + 8);
-          if (data?.settings.soundOn) snd.step();
-        }
-        const id = target.id;
-        setTimeout(() => { s.words = s.words.filter((x) => x.id !== id); }, 380);
-      }
+      if (target.hit >= target.text.length) destroyWord(target);
     } else {
       s.strokes.push({ t, exp: want, ok: false });
       s.combo = 0;
@@ -159,11 +176,21 @@ export default function WordfallGame() {
     }
   };
 
+  useGameKeys(phase === 'run', handleKey, { onEscape: endGame });
+
   if (!data) return null;
   const s = st.current;
+  const board = boardRef.current;
+  const locked = s.words.find((w) => w.id === s.targetId && !w.dying);
+  let cannonAngle = 0;
+  if (locked && board) {
+    const cx = board.clientWidth / 2;
+    const cy = board.clientHeight - 96;
+    cannonAngle = Math.atan2((locked.x / 100) * board.clientWidth - cx, cy - locked.y) * (180 / Math.PI);
+  }
 
   return (
-    <div className="train-page" onClick={() => inputRef.current?.focus()}>
+    <div className="train-page">
       <div className="train-top">
         <Btn kind="ghost" onClick={() => { window.clearInterval(timer.current); nav('/app/games'); }} ariaLabel="Exit game">←</Btn>
         <h1><Ic n="shield" size={20} /> Wordfall Defence</h1>
@@ -180,40 +207,44 @@ export default function WordfallGame() {
             <span className={s.shield < 30 ? 'bad' : ''}>Shield {Math.max(0, Math.round(s.shield))}%</span>
           </div>
         )}
-        <div className="game-board" ref={boardRef} style={{ minHeight: 440 }}>
+        <div className={`game-board wf-board ${kid ? 'wf-kid' : ''}`} ref={boardRef} style={{ minHeight: 460 }}>
           {phase === 'intro' && (
             <div className="game-over">
               <Ic n="shield" size={50} />
-              <h2>Defend the Lantern City</h2>
-              <p className="muted" style={{ maxWidth: 460 }}>
-                Words drift down. Type one to lock on, finish it to dissolve it in light.
-                Wrong keys drain the shield a little — words landing drain it a lot.
+              <h2>{kid ? 'Pop the word balloons!' : 'Defend the Lantern City'}</h2>
+              <p className="muted" style={{ maxWidth: 470 }}>
+                {kid
+                  ? 'Word balloons are floating down to the garden. Type a word to aim your pop-cannon — finish it and BOOM, confetti! Every 10 pops the balloons drift faster.'
+                  : 'Words drift toward the wall. Type one to lock your cannon on, finish it and the cannon blasts it out of the sky. Wrong keys drain the shield a little; a word landing drains it a lot. Every wave falls faster.'}
                 <strong> Calm accuracy beats frantic speed.</strong>
               </p>
-              {data.gameBests['wordfall'] && <Chip tone="gold">Personal best: {data.gameBests['wordfall'].score}</Chip>}
-              <Btn big onClick={start}>Raise the shield →</Btn>
+              {data.gameBests['wordfall'] && <Chip tone="gold"><Ic n="trophy" size={12} /> Personal best: {data.gameBests['wordfall'].score}</Chip>}
+              <Btn big onClick={start}>{kid ? 'Ready the pop-cannon →' : 'Raise the shield →'}</Btn>
             </div>
           )}
           {phase === 'run' && (
             <>
+              {waveBanner && <div className="wf-wave-banner">{waveBanner}</div>}
               {s.words.map((w) => (
                 <span
                   key={w.id}
-                  className={`wf-word ${w.id === s.targetId ? 'wf-target' : ''} ${w.popping ? 'wf-pop' : ''}`}
+                  className={`wf-word ${kid ? 'wf-balloon' : ''} ${w.id === s.targetId ? 'wf-target' : ''} ${w.dying ? 'wf-dying' : ''}`}
                   style={{ left: `${w.x}%`, top: w.y }}
                 >
                   <span className="hit">{w.text.slice(0, w.hit)}</span>{w.text.slice(w.hit)}
                 </span>
               ))}
-              <div className="wf-shield">
-                <span className="wf-city" aria-hidden><Ic n="lamp" size={22} /><Ic n="house" size={22} /><Ic n="landmark" size={22} /><Ic n="house" size={22} /><Ic n="lamp" size={22} /></span>
+              <div className="wf-base">
+                <Cannon angle={cannonAngle} firing={!!locked} />
+                <CityWall kid={kid} />
               </div>
+              <p className="wf-hint muted small">type a word to lock on — finish it to fire</p>
             </>
           )}
           {phase === 'over' && overInfo && (
             <div className="game-over">
               <Ic n={overInfo.newBest ? 'trophy' : 'rainbow'} size={46} />
-              <h2>{overInfo.newBest ? 'New personal best!' : 'The city rests'}</h2>
+              <h2>{overInfo.newBest ? 'New personal best!' : kid ? 'The garden is safe' : 'The city rests'}</h2>
               <div className="row gap wrap" style={{ justifyContent: 'center' }}>
                 <Stat v={overInfo.score} l="score" tone="accent" />
                 <Stat v={overInfo.wave} l="wave" />
@@ -224,24 +255,14 @@ export default function WordfallGame() {
                 {overInfo.acc >= 95 ? 'Beautiful defence — your calm under pressure is real.' : 'Tip: it is faster to type each word once, correctly, than twice in a panic.'}
               </p>
               <div className="row gap">
-                <Btn onClick={start}>↻ Defend again</Btn>
+                <Btn onClick={start}>↻ {kid ? 'Pop again' : 'Defend again'}</Btn>
                 <Btn kind="soft" to="/app/games">All games</Btn>
               </div>
             </div>
           )}
         </div>
-        {phase === 'run' && (
-          <div className="game-typebar">
-            <span className="muted small">Type the falling words — first letter locks your target</span>
-          </div>
-        )}
       </div>
-      <input
-        ref={inputRef} className="ghost-input" aria-label="Game typing input"
-        onKeyDown={(e) => { if (!e.metaKey && !e.ctrlKey && e.key.length === 1) { handleKey(e.key); e.preventDefault(); } if (e.key === 'Escape') endGame(); }}
-        onInput={(e) => { const v = e.currentTarget.value; e.currentTarget.value = ''; for (const ch of v) handleKey(ch); }}
-        autoCapitalize="off" autoCorrect="off" spellCheck={false}
-      />
+      <MobileKeys active={phase === 'run'} />
     </div>
   );
 }

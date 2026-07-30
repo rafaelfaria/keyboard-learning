@@ -8,6 +8,8 @@ import { resultFromStrokes, type GameStroke } from '../components/typing';
 import { snd } from '../lib/sound';
 import { RewardsBanner } from '../components/ResultsPanel';
 import { Ic } from '../components/icons';
+import { Glider, MobileKeys, useGameKeys } from '../components/gamekit';
+import { sparkBurst, floatText } from '../lib/fx';
 import type { Rewards } from '../lib/types';
 
 const DURATION = 75; // seconds
@@ -27,7 +29,7 @@ export default function WordflightGame() {
   const [overInfo, setOverInfo] = useState<{ score: number; gates: number; smooth: number; acc: number; rewards: Rewards | null; newBest: boolean } | null>(null);
 
   const st = useRef({
-    word: '', hit: 0, missedInWord: false,
+    word: '', next: '', hit: 0, missedInWord: false,
     dist: 0, alt: 0.5, turb: 0,
     gates: [] as { id: number; at: number; hit?: boolean }[],
     gatesHit: 0, nextGate: 900, gateId: 1,
@@ -37,13 +39,16 @@ export default function WordflightGame() {
     clouds: [] as { x: number; y: number; w: number; s: number }[],
     rng: mulberry32(Date.now() % 1e9),
   });
-  const inputRef = useRef<HTMLInputElement>(null);
+  const skyRef = useRef<HTMLDivElement>(null);
   const timer = useRef(0);
   const endedRef = useRef(false);
+  const phaseRef = useRef(phase);
+  phaseRef.current = phase;
 
   const newWord = () => {
     const s = st.current;
-    s.word = pick(s.rng, pool);
+    s.word = s.next || pick(s.rng, pool);
+    s.next = pick(s.rng, pool);
     s.hit = 0;
     s.missedInWord = false;
   };
@@ -72,7 +77,6 @@ export default function WordflightGame() {
     const elapsed = (t - s.startedAt) / 1000;
     if (elapsed >= DURATION) { endGame(); return; }
 
-    // smoothness from recent intervals → altitude target
     const ik = s.recentIkis;
     let smooth = 0.35;
     if (ik.length >= 6) {
@@ -85,7 +89,7 @@ export default function WordflightGame() {
     s.alt += (targetAlt - s.alt) * Math.min(1, dt * 2.2);
     s.turb = Math.max(0, s.turb - dt * 2);
 
-    const speed = 60 + smooth * 130;             // px/s world scroll
+    const speed = 60 + smooth * 130;
     s.dist += speed * dt;
     s.score += speed * dt * 0.12 * (0.5 + s.alt);
 
@@ -100,6 +104,12 @@ export default function WordflightGame() {
           s.gatesHit++;
           s.score += 60;
           if (data?.settings.soundOn) snd.pop();
+          const sky = skyRef.current;
+          if (sky) {
+            const gx = ((g.at - s.dist) / 900) * sky.clientWidth + sky.clientWidth * 0.12;
+            sparkBurst(sky, gx, sky.clientHeight * 0.4, 10);
+            floatText(sky, '+60', gx, sky.clientHeight * 0.36, 'fx-score');
+          }
         }
       }
     }
@@ -125,7 +135,6 @@ export default function WordflightGame() {
     newWord();
     endedRef.current = false;
     setPhase('run');
-    setTimeout(() => inputRef.current?.focus(), 50);
     window.clearInterval(timer.current);
     timer.current = window.setInterval(() => loop(performance.now()), 33);
   };
@@ -134,7 +143,7 @@ export default function WordflightGame() {
 
   const handleKey = (key: string) => {
     const s = st.current;
-    if (phase !== 'run' || key.length !== 1) return;
+    if (phaseRef.current !== 'run') return;
     const t = performance.now();
     const want = s.hit >= s.word.length ? ' ' : s.word[s.hit];
     const ok = key === want;
@@ -154,16 +163,19 @@ export default function WordflightGame() {
       s.alt = Math.max(0.06, s.alt - 0.14);
       if (data?.settings.soundOn) snd.err();
     }
+    force((n) => n + 1);
   };
+
+  useGameKeys(phase === 'run', handleKey, { onEscape: endGame });
 
   if (!data) return null;
   const s = st.current;
   const remaining = phase === 'run' ? Math.max(0, DURATION - (performance.now() - s.startedAt) / 1000) : DURATION;
   const skyH = 380;
-  const gliderTop = 24 + (1 - s.alt) * (skyH - 110);
+  const gliderTop = 20 + (1 - s.alt) * (skyH - 150);
 
   return (
-    <div className="train-page" onClick={() => inputRef.current?.focus()}>
+    <div className="train-page">
       <div className="train-top">
         <Btn kind="ghost" onClick={() => { window.clearInterval(timer.current); nav('/app/games'); }} ariaLabel="Exit game">←</Btn>
         <h1><Ic n="send" size={20} /> Wordflight</h1>
@@ -176,20 +188,22 @@ export default function WordflightGame() {
             <span>Score {Math.round(s.score)}</span>
             <span>Gates {s.gatesHit}</span>
             <span className="grow" />
+            <span>altitude {Math.round(s.alt * 100)}%</span>
             <span>{Math.ceil(remaining)}s</span>
           </div>
         )}
-        <div className="flight-sky" style={{ height: skyH }}>
+        <div className="flight-sky" ref={skyRef} style={{ height: skyH }}>
           {phase === 'intro' && (
-            <div className="game-over" style={{ paddingTop: 60 }}>
+            <div className="game-over" style={{ paddingTop: 46 }}>
               <Ic n="send" size={50} />
-              <h2>Ride the word-wind</h2>
+              <h2>{kid ? 'Fly the little bird!' : 'Ride the word-wind'}</h2>
               <p className="muted" style={{ maxWidth: 470 }}>
-                Type the running words (press <strong>space</strong> between them). <strong>Even, steady typing lifts you</strong>;
-                bursts and misses bring turbulence. Fly high and clean through the golden gates for bonus light.
+                Type the running words in the bar below (press <strong>space</strong> between them).
+                <strong> Even, steady typing lifts you</strong>; bursts and misses bring turbulence and drop you.
+                Fly high and clean through the golden gates for bonus sparks.
               </p>
-              {data.gameBests['wordflight'] && <Chip tone="gold">Personal best: {data.gameBests['wordflight'].score}</Chip>}
-              <Btn big onClick={start}>Launch →</Btn>
+              {data.gameBests['wordflight'] && <Chip tone="gold"><Ic n="trophy" size={12} /> Personal best: {data.gameBests['wordflight'].score}</Chip>}
+              <Btn big onClick={start}>{kid ? 'Flap flap → ' : 'Launch →'}</Btn>
             </div>
           )}
           {phase === 'run' && (
@@ -202,23 +216,30 @@ export default function WordflightGame() {
               {s.gates.map((g) => {
                 const x = ((g.at - s.dist) / 900) * 100 + 12;
                 if (x < -5 || x > 110) return null;
-                return <div key={g.id} className={`flight-gate ${g.hit ? 'hit' : ''}`} style={{ left: `${x}%`, top: 20, bottom: 20 }} aria-hidden />;
+                return (
+                  <div key={g.id} className={`flight-gate ${g.hit ? 'hit' : ''}`} style={{ left: `${x}%`, top: 16, bottom: 76 }} aria-hidden>
+                    <span className="flight-gate-flag"><Ic n="star" size={13} /></span>
+                  </div>
+                );
               })}
-              <div
-                className="flight-glider"
-                style={{ top: gliderTop, transform: s.turb > 0.3 ? `rotate(${(s.rng() - 0.5) * 18}deg)` : 'rotate(4deg)' }}
-                aria-hidden
-              ><Ic n="send" size={30} /></div>
-              <div className="flight-word" style={{ left: '32%', top: Math.min(skyH - 60, gliderTop + 10) }}>
-                <span style={{ color: 'var(--accent)' }}>{s.word.slice(0, s.hit)}</span>
-                <span style={{ borderBottom: '2px solid var(--accent)' }}>{s.word[s.hit] ?? '␣'}</span>
-                <span className="muted">{s.word.slice(s.hit + 1)}</span>
+              <div className="flight-glider-wrap" style={{ top: gliderTop, transform: s.turb > 0.3 ? `rotate(${(s.rng() - 0.5) * 16}deg)` : 'rotate(0deg)' }}>
+                <Glider kid={kid} turbulent={s.turb > 0.3} />
+                {s.alt > 0.6 && <span className="flight-wind" aria-hidden><i /><i /><i /></span>}
+              </div>
+              <div className="flight-wordbar">
+                <span className="muted small flight-wordbar-label">{kid ? 'type me!' : 'type · space · next'}</span>
+                <span className="flight-wordbar-word">
+                  <span className="good">{s.word.slice(0, s.hit)}</span>
+                  <span className="duel-cur">{s.hit >= s.word.length ? '␣' : s.word[s.hit]}</span>
+                  <span className="muted">{s.word.slice(s.hit + 1)}</span>
+                </span>
+                <span className="muted small flight-wordbar-next">then: {s.next}</span>
               </div>
             </>
           )}
           {phase === 'over' && overInfo && (
-            <div className="game-over" style={{ paddingTop: 40 }}>
-              <Ic n={overInfo.newBest ? 'trophy' : 'sailboat'} size={46} />
+            <div className="game-over" style={{ paddingTop: 36 }}>
+              <Ic n={overInfo.newBest ? 'trophy' : 'sailboat'} size={44} />
               <h2>{overInfo.newBest ? 'New flight record!' : 'Smooth landing'}</h2>
               <div className="row gap wrap" style={{ justifyContent: 'center' }}>
                 <Stat v={overInfo.score} l="distance score" tone="accent" />
@@ -228,7 +249,7 @@ export default function WordflightGame() {
               </div>
               <RewardsBanner rewards={overInfo.rewards} />
               <p className="small muted" style={{ maxWidth: 430 }}>
-                {overInfo.smooth >= 65 ? 'That rhythm was silk. Take it into a speed sprint!' : 'Altitude follows evenness, not haste — try locking into a beat you can hold.'}
+                {overInfo.smooth >= 65 ? 'That rhythm was silk. Take it into a speed sprint!' : 'Altitude follows evenness, not haste — lock into a beat you can hold.'}
               </p>
               <div className="row gap">
                 <Btn onClick={start}>↻ Fly again</Btn>
@@ -237,18 +258,8 @@ export default function WordflightGame() {
             </div>
           )}
         </div>
-        {phase === 'run' && (
-          <div className="game-typebar">
-            <span className="muted small">Steady beats fast · space between words · altitude = smoothness</span>
-          </div>
-        )}
       </div>
-      <input
-        ref={inputRef} className="ghost-input" aria-label="Game typing input"
-        onKeyDown={(e) => { if (!e.metaKey && !e.ctrlKey && e.key.length === 1) { handleKey(e.key); e.preventDefault(); } if (e.key === 'Escape' && phase === 'run') endGame(); }}
-        onInput={(e) => { const v = e.currentTarget.value; e.currentTarget.value = ''; for (const ch of v) handleKey(ch); }}
-        autoCapitalize="off" autoCorrect="off" spellCheck={false}
-      />
+      <MobileKeys active={phase === 'run'} />
     </div>
   );
 }

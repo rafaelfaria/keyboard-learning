@@ -8,6 +8,7 @@ import { resultFromStrokes, type GameStroke } from '../components/typing';
 import { snd } from '../lib/sound';
 import { RewardsBanner } from '../components/ResultsPanel';
 import { Ic } from '../components/icons';
+import { MobileKeys, useGameKeys } from '../components/gamekit';
 import type { Rewards } from '../lib/types';
 
 const DURATION = 75;
@@ -48,7 +49,6 @@ export default function CipherGame() {
   const startedAt = useRef(0);
   const wordShownAt = useRef(0);
   const timer = useRef(0);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const newPuzzle = () => {
     const w = pick(rng.current, pool);
@@ -65,7 +65,6 @@ export default function CipherGame() {
     setScore(0); setSolved(0); setTimeLeft(DURATION);
     newPuzzle();
     setPhase('run');
-    setTimeout(() => inputRef.current?.focus(), 40);
     window.clearInterval(timer.current);
     timer.current = window.setInterval(() => {
       const left = DURATION - (performance.now() - startedAt.current) / 1000;
@@ -135,6 +134,8 @@ export default function CipherGame() {
     }
   };
 
+  useGameKeys(phase === 'run', (ch) => handleKey(ch), { onEscape: endGame, onBackspace: () => handleKey('Backspace') });
+
   const hint = () => {
     if (revealed >= answer.length - 1) return;
     setRevealed((r) => r + 1);
@@ -152,7 +153,7 @@ export default function CipherGame() {
   if (!data) return null;
 
   return (
-    <div className="train-page" onClick={() => inputRef.current?.focus()}>
+    <div className="train-page">
       <div className="train-top">
         <Btn kind="ghost" onClick={() => { window.clearInterval(timer.current); nav('/app/games'); }} ariaLabel="Exit game">←</Btn>
         <h1><Ic n="puzzle" size={20} /> Cipher Run</h1>
@@ -215,16 +216,7 @@ export default function CipherGame() {
           )}
         </div>
       </div>
-      <input
-        ref={inputRef} className="ghost-input" aria-label="Cipher typing input"
-        onKeyDown={(e) => {
-          if (e.key === 'Escape' && phase === 'run') { endGame(); return; }
-          if (e.key === 'Backspace') { handleKey('Backspace'); e.preventDefault(); return; }
-          if (!e.metaKey && !e.ctrlKey && e.key.length === 1) { handleKey(e.key); e.preventDefault(); }
-        }}
-        onInput={(e) => { const v = e.currentTarget.value; e.currentTarget.value = ''; for (const ch of v) handleKey(ch); }}
-        autoCapitalize="off" autoCorrect="off" spellCheck={false}
-      />
+      <MobileKeys active={phase === 'run'} />
     </div>
   );
 }
