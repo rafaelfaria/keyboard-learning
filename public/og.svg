@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="ring" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#22d3ee"/><stop offset="45%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="ring2" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6366f1"/><stop offset="55%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#22d3ee"/>
+    </linearGradient>
+    <linearGradient id="cap" x1="0.15" y1="0" x2="0.85" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/><stop offset="55%" stop-color="#eff6ff"/><stop offset="100%" stop-color="#cfe0fb"/>
+    </linearGradient>
+    <linearGradient id="spark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fde68a"/><stop offset="45%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <filter id="sh" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#0f1e46" flood-opacity="0.34"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="630" fill="#0b1020"/>
+  <circle cx="200" cy="120" r="320" fill="#3b82f6" opacity="0.13"/>
+  <circle cx="1080" cy="560" r="300" fill="#7c3aed" opacity="0.13"/>
+  <g transform="translate(96 168) scale(0.56)">
+  <g transform="translate(256 256) scale(1.0) translate(-256 -256)">
+    <g transform="rotate(-32 256 256)">
+      <ellipse cx="256" cy="256" rx="228" ry="132" fill="none" stroke="url(#ring)" stroke-width="38" stroke-linecap="round"/>
+    </g>
+    <g transform="rotate(-11 256 262)">
+      <rect x="124" y="118" width="264" height="264" rx="62" fill="url(#cap)"/>
+      <rect x="124" y="118" width="264" height="264" rx="62" fill="none" stroke="#ffffff" stroke-width="7" opacity="0.85"/>
+      <g transform="translate(159 152) scale(1.94)">
+        <path d="M20 14 H41 V43 L67 14 H94 L59 51 L96 86 H68 L41 58 V86 H20 Z" fill="#1b2559" stroke="#1b2559" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+      </g>
+    </g>
+    <g transform="rotate(-32 256 256)">
+      <path d="M 28 256 A 228 132 0 0 0 256 388 A 228 132 0 0 0 420 330" fill="none" stroke="url(#ring2)" stroke-width="38" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(352 34) scale(1.28)">
+      <path d="M50 2 C53.5 30 57 44.5 98 50 C57 55.5 53.5 70 50 98 C46.5 70 43 55.5 2 50 C43 44.5 46.5 30 50 2 Z" fill="url(#spark)"/>
+    </g>
+  </g>
+  </g>
+  <text x="404" y="272" font-family="Manrope, system-ui, sans-serif" font-size="82" font-weight="800" fill="#eef1fb">KeyTopia</text>
+  <text x="404" y="338" font-family="Manrope, system-ui, sans-serif" font-size="36" font-weight="600" fill="#8b93b8">Every keyboard is a world.</text>
+  <text x="404" y="400" font-family="Manrope, system-ui, sans-serif" font-size="27" font-weight="500" fill="#22d3ee">Learn to type beautifully — adaptive lessons,</text>
+  <text x="404" y="438" font-family="Manrope, system-ui, sans-serif" font-size="27" font-weight="500" fill="#22d3ee">original games, races &amp; deep analytics.</text>
+</svg>

@@ -1,0 +1,10 @@
+node_modules
+dist
+.vercel
+.DS_Store
+*.local
+*.log
+
+# machine-local
+.claude/settings.local.json
+*.tsbuildinfo
