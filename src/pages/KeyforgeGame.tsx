@@ -72,19 +72,32 @@ export default function KeyforgeGame() {
     setPhase('run');
   };
 
+  const HAMMER_REST = -46;
   const strikeFx = (good: boolean) => {
     const scene = sceneRef.current;
     if (hammerRef.current) {
-      gsap.fromTo(hammerRef.current, { rotation: -52 }, { rotation: 0, duration: 0.11, ease: 'power3.in' });
-      gsap.to(hammerRef.current, { rotation: -52, duration: 0.28, delay: 0.13, ease: 'power2.out' });
+      gsap.fromTo(hammerRef.current,
+        { rotation: HAMMER_REST, svgOrigin: '172 98' },
+        { rotation: 0, duration: 0.1, ease: 'power3.in', svgOrigin: '172 98' });
+      gsap.to(hammerRef.current, { rotation: HAMMER_REST, duration: 0.3, delay: 0.12, ease: 'power2.out', svgOrigin: '172 98' });
     }
     if (scene) {
-      const w = scene.clientWidth;
-      const h = scene.clientHeight;
-      sparkBurst(scene, w / 2 + 6, h * 0.6, good ? 7 : 4, good ? '' : 'fx-spark-bad');
+      const ing = scene.querySelector('.forge-ingot');
+      const sr = scene.getBoundingClientRect();
+      const ir = ing?.getBoundingClientRect();
+      const x = ir ? ir.left - sr.left + ir.width / 2 : scene.clientWidth / 2;
+      const y = ir ? ir.top - sr.top + 2 : scene.clientHeight * 0.6;
+      sparkBurst(scene, x, y, good ? 8 : 4, good ? '' : 'fx-spark-bad');
       if (!good) screenShake(scene, 4);
     }
   };
+
+  // hold the hammer raised whenever the anvil is on screen
+  useEffect(() => {
+    if (phase === 'run' && !justForged && hammerRef.current) {
+      gsap.set(hammerRef.current, { rotation: HAMMER_REST, svgOrigin: '172 98' });
+    }
+  }, [phase, justForged, runeIdx]);
 
   const finishForge = (perf: number) => {
     const st = stateRef.current;
@@ -231,14 +244,26 @@ export default function KeyforgeGame() {
                     <span className="cur">{word[hit] ?? ''}</span>
                     <span>{word.slice(hit + 1)}</span>
                   </div>
-                  <svg viewBox="0 0 220 120" className="forge-anvil-svg" aria-hidden>
-                    <rect x="60" y="58" width="100" height="18" rx="6" fill="var(--surface2)" stroke="var(--border)" strokeWidth="2.5" />
-                    <rect x="88" y="76" width="44" height="14" rx="4" fill="var(--surface2)" stroke="var(--border)" strokeWidth="2.5" />
-                    <rect x="76" y="90" width="68" height="12" rx="4" fill="var(--surface2)" stroke="var(--border)" strokeWidth="2.5" />
-                    <rect x="96" y="46" width="30" height="12" rx="3" fill="var(--gold)" opacity="0.9" className="forge-ingot" />
+                  <svg viewBox="0 0 220 132" className="forge-anvil-svg" aria-hidden>
+                    {/* anvil: horn → face → waist → feet, one silhouette */}
+                    <path
+                      d="M30 62 Q42 56 60 55 L156 55 Q165 55 165 62 L165 68 Q165 74 156 74 L124 74 L130 92 L142 97 L148 110 L72 110 L78 97 L90 92 L96 74 L64 74 Q46 72 34 68 Q28 65 30 62 Z"
+                      fill="color-mix(in oklab, var(--text) 26%, var(--surface2))"
+                      stroke="var(--border)" strokeWidth="2.5" strokeLinejoin="round"
+                    />
+                    <rect x="62" y="110" width="96" height="13" rx="5" fill="var(--surface2)" stroke="var(--border)" strokeWidth="2.5" />
+                    <rect x="60" y="55" width="105" height="6" rx="3" fill="color-mix(in oklab, var(--text) 45%, var(--surface2))" opacity="0.55" />
+                    {/* glowing ingot on the face */}
+                    <rect x="94" y="44" width="34" height="12" rx="3" fill="var(--gold)" className="forge-ingot" />
+                    {/* hammer: wooden handle + steel head, pivots at the grip (172,98) */}
                     <g ref={hammerRef} className="forge-hammer">
-                      <rect x="120" y="30" width="54" height="8" rx="4" fill="var(--text)" opacity="0.7" transform="rotate(32 147 34)" />
-                      <rect x="150" y="6" width="28" height="24" rx="5" fill="var(--accent)" />
+                      <g transform="translate(172 98) rotate(-142)">
+                        <rect x="4" y="-4.5" width="60" height="9" rx="4.5" fill="#a8703f" stroke="#7a4f2a" strokeWidth="1.5" />
+                        <rect x="58" y="-15" width="26" height="30" rx="5"
+                          fill="color-mix(in oklab, var(--text) 55%, var(--surface2))" stroke="var(--border)" strokeWidth="2" />
+                        <rect x="80" y="-15" width="6" height="30" rx="2.5"
+                          fill="color-mix(in oklab, var(--text) 75%, var(--surface2))" />
+                      </g>
                     </g>
                   </svg>
                 </>

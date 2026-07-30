@@ -238,7 +238,6 @@ export default function WordfallGame() {
                 <Cannon angle={cannonAngle} firing={!!locked} />
                 <CityWall kid={kid} />
               </div>
-              <p className="wf-hint muted small">type a word to lock on — finish it to fire</p>
             </>
           )}
           {phase === 'over' && overInfo && (
@@ -261,6 +260,11 @@ export default function WordfallGame() {
             </div>
           )}
         </div>
+        {phase === 'run' && (
+          <div className="game-typebar">
+            <span className="muted small">type a word to lock on — finish it to fire · every 10 pops the fall speeds up</span>
+          </div>
+        )}
       </div>
       <MobileKeys active={phase === 'run'} />
     </div>

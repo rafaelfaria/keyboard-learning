@@ -14,7 +14,8 @@ import { ANIMAL_START, ANIMAL_COUNT } from '../components/avatars';
 import { hopUp, floatText } from '../lib/fx';
 import type { Rewards } from '../lib/types';
 
-const HEAT_SECONDS = 15;
+const HEAT_CLOCKS = [15, 13, 11, 10];         // later heats run hotter
+const RIVAL_RAMP = 0.12;                      // rivals toughen 12% per heat
 const CUTS = [2, 2, 2, 1]; // 8 → 6 → 4 → 2 → champion
 
 interface Entrant {
@@ -44,6 +45,8 @@ export default function SurvivorGame() {
   const wordIdx = useRef(0);
   const pos = useRef(0);
   const heatTarget = useRef(100);
+  const heatDur = useRef(HEAT_CLOCKS[0]);
+  const heatWins = useRef(0);
   const heatStart = useRef(0);
   const startedAt = useRef(0);
   const strokes = useRef<GameStroke[]>([]);
@@ -73,20 +76,24 @@ export default function SurvivorGame() {
     strokes.current = [];
     startedAt.current = performance.now();
     ent.current = makeEntrants();
+    heatWins.current = 0;
     setHeat(1);
     heatRef.current = 1;
     startHeat(1);
   };
 
   const startHeat = (h: number) => {
-    stream.current = Array.from({ length: 70 }, () => pick(rng.current, pool));
+    // later heats: longer words sneak into the stream (not for the youngest)
+    const heatPool = !kid && h >= 3 ? pool.filter((w) => w.length >= 4) : pool;
+    stream.current = Array.from({ length: 70 }, () => pick(rng.current, heatPool));
     wordIdx.current = 0;
     pos.current = 0;
     const alive = ent.current.filter((e) => !e.out);
     for (const e of alive) e.chars = 0;
-    const toughen = 1 + (h - 1) * 0.07;
+    heatDur.current = HEAT_CLOCKS[h - 1] ?? 10;
+    const toughen = 1 + (h - 1) * RIVAL_RAMP;
     const fastest = Math.max(...alive.map((e) => (e.you ? e.wpm : e.wpm * toughen)));
-    heatTarget.current = Math.max(30, (fastest * 5 / 60) * HEAT_SECONDS * 1.05);
+    heatTarget.current = Math.max(30, (fastest * 5 / 60) * heatDur.current * 1.05);
     heatStart.current = performance.now();
     setPhase('heat');
     phaseRef.current = 'heat';
@@ -100,9 +107,9 @@ export default function SurvivorGame() {
       for (const e of ent.current) {
         if (e.out || e.you) continue;
         if (rng.current() < 0.05) continue; // micro-stumble: skips a beat
-        e.chars += (e.wpm * toughen * 5 / 60) * dt * (0.8 + rng.current() * 0.4);
+        e.chars = Math.min(heatTarget.current, e.chars + (e.wpm * toughen * 5 / 60) * dt * (0.8 + rng.current() * 0.4));
       }
-      const left = HEAT_SECONDS - (now - heatStart.current) / 1000;
+      const left = heatDur.current - (now - heatStart.current) / 1000;
       if (left <= 0) resolveHeat(h);
       else force((n) => n + 1);
     }, 120);
@@ -137,11 +144,11 @@ export default function SurvivorGame() {
   const finishMatch = (place: number, lastHeat: number) => {
     window.clearInterval(timer.current);
     const champion = place === 1;
-    const result = resultFromStrokes('game', 'Survivor Sprint', strokes.current, startedAt.current, performance.now(), { game: 'survivor', place, heats: lastHeat });
+    const result = resultFromStrokes('game', 'Survivor Sprint', strokes.current, startedAt.current, performance.now(), { game: 'survivor', place, heats: lastHeat, heatWins: heatWins.current });
     const rewards = strokes.current.length > 10 ? recordSession(result) : null;
     patch((d) => {
       const cur = d.gameBests['survivor'];
-      const score = (9 - place) * 100 + Math.round(result.wpm);
+      const score = (9 - place) * 100 + heatWins.current * 40 + Math.round(result.wpm);
       if (!cur || score > cur.score) d.gameBests['survivor'] = { score, level: 9 - place };
     });
     if (champion) pushToast({ kind: 'record', icon: 'crown', title: 'Last typist standing!' });
@@ -161,6 +168,16 @@ export default function SurvivorGame() {
     if (ok) {
       if (data?.settings.soundOn) snd.key();
       you.chars += 1;
+      // cross the finish line → heat is yours immediately, no waiting out the clock
+      if (you.chars >= heatTarget.current) {
+        heatWins.current += 1;
+        if (data?.settings.soundOn) snd.badge();
+        const board = boardRef.current;
+        if (board) floatText(board, 'Finish! heat yours', board.clientWidth / 2, board.clientHeight * 0.3, 'fx-score');
+        window.setTimeout(() => resolveHeat(heatRef.current), 450);
+        force((n) => n + 1);
+        return;
+      }
       if (want === ' ') {
         wordIdx.current += 1;
         pos.current = 0;
@@ -185,7 +202,7 @@ export default function SurvivorGame() {
   const word = stream.current[wordIdx.current] ?? '';
   const alive = ent.current.filter((e) => !e.out);
   const benched = ent.current.filter((e) => e.out);
-  const timeLeft = phase === 'heat' ? Math.max(0, HEAT_SECONDS - (performance.now() - heatStart.current) / 1000) : HEAT_SECONDS;
+  const timeLeft = phase === 'heat' ? Math.max(0, heatDur.current - (performance.now() - heatStart.current) / 1000) : HEAT_CLOCKS[0];
   const pctOf = (e: Entrant) => Math.min(96, (e.chars / heatTarget.current) * 100);
 
   return (
@@ -211,7 +228,7 @@ export default function SurvivorGame() {
               <Ic n="crown" size={50} />
               <h2>Eight racers. One crown.</h2>
               <p className="muted" style={{ maxWidth: 480 }}>
-                Four rapid 15-second heats — every correct letter pushes your runner down the track.
+                Four heats, each faster than the last (15s, 13s, 11s, 10s) — every correct letter pushes your runner down the track. Reach the flag before the clock and the heat is instantly yours.
                 After each heat the slowest move to the <strong>cheer bench</strong> (no shame, instant rematch).
                 Outrun every cut and the final duel to take the crown.
               </p>
@@ -271,6 +288,7 @@ export default function SurvivorGame() {
               <div className="row gap wrap" style={{ justifyContent: 'center' }}>
                 <Stat v={overInfo.place} l="finish" tone={overInfo.champion ? 'good' : undefined} />
                 <Stat v={heat} l="heats survived" />
+                <Stat v={heatWins.current} l="flags taken" tone={heatWins.current > 0 ? 'accent' : undefined} />
               </div>
               <RewardsBanner rewards={overInfo.rewards} />
               <p className="small muted" style={{ maxWidth: 430 }}>

@@ -223,23 +223,22 @@ export default function DuelGame() {
         )}
         <div className="game-board" style={{ minHeight: 380 }}>
           {phase === 'intro' && (
-            <div className="game-over">
-              <Ic n="swords" size={52} />
-              <h2>First to four phrases wins</h2>
-              <p className="muted" style={{ maxWidth: 470 }}>
-                One short phrase per round — whoever finishes it first takes the round.
-                Only correct letters move you forward, so a miss costs you a beat.
+            <div className="game-over duel-intro">
+              <h2><Ic n="swords" size={22} /> First to four phrases wins</h2>
+              <p className="muted small" style={{ maxWidth: 470 }}>
+                One phrase per round, first to finish takes it — only correct letters move you.
                 Today's rival is <strong>{rival.name}</strong>.
               </p>
               <div className="duel-diffs" role="radiogroup" aria-label="Rival difficulty">
                 {DIFFS.map((d) => (
                   <button
                     key={d.id} type="button"
-                    className={`opt-tile ${diff === d.id ? 'on' : ''}`}
+                    className={`opt-tile duel-diff ${diff === d.id ? 'on' : ''}`}
                     onClick={() => setDiff(d.id)}
                     aria-pressed={diff === d.id}
+                    title={d.desc}
                   >
-                    <span className="opt-ic"><Ic n={d.icon} size={20} /></span>
+                    <span className="opt-ic"><Ic n={d.icon} size={17} /></span>
                     <span>
                       <strong>{d.name} · {paceOf(d.id)} wpm</strong>
                       <small>{d.desc}</small>
@@ -247,8 +246,10 @@ export default function DuelGame() {
                   </button>
                 ))}
               </div>
-              <p className="small muted">Pick your rival's pace — your recent pace reads as ~{Math.round(basePace)} wpm.</p>
-              {data.gameBests['duel'] && <Chip tone="gold"><Ic n="trophy" size={12} /> Best match score: {data.gameBests['duel'].score}</Chip>}
+              <p className="small muted duel-meta">
+                your recent pace ~{Math.round(basePace)} wpm
+                {data.gameBests['duel'] && <> · <Ic n="trophy" size={12} /> best match {data.gameBests['duel'].score}</>}
+              </p>
               <Btn big onClick={startMatch}>Draw quills →</Btn>
             </div>
           )}

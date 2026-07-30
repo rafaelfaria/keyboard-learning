@@ -15,13 +15,15 @@ import type { Rewards } from '../lib/types';
 
 const DURATION = 60;
 const COLORS = ['#14d8c4', '#8b7cff', '#ffb454', '#f2789f', '#6fd695', '#5fc9e0'];
+const UNIT = 30;           // block height + gap, px — keep in sync with CSS
+const SITE_H = 430;
 
 interface Block { id: number; word: string; width: number; color: string; gold: boolean; offset: number }
 
 const HINTS = [
-  'Type the word — the crane is holding your next block.',
-  'See the block shrink when you miss? Width = accuracy.',
-  'Blocks under 55% are too shaky and crumble the top. Breathe, aim clean.',
+  'Type the blueprint word — the crane drops a block for each one.',
+  'Misses shrink the block you are holding. Width = accuracy.',
+  'Under 55% is too shaky — it crumbles the top. Breathe, aim clean.',
 ];
 
 export default function StackGame() {
@@ -40,6 +42,7 @@ export default function StackGame() {
 
   const [phase, setPhase] = useState<'intro' | 'run' | 'over'>('intro');
   const [word, setWord] = useState('');
+  const [nextWord, setNextWord] = useState('');
   const [pos, setPos] = useState(0);
   const [wordErrs, setWordErrs] = useState(0);
   const [blocks, setBlocks] = useState<Block[]>([]);
@@ -53,21 +56,25 @@ export default function StackGame() {
   const wordStart = useRef(0);
   const nextId = useRef(1);
   const timer = useRef(0);
-  const sceneRef = useRef<HTMLDivElement>(null);
+  const siteRef = useRef<HTMLDivElement>(null);
   const phaseRef = useRef(phase);
-  const st = useRef({ word: '', pos: 0, errs: 0 });
+  const st = useRef({ word: '', next: '', pos: 0, errs: 0, crumbling: false });
   phaseRef.current = phase;
 
   const newWord = () => {
-    const w = pick(rng.current, pool);
-    st.current = { word: w, pos: 0, errs: 0 };
-    setWord(w); setPos(0); setWordErrs(0);
+    const s = st.current;
+    s.word = s.next || pick(rng.current, pool);
+    s.next = pick(rng.current, pool);
+    s.pos = 0; s.errs = 0;
+    setWord(s.word); setNextWord(s.next); setPos(0); setWordErrs(0);
     wordStart.current = performance.now();
   };
 
   const start = () => {
     strokes.current = [];
     startedAt.current = performance.now();
+    st.current.next = '';
+    st.current.crumbling = false;
     setBlocks([]); setTimeLeft(DURATION); setWordsDone(0);
     nextId.current = 1;
     newWord();
@@ -101,34 +108,53 @@ export default function StackGame() {
     setPhase('over');
   };
 
-  const previewWidth = Math.max(30, 100 - wordErrs * 15);
+  const crumbleTop = () => {
+    const s = st.current;
+    s.crumbling = true;
+    setWobble(true);
+    const site = siteRef.current;
+    if (site) {
+      screenShake(site, 7);
+      floatText(site, 'crumble!', site.clientWidth / 2, site.clientHeight * 0.4, 'fx-bad');
+      const els = [...site.querySelectorAll<HTMLElement>('.stack-block')].slice(-2);
+      els.forEach((el, i) => {
+        gsap.to(el, {
+          x: (i % 2 ? 1 : -1) * (60 + Math.random() * 60),
+          y: 140 + Math.random() * 80,
+          rotation: (Math.random() - 0.5) * 120,
+          opacity: 0, duration: 0.55, ease: 'power2.in',
+        });
+      });
+    }
+    if (data?.settings.soundOn) snd.err();
+    window.setTimeout(() => {
+      setBlocks((bs) => bs.slice(0, Math.max(0, bs.length - 2)));
+      setWobble(false);
+      s.crumbling = false;
+    }, 560);
+  };
 
   const placeBlock = () => {
     const s = st.current;
     const secs = (performance.now() - wordStart.current) / 1000;
     const width = Math.max(30, 100 - s.errs * 15);
     const gold = s.errs === 0 && secs < (kid ? 4.5 : 2.8);
-    const scene = sceneRef.current;
     setWordsDone((n) => n + 1);
     if (width < 55) {
-      setWobble(true);
-      setTimeout(() => setWobble(false), 500);
-      setBlocks((bs) => bs.slice(0, Math.max(0, bs.length - 2)));
-      if (scene) { screenShake(scene, 6); floatText(scene, 'crumble!', scene.clientWidth / 2, scene.clientHeight * 0.5, 'fx-bad'); }
-      if (data?.settings.soundOn) snd.err();
+      crumbleTop();
     } else {
       setBlocks((bs) => [...bs, {
         id: nextId.current++,
         word: s.word, width, gold,
         color: gold ? 'var(--gold)' : COLORS[nextId.current % COLORS.length],
-        offset: (rng.current() - 0.5) * (100 - width) * 0.5,
+        offset: (rng.current() - 0.5) * (100 - width) * 0.4,
       }]);
       if (data?.settings.soundOn) (gold ? snd.step() : snd.pop());
-      // crane drop: the newly added block falls in with a bounce
       window.setTimeout(() => {
-        const el = sceneRef.current?.querySelector<HTMLElement>('.stack-tower .stack-block:last-of-type');
-        if (el) gsap.fromTo(el, { y: -110, opacity: 0.7 }, { y: 0, opacity: 1, duration: 0.45, ease: 'bounce.out' });
-        if (gold && sceneRef.current) floatText(sceneRef.current, 'perfect!', sceneRef.current.clientWidth / 2, sceneRef.current.clientHeight * 0.42, 'fx-score');
+        const site = siteRef.current;
+        const el = site?.querySelector<HTMLElement>('.stack-column .stack-block:last-of-type');
+        if (el) gsap.fromTo(el, { y: -SITE_H, opacity: 0.75 }, { y: 0, opacity: 1, duration: 0.5, ease: 'bounce.out' });
+        if (gold && site) floatText(site, 'perfect!', site.clientWidth * 0.5, 90, 'fx-score');
       }, 20);
     }
     newWord();
@@ -136,7 +162,7 @@ export default function StackGame() {
 
   const handleKey = (key: string) => {
     const s = st.current;
-    if (phaseRef.current !== 'run' || key.length !== 1) return;
+    if (phaseRef.current !== 'run' || key.length !== 1 || s.crumbling) return;
     const want = s.word[s.pos];
     if (want === undefined) return;
     const ok = key === want;
@@ -157,7 +183,12 @@ export default function StackGame() {
 
   if (!data) return null;
   const height = blocks.length;
+  const goldCount = blocks.filter((b) => b.gold).length;
   const hint = wordsDone < HINTS.length ? HINTS[wordsDone] : '';
+  const previewWidth = Math.max(30, 100 - wordErrs * 15);
+  const camera = Math.max(0, (height + 1) * UNIT + 56 - SITE_H);
+  const bestLevel = data.gameBests['stack']?.level ?? 0;
+  const floors = Math.max(Math.ceil((height + 6) / 5) * 5, 15);
 
   return (
     <div className="train-page">
@@ -171,51 +202,75 @@ export default function StackGame() {
         {phase === 'run' && (
           <div className="game-hud">
             <span>Height {height}</span>
-            <span>Gold {blocks.filter((b) => b.gold).length}</span>
+            <span>Gold {goldCount}</span>
+            {bestLevel > 0 && <span className="muted">best {bestLevel}</span>}
             <span className="grow" />
             <span className={timeLeft < 10 ? 'bad' : ''}>{Math.ceil(timeLeft)}s</span>
           </div>
         )}
-        <div className="game-board" ref={sceneRef} style={{ minHeight: 460 }}>
+        <div className="game-board" style={{ minHeight: 470 }}>
           {phase === 'intro' && (
             <div className="game-over">
               <Ic n="blocks" size={50} />
               <h2>Build the word tower</h2>
               <p className="muted" style={{ maxWidth: 470 }}>
-                A crane holds your next block, and the word on it is the blueprint.
-                <strong> Clean words drop wide, steady blocks</strong> — each miss visibly shaves 15% off
-                the block you're holding. Under 55% it's too shaky and crumbles the top of the tower.
-                Perfect + quick = <strong>gold</strong>.
+                Type the blueprint on the left and the crane drops a block on the right —
+                <strong> clean words drop wide, steady blocks</strong>, each miss shaves 15% off the one you're holding.
+                Under 55% it crumbles the top of the tower. Perfect + quick = <strong>gold</strong>.
               </p>
               {data.gameBests['stack'] && <Chip tone="gold"><Ic n="trophy" size={12} /> Tallest: {data.gameBests['stack'].level} blocks · {data.gameBests['stack'].score} pts</Chip>}
               <Btn big onClick={start}>Lay the first block →</Btn>
             </div>
           )}
           {phase === 'run' && (
-            <div className="stack-stage">
-              <div className="stack-crane" aria-hidden>
-                <span className="stack-crane-arm" />
-                <span className="stack-crane-cable" />
-                <div
-                  className={`stack-preview ${wordErrs === 0 ? 'stack-preview-clean' : ''}`}
-                  style={{ width: `${previewWidth * 0.62}%` }}
-                >
+            <div className="stack-split">
+              <div className="stack-typepanel">
+                <p className="muted small">blueprint</p>
+                <div className="stack-word">
                   <span className="good">{word.slice(0, pos)}</span>
                   <span className="duel-cur">{word[pos] ?? ''}</span>
-                  <span>{word.slice(pos + 1)}</span>
+                  <span className="muted">{word.slice(pos + 1)}</span>
                 </div>
-                {wordErrs > 0 && <Chip tone="warn" className="stack-shrink-tag">−{wordErrs * 15}%</Chip>}
+                <div className="row gap wrap" style={{ justifyContent: 'center', minHeight: 30 }}>
+                  {wordErrs > 0
+                    ? <Chip tone="warn">block −{wordErrs * 15}% → {previewWidth}%</Chip>
+                    : <Chip tone="good"><Ic n="check" size={12} /> clean block</Chip>}
+                </div>
+                <p className="muted small">then: {nextWord}</p>
+                {hint && <p className="stack-hint muted small"><Ic n="bulb" size={13} /> {hint}</p>}
               </div>
-              {hint && <p className="stack-hint muted small"><Ic n="bulb" size={13} /> {hint}</p>}
-              <div className={`stack-tower ${wobble ? 'stack-wobble' : ''}`} aria-label={`Tower height ${height}`}>
-                {blocks.slice(-12).map((b) => (
-                  <div
-                    key={b.id}
-                    className={`stack-block ${b.gold ? 'stack-gold' : ''}`}
-                    style={{ width: `${b.width * 0.9}%`, background: b.color, transform: `translateX(${b.offset}%)` }}
-                  >{b.word}</div>
-                ))}
-                <div className="stack-ground" />
+
+              <div className={`stack-site ${wobble ? 'stack-wobble' : ''}`} ref={siteRef} style={{ height: SITE_H }}>
+                <div className="stack-crane2" aria-hidden>
+                  <span className="stack-crane-arm" />
+                  <span className="stack-crane-cable" />
+                  <div className={`stack-preview ${wordErrs === 0 ? 'stack-preview-clean' : ''}`} style={{ width: `${previewWidth * 0.8}%` }}>
+                    {previewWidth}%
+                  </div>
+                </div>
+                <div className="stack-world" style={{ transform: `translateY(${camera}px)` }}>
+                  <div className="stack-marks" aria-hidden>
+                    {Array.from({ length: Math.floor(floors / 5) }).map((_, i) => {
+                      const lvl = (i + 1) * 5;
+                      return <span key={lvl} className="stack-mark" style={{ bottom: lvl * UNIT + 14 }}>{lvl}</span>;
+                    })}
+                    {bestLevel > 0 && (
+                      <span className="stack-bestline" style={{ bottom: bestLevel * UNIT + 14 }}>
+                        <i /><em>best {bestLevel}</em>
+                      </span>
+                    )}
+                  </div>
+                  <div className="stack-column">
+                    {blocks.map((b) => (
+                      <div
+                        key={b.id}
+                        className={`stack-block ${b.gold ? 'stack-gold' : ''}`}
+                        style={{ width: `${b.width * 0.82}%`, background: b.color, marginLeft: `${b.offset}%` }}
+                      >{b.word}</div>
+                    ))}
+                    <div className="stack-ground" />
+                  </div>
+                </div>
               </div>
             </div>
           )}

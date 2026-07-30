@@ -496,8 +496,7 @@ h1 .ic, h2 .ic, h3 .ic { margin-right: 4px; color: var(--accent); }
 .part-done { color: var(--good); border-color: color-mix(in oklab, var(--good) 55%, transparent); background: color-mix(in oklab, var(--good) 10%, transparent); }
 .part-cur { color: var(--accent); border-color: var(--accent); }
 .forge-say { min-height: 1.4em; }
-.forge-anvil-svg { width: min(320px, 70%); margin: -6px auto 0; display: block; }
-.forge-hammer { transform: rotate(-52deg); transform-origin: 82% 78%; }
+.forge-anvil-svg { width: min(340px, 74%); margin: -4px auto 0; display: block; overflow: visible; }
 .forge-ingot { filter: drop-shadow(0 0 6px color-mix(in oklab, var(--gold) 70%, transparent)); }
 .forge-reveal { padding: 30px 0; display: flex; flex-direction: column; gap: 12px; align-items: center; }
 
@@ -552,3 +551,66 @@ h1 .ic, h2 .ic, h3 .ic { margin-right: 4px; color: var(--accent); }
 .race-banner .ic { color: var(--accent); }
 .race-banner-txt { flex: 1; min-width: 240px; display: flex; flex-direction: column; gap: 2px; }
 .race-banner-cta { font-weight: 750; color: var(--accent); white-space: nowrap; }
+
+/* ---------- Duel intro: compact, fits without scrolling ---------- */
+.duel-intro { padding: 22px 16px 24px; gap: 10px; }
+.duel-intro h2 { font-size: 1.3rem; }
+.duel-diffs { display: grid; grid-template-columns: repeat(2, minmax(180px, 1fr)); gap: 7px; max-width: 480px; }
+.duel-diffs .duel-diff { padding: 8px 12px; border-radius: 11px; gap: 9px; }
+.duel-diffs .duel-diff strong { font-size: 0.86rem; display: block; }
+.duel-diffs .duel-diff small { font-size: 0.72rem; }
+.duel-diffs .duel-diff:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.duel-meta { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; justify-content: center; }
+@media (max-width: 480px) {
+  .duel-diffs { grid-template-columns: 1fr; }
+  .duel-diffs .duel-diff:last-child:nth-child(odd) { grid-column: auto; }
+  .duel-diffs .duel-diff small { display: none; }
+}
+
+/* ---------- The Lightstream: road & pixel cars ---------- */
+.road {
+  position: relative; height: 38px; border-radius: 9px; overflow: visible;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 26px, color-mix(in oklab, var(--text) 26%, transparent) 26px 40px) center / 100% 2.5px no-repeat,
+    color-mix(in oklab, var(--text) 7%, var(--bg));
+  border: 1px solid var(--border);
+}
+.road-moving { animation: roadscroll 0.7s linear infinite; }
+@keyframes roadscroll { from { background-position: 0 center, 0 0; } to { background-position: -66px center, 0 0; } }
+.road-car { position: absolute; top: 50%; transform: translate(-70%, -52%); transition: left 0.2s linear; z-index: 2; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4)); }
+.pcar-you svg { filter: drop-shadow(0 0 9px color-mix(in oklab, var(--accent) 65%, transparent)); }
+.pcar-ghost { opacity: 0.45; }
+.road-moving .pcar-wheel { animation: wheelspin var(--wheelspin, 0.4s) linear infinite; }
+@keyframes wheelspin { to { transform: rotate(360deg); } }
+.pcar-light { animation: headlight 1.6s ease-in-out infinite; }
+@keyframes headlight { 50% { opacity: 0.4; } }
+.road-finish { position: absolute; right: 10px; top: -3px; bottom: -3px; width: 8px; border-radius: 2px;
+  background: repeating-conic-gradient(#e8e8f0 0% 25%, #14182b 0% 50%) 0 0 / 8px 8px; opacity: 0.85; }
+.road-done-flag { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); color: var(--gold); }
+.race-lane { grid-template-columns: 150px 1fr 70px; }
+
+/* ---------- Block Stack: split blueprint / construction site ---------- */
+.stack-split { display: grid; grid-template-columns: 1fr 360px; gap: 14px; padding: 16px; align-items: stretch; }
+@media (max-width: 760px) { .stack-split { grid-template-columns: 1fr; } .stack-site { height: 320px !important; } }
+.stack-typepanel { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; }
+.stack-typepanel .stack-word { font-size: clamp(1.6rem, 3.8vw, 2.3rem); padding: 0; }
+.stack-site {
+  position: relative; border-radius: 16px; overflow: hidden;
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--accent2) 7%, transparent), transparent 40%),
+    color-mix(in oklab, var(--text) 3%, var(--bg));
+  border: 1px solid var(--border);
+}
+.stack-crane2 { position: absolute; top: 0; left: 0; right: 0; height: 64px; z-index: 5; }
+.stack-crane2 .stack-crane-arm { position: absolute; top: 10px; left: 4%; right: 4%; height: 7px; border-radius: 4px; background: var(--surface2); border: 1px solid var(--border); }
+.stack-crane2 .stack-crane-cable { position: absolute; top: 17px; left: 50%; width: 2px; height: 16px; background: var(--muted); }
+.stack-crane2 .stack-preview { top: 33px; height: 27px; font-size: 0.85rem; }
+.stack-world { position: absolute; left: 0; right: 0; bottom: 0; transition: transform 0.4s ease; }
+.stack-column { display: flex; flex-direction: column-reverse; align-items: center; gap: 3px; padding-bottom: 14px; }
+.stack-column .stack-block { height: 27px; flex: none; }
+.stack-marks { position: absolute; inset: 0; pointer-events: none; }
+.stack-mark { position: absolute; right: 8px; font-size: 0.68rem; color: var(--muted); opacity: 0.7; }
+.stack-mark::before { content: ''; position: absolute; right: 18px; top: 50%; width: 26px; height: 1.5px; background: color-mix(in oklab, var(--muted) 45%, transparent); }
+.stack-bestline { position: absolute; left: 6%; right: 6%; height: 0; }
+.stack-bestline i { position: absolute; left: 0; right: 0; border-top: 2px dashed color-mix(in oklab, var(--gold) 65%, transparent); }
+.stack-bestline em { position: absolute; left: 0; top: -18px; font-style: normal; font-size: 0.68rem; font-weight: 750; color: var(--gold); }

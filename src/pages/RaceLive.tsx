@@ -8,8 +8,11 @@ import { RewardsBanner } from '../components/ResultsPanel';
 import { snd } from '../lib/sound';
 import { Ic } from '../components/icons';
 import { Avatar } from '../components/avatars';
+import { PixelCar } from '../components/gamekit';
 import { mulberry32 } from '../lib/rng';
 import type { Rewards, SessionResult } from '../lib/types';
+
+const CAR_COLORS = ['#8b7cff', '#ffb454', '#f2789f', '#6fd695', '#5fc9e0'];
 
 interface Lane {
   id: string; name: string; avatar: string; you?: boolean; ghost?: boolean;
@@ -219,12 +222,20 @@ export default function RaceLive() {
       <div className="card" style={{ position: 'relative' }}>
         {count > 0 && <div className="race-countdown" aria-live="assertive">{count}</div>}
         {count === 0 && !session.engine.started && <div className="race-countdown" style={{ background: 'transparent', pointerEvents: 'none' }} aria-live="assertive">GO!</div>}
-        {lanes.current.map((l) => (
+        {lanes.current.map((l, idx) => (
           <div key={l.id} className={`race-lane ${l.you ? 'race-lane-you' : ''}`}>
             <span className="race-name">{l.ghost ? <Ic n="ghost" size={20} /> : l.you ? <Avatar v={data.profile.avatar} size={20} /> : <Avatar v={l.avatar} size={20} />} {l.you ? 'You' : l.name}</span>
-            <div className="race-track">
-              <div className="race-trail" style={{ width: `${Math.max(2, l.progress * 100)}%` }} />
-              <span className="race-comet" style={{ left: `${Math.max(1.5, l.progress * 100)}%` }} aria-hidden>{l.finishedAt ? <Ic n="flag" size={17} /> : l.ghost ? <Ic n="ghost" size={17} /> : <span className="comet-dot" />}</span>
+            <div className={`road ${running ? 'road-moving' : ''}`}>
+              <span
+                className="road-car"
+                style={{ left: `${Math.max(1.5, l.progress * 100)}%`, ['--wheelspin' as string]: `${Math.max(0.12, 0.7 - l.wpm / 220)}s` }}
+              >
+                {l.ghost
+                  ? <PixelCar color="#7a8296" ghost />
+                  : <PixelCar color={l.you ? 'var(--accent)' : CAR_COLORS[idx % CAR_COLORS.length]} you={l.you} />}
+                {l.finishedAt && <Ic n="flag" size={13} className="road-done-flag" />}
+              </span>
+              <span className="road-finish" aria-hidden />
             </div>
             <span className="race-wpm">{l.wpm} wpm</span>
           </div>

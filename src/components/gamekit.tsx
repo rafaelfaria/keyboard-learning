@@ -157,3 +157,26 @@ export function Glider({ kid, turbulent }: { kid?: boolean; turbulent?: boolean 
     </span>
   );
 }
+
+/** Pixel racing car for The Lightstream. Wheels spin via --wheelspin. */
+export function PixelCar({ color = '#14d8c4', you, ghost }: { color?: string; you?: boolean; ghost?: boolean }) {
+  return (
+    <span className={`pcar ${you ? 'pcar-you' : ''} ${ghost ? 'pcar-ghost' : ''}`} aria-hidden>
+      <svg viewBox="0 0 64 30" width="58" height="27" shapeRendering="crispEdges">
+        <rect x="4" y="12" width="56" height="10" rx="3" fill={color} />
+        <rect x="18" y="4" width="24" height="10" rx="3" fill={color} />
+        <rect x="22" y="6" width="8" height="6" fill="#dff3ff" opacity="0.9" />
+        <rect x="33" y="6" width="7" height="6" fill="#dff3ff" opacity="0.75" />
+        <rect x="58" y="14" width="5" height="4" fill="#ffe9a8" className="pcar-light" />
+        <g className="pcar-wheel" style={{ transformOrigin: '16px 23px' }}>
+          <circle cx="16" cy="23" r="6" fill="#141824" stroke="#3a4358" strokeWidth="2" />
+          <rect x="15" y="18.5" width="2" height="9" fill="#8b93b8" />
+        </g>
+        <g className="pcar-wheel" style={{ transformOrigin: '46px 23px' }}>
+          <circle cx="46" cy="23" r="6" fill="#141824" stroke="#3a4358" strokeWidth="2" />
+          <rect x="45" y="18.5" width="2" height="9" fill="#8b93b8" />
+        </g>
+      </svg>
+    </span>
+  );
+}
