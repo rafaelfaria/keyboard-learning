@@ -407,3 +407,9 @@ h1 .ic, h2 .ic, h3 .ic { margin-right: 4px; color: var(--accent); }
 .who-av { border-radius: 20%; }
 .who-add { border-style: dashed; }
 .who-add-ic { width: 72px; height: 72px; border-radius: 20%; background: var(--surface2); display: flex; align-items: center; justify-content: center; color: var(--accent); }
+
+/* ---------- Duel difficulty picker ---------- */
+.duel-diffs { display: grid; gap: 8px; width: 100%; max-width: 430px; margin: 4px 0; }
+.duel-diffs .opt-tile { padding: 11px 14px; }
+.duel-diffs .opt-tile strong { font-size: 0.9rem; }
+.duel-lane .race-wpm { min-width: 44px; }

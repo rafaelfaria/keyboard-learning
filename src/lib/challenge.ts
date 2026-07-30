@@ -1,5 +1,5 @@
 import { mulberry32, hashStr, pick, pickN, avatarIndexFor, type Rng } from './rng';
-import { dayKey, weekKey } from './metrics';
+import { dayKey, weekKey, median } from './metrics';
 import type { AgeGroup, Mission, ProfileData } from './types';
 import { SENTENCES, KID_SENTENCES, PARAGRAPHS, RACER_NAMES, CLASSMATE_NAMES } from './words';
 
@@ -137,10 +137,24 @@ export function makeRacers(rng: Rng, targetWpm: number, count = 3): RacerSpec[] 
   });
 }
 
+/** Plausible human range for pacing CPU opponents and metronomes. */
+export const PACE_MIN = 8;
+export const PACE_MAX = 150;
+
+/**
+ * The learner's typical pace, used to match CPU rivals and set the rhythm pulse.
+ * Deliberately robust: games are excluded (word-at-a-time scoring inflates WPM),
+ * the median resists one-off outliers, and the result is clamped to a human range
+ * so a single fluke run can never spawn an unbeatable opponent.
+ */
 export function recentAvgWpm(data: ProfileData): number {
-  const rs = data.sessions.filter((s) => s.typed > 30).slice(-8);
-  if (!rs.length) return data.assessment?.wpm ?? 20;
-  return rs.reduce((a, s) => a + s.wpm, 0) / rs.length;
+  const rs = data.sessions
+    .filter((s) => s.mode !== 'game' && s.typed > 40 && s.acc >= 70)
+    .slice(-12)
+    .map((s) => s.wpm)
+    .filter((w) => w > 0 && w < 400);
+  const base = rs.length >= 3 ? median(rs) : rs.length ? Math.min(...rs) : data.assessment?.wpm ?? 20;
+  return Math.max(PACE_MIN, Math.min(PACE_MAX, base));
 }
 
 // ---------- Simulated friends/classroom feed ----------
