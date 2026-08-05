@@ -7,9 +7,13 @@ import { dailyChallenge } from '../lib/challenge';
 import { dashboardTip } from '../lib/coach';
 import { Btn, Card, Chip } from '../components/ui';
 import { CoachCard } from '../components/ResultsPanel';
-import { Avatar } from '../components/avatars';
+import { Avatar, BlockAvatar } from '../components/avatars';
+import { Critter, PIXEL_PALS } from '../components/gamekit';
 import { Ic } from '../components/icons';
 import { BADGES } from '../lib/badges';
+
+// Each land gets its own bright colour on the kid map.
+const LAND_COLORS = ['#ff8fa3', '#ffb26b', '#ffd166', '#7dd8a0', '#5fc9e0', '#8b9cf5', '#c99cf5', '#f59cd8', '#66d9c2'];
 
 // Node coordinates for the 9 regions along the winding path (viewBox 0 0 1000 430)
 const NODES: [number, number][] = [
@@ -78,6 +82,8 @@ export default function KidHome() {
             {stageState.map(({ st, done, unlocked }, i) => {
               const [x, y] = NODES[i];
               const cur = i === currentIdx;
+              const c = LAND_COLORS[i % LAND_COLORS.length];
+              const pal = PIXEL_PALS[i % PIXEL_PALS.length];
               return (
                 <g
                   key={st.id}
@@ -89,26 +95,49 @@ export default function KidHome() {
                   onKeyDown={(e) => { if (e.key === 'Enter' && unlocked) nav('/app/learn'); }}
                   aria-label={`${st.region}${done ? ' — explored' : cur ? ' — current land' : unlocked ? '' : ' — locked'}`}
                 >
-                  {cur && <circle r="34" className="kw-pulse" />}
-                  <circle r="26" className="kw-node-bg" />
+                  {cur && <circle r="34" className="kw-pulse" style={{ stroke: c }} />}
+                  <circle
+                    r="26" className="kw-node-bg"
+                    style={unlocked ? { fill: `color-mix(in oklab, ${c} ${done ? 44 : 26}%, var(--surface))`, stroke: c } : undefined}
+                  />
                   <foreignObject x="-13" y="-13" width="26" height="26">
-                    <div className="kw-node-ic">
+                    <div className="kw-node-ic" style={unlocked ? { color: `color-mix(in oklab, ${c} 65%, var(--text))` } : undefined}>
                       <Ic n={unlocked ? st.icon : 'lock'} size={20} strokeWidth={2.3} />
                     </div>
                   </foreignObject>
+                  {(cur || done) && (
+                    <foreignObject x="18" y="-44" width="36" height="36">
+                      <div className={`kw-guardian ${cur ? 'kw-guardian-bob' : ''}`} title={`${pal.name} the ${pal.kind}`}>
+                        <BlockAvatar preset={pal.preset} size={cur ? 30 : 24} />
+                      </div>
+                    </foreignObject>
+                  )}
                   {cur && <text y="52" textAnchor="middle" className="kw-node-label">{st.region}</text>}
                 </g>
               );
             })}
           </svg>
+          <Critter kind="butterfly" style={{ left: '16%', top: '14%' }} />
+          <Critter kind="bee" style={{ left: '58%', top: '8%', animationDelay: '1.1s' }} />
+          <Critter kind="butterfly" style={{ left: '84%', top: '46%', animationDelay: '0.5s' }} />
+          <Critter kind="snail" style={{ left: '6%', bottom: '8%' }} />
         </div>
       </Card>
 
       <div className="kw-grid">
         <Card className="kw-quest">
           <div className="dash-kicker">Today's quest</div>
-          <h2>{nextL ? nextL.title : 'Free practice in your world'}</h2>
-          <p className="muted small">{nextL ? `${stages[nextL.stage].region} · a short guided adventure` : 'Every land explored — amazing! Keep your stars shiny.'}</p>
+          <div className="row gap">
+            <span className="kw-quest-pal"><BlockAvatar preset={PIXEL_PALS[currentIdx % PIXEL_PALS.length].preset} size={44} /></span>
+            <div>
+              <h2>{nextL ? nextL.title : 'Free practice in your world'}</h2>
+              <p className="muted small">
+                {nextL
+                  ? `${PIXEL_PALS[currentIdx % PIXEL_PALS.length].name} the ${PIXEL_PALS[currentIdx % PIXEL_PALS.length].kind} is waiting in ${stages[nextL.stage].region}!`
+                  : 'Every land explored — amazing! Keep your stars shiny.'}
+              </p>
+            </div>
+          </div>
           <div className="row gap wrap" style={{ marginTop: 12 }}>
             <Btn big to={nextL ? `/app/lesson/${nextL.id}` : '/app/train/adaptive'}><Ic n="play" size={18} /> Let's go!</Btn>
             <Btn kind="soft" to="/app/games"><Ic n="gamepad" size={17} /> Play a game</Btn>

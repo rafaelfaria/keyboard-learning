@@ -192,7 +192,7 @@ export default function WordflightGame() {
             <span>{Math.ceil(remaining)}s</span>
           </div>
         )}
-        <div className="flight-sky" ref={skyRef} style={{ height: skyH }}>
+        <div className={`flight-sky ${kid ? 'flight-kid' : ''}`} ref={skyRef} style={{ height: skyH }}>
           {phase === 'intro' && (
             <div className="game-over" style={{ paddingTop: 46 }}>
               <Ic n="send" size={50} />
@@ -208,6 +208,7 @@ export default function WordflightGame() {
           )}
           {phase === 'run' && (
             <>
+              {kid && <span className="flight-sun" aria-hidden />}
               <div className="flight-layer">
                 {s.clouds.map((c, i) => (
                   <span key={i} className="flight-cloud" style={{ left: `${c.x}%`, top: `${c.y}%`, width: c.w, height: c.w * 0.34 }} />

@@ -12,6 +12,8 @@ import { Cannon, CityWall, MobileKeys, useGameKeys } from '../components/gamekit
 import { fireBolt, floatText, screenShake, shatterWord } from '../lib/fx';
 import type { Rewards } from '../lib/types';
 
+const BALLOON_COLORS = ['#ff8fa3', '#ffb26b', '#ffd166', '#7dd8a0', '#5fc9e0', '#8b9cf5', '#c99cf5'];
+
 interface Fall { id: number; text: string; x: number; y: number; speed: number; hit: number; dying?: boolean }
 
 export default function WordfallGame() {
@@ -229,7 +231,9 @@ export default function WordfallGame() {
                 <span
                   key={w.id}
                   className={`wf-word ${kid ? 'wf-balloon' : ''} ${w.id === s.targetId ? 'wf-target' : ''} ${w.dying ? 'wf-dying' : ''}`}
-                  style={{ left: `${w.x}%`, top: w.y }}
+                  style={kid
+                    ? { left: `${w.x}%`, top: w.y, background: BALLOON_COLORS[w.id % BALLOON_COLORS.length], borderColor: 'transparent', color: '#2d2a26' }
+                    : { left: `${w.x}%`, top: w.y }}
                 >
                   <span className="hit">{w.text.slice(0, w.hit)}</span>{w.text.slice(w.hit)}
                 </span>

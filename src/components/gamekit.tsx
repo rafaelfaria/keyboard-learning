@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Avatar, BlockAvatar } from './avatars';
+import { Avatar, BlockAvatar, ANIMAL_START } from './avatars';
 
 /**
  * Window-level key capture for games. Games previously relied on a hidden
@@ -176,6 +176,50 @@ export function PixelCar({ color = '#14d8c4', you, ghost }: { color?: string; yo
           <circle cx="46" cy="23" r="6" fill="#141824" stroke="#3a4358" strokeWidth="2" />
           <rect x="45" y="18.5" width="2" height="9" fill="#8b93b8" />
         </g>
+      </svg>
+    </span>
+  );
+}
+
+/** The four pixel pals — named animal friends who guard the kid world. */
+export const PIXEL_PALS = [
+  { name: 'Clementine', kind: 'cat', preset: ANIMAL_START },
+  { name: 'Miso', kind: 'fox', preset: ANIMAL_START + 1 },
+  { name: 'Pip', kind: 'frog', preset: ANIMAL_START + 2 },
+  { name: 'Waffles', kind: 'panda', preset: ANIMAL_START + 3 },
+];
+
+/** Tiny decorative critter that floats/flutters. Purely ornamental. */
+export function Critter({ kind, style }: { kind: 'butterfly' | 'bee' | 'snail'; style?: React.CSSProperties }) {
+  if (kind === 'butterfly') {
+    return (
+      <span className="critter critter-fly" style={style} aria-hidden>
+        <svg viewBox="0 0 20 14" width="22" height="16" shapeRendering="crispEdges">
+          <rect className="cr-wing-l" x="1" y="2" width="7" height="8" rx="2" fill="#c99cf5" />
+          <rect className="cr-wing-r" x="12" y="2" width="7" height="8" rx="2" fill="#ff8fa3" />
+          <rect x="9" y="1" width="2" height="12" rx="1" fill="#3a3342" />
+        </svg>
+      </span>
+    );
+  }
+  if (kind === 'bee') {
+    return (
+      <span className="critter critter-fly" style={style} aria-hidden>
+        <svg viewBox="0 0 20 14" width="20" height="14" shapeRendering="crispEdges">
+          <rect x="4" y="4" width="12" height="8" rx="4" fill="#ffd166" />
+          <rect x="8" y="4" width="2" height="8" fill="#3a3342" />
+          <rect x="12" y="4" width="2" height="8" fill="#3a3342" />
+          <rect className="cr-wing-l" x="6" y="0" width="8" height="5" rx="2" fill="#dff3ff" opacity="0.85" />
+        </svg>
+      </span>
+    );
+  }
+  return (
+    <span className="critter" style={style} aria-hidden>
+      <svg viewBox="0 0 22 14" width="22" height="14" shapeRendering="crispEdges">
+        <circle cx="9" cy="8" r="6" fill="#7dd8a0" />
+        <rect x="13" y="6" width="7" height="6" rx="3" fill="#f0a05a" />
+        <rect x="18" y="2" width="2" height="4" fill="#f0a05a" />
       </svg>
     </span>
   );

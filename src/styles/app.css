@@ -621,3 +621,58 @@ h1 .ic, h2 .ic, h3 .ic { margin-right: 4px; color: var(--accent); }
 .forge-heatlabel { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 0.72rem; font-weight: 750; color: var(--text); text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
 .forge-cold .forge-heatfill { animation: coldpulse 0.7s ease-in-out infinite; }
 @keyframes coldpulse { 50% { opacity: 0.55; } }
+
+/* ================= Kid-mode colour & critters ================= */
+
+/* critters */
+.critter { position: absolute; z-index: 4; pointer-events: none; }
+.critter-fly { animation: critterfloat 4.5s ease-in-out infinite; }
+@keyframes critterfloat { 0%, 100% { transform: translate(0, 0) rotate(-6deg); } 50% { transform: translate(10px, -14px) rotate(8deg); } }
+.cr-wing-l { animation: wingflap 0.3s ease-in-out infinite alternate; transform-origin: right center; }
+.cr-wing-r { animation: wingflap 0.3s ease-in-out infinite alternate-reverse; transform-origin: left center; }
+@keyframes wingflap { from { transform: scaleX(1); } to { transform: scaleX(0.55); } }
+
+/* map guardians */
+.kw-guardian { display: flex; align-items: flex-end; justify-content: center; width: 100%; height: 100%; }
+.kw-guardian-bob { animation: guardianbob 1.6s ease-in-out infinite; }
+@keyframes guardianbob { 50% { transform: translateY(-5px); } }
+.kw-map { position: relative; }
+.kw-quest-pal { flex: none; background: color-mix(in oklab, var(--accent) 14%, var(--surface)); border: 2px solid var(--accent); border-radius: 14px; padding: 6px; display: inline-flex; }
+
+/* kid shell: brighter cards, tiles and chips */
+.kid-mode .kw-game { border-width: 2.5px; }
+.kid-mode .kw-game:nth-child(4n+1) { background: color-mix(in oklab, #ff8fa3 12%, var(--surface)); border-color: color-mix(in oklab, #ff8fa3 55%, var(--border)); }
+.kid-mode .kw-game:nth-child(4n+2) { background: color-mix(in oklab, #ffd166 12%, var(--surface)); border-color: color-mix(in oklab, #ffb26b 55%, var(--border)); }
+.kid-mode .kw-game:nth-child(4n+3) { background: color-mix(in oklab, #5fc9e0 12%, var(--surface)); border-color: color-mix(in oklab, #5fc9e0 55%, var(--border)); }
+.kid-mode .kw-game:nth-child(4n+4) { background: color-mix(in oklab, #c99cf5 12%, var(--surface)); border-color: color-mix(in oklab, #c99cf5 55%, var(--border)); }
+.kid-mode .kw-game:nth-child(4n+1) .ic { color: #e0526f; }
+.kid-mode .kw-game:nth-child(4n+2) .ic { color: #d9820f; }
+.kid-mode .kw-game:nth-child(4n+3) .ic { color: #1f96b3; }
+.kid-mode .kw-game:nth-child(4n+4) .ic { color: #9257d9; }
+.kid-mode .kw-chip { border-width: 2px; border-color: color-mix(in oklab, var(--accent) 45%, var(--border)); }
+.kid-mode .card-link { border-width: 2px; }
+.kid-mode .section-title { font-size: 1.15rem; }
+.kid-mode .stage-node { border-width: 3px; }
+
+/* survivor: pastel racing lanes for kids */
+.surv-kid .surv-lane:nth-child(6n+1) .surv-lane-track { background-color: color-mix(in oklab, #ff8fa3 14%, var(--surface2)); }
+.surv-kid .surv-lane:nth-child(6n+2) .surv-lane-track { background-color: color-mix(in oklab, #ffd166 14%, var(--surface2)); }
+.surv-kid .surv-lane:nth-child(6n+3) .surv-lane-track { background-color: color-mix(in oklab, #7dd8a0 14%, var(--surface2)); }
+.surv-kid .surv-lane:nth-child(6n+4) .surv-lane-track { background-color: color-mix(in oklab, #5fc9e0 14%, var(--surface2)); }
+.surv-kid .surv-lane:nth-child(6n+5) .surv-lane-track { background-color: color-mix(in oklab, #c99cf5 14%, var(--surface2)); }
+.surv-kid .surv-lane:nth-child(6n+6) .surv-lane-track { background-color: color-mix(in oklab, #f59cd8 14%, var(--surface2)); }
+
+/* wordflight: sunny daytime sky for kids */
+.flight-kid { background: linear-gradient(180deg, #aee3f7 0%, #d8f2e3 78%, #b7e6a8 100%) !important; }
+.flight-kid .flight-cloud { background: rgba(255, 255, 255, 0.85); }
+.flight-kid .flight-wordbar { background: rgba(255, 255, 255, 0.92); border-color: #7dd8a0; color: #2d2a26; }
+.flight-kid .flight-wordbar .muted { color: #6b7280; }
+.flight-kid .duel-cur { color: #1c8a5e; border-bottom-color: #1c8a5e; }
+.flight-kid .good { color: #1c8a5e; }
+.flight-sun { position: absolute; top: 18px; right: 26px; width: 52px; height: 52px; border-radius: 50%; background: #ffd166; box-shadow: 0 0 34px 10px rgba(255, 209, 102, 0.55); animation: sunspin 14s linear infinite; z-index: 1; }
+.flight-sun::after { content: ''; position: absolute; inset: -14px; border-radius: 50%; border: 3px dashed rgba(255, 209, 102, 0.55); }
+@keyframes sunspin { to { transform: rotate(360deg); } }
+
+/* wordfall kid: grass under the fence */
+.wf-kid .wf-base { background: linear-gradient(0deg, color-mix(in oklab, #7dd8a0 30%, transparent), transparent 80%); }
+.wf-kid .wf-target { outline-width: 4px; }

@@ -237,7 +237,7 @@ export default function SurvivorGame() {
             </div>
           )}
           {(phase === 'heat' || phase === 'interlude') && (
-            <div className="surv-scene">
+            <div className={`surv-scene ${kid ? 'surv-kid' : ''}`}>
               {phase === 'interlude' && (
                 <div className="race-countdown" style={{ fontSize: '1.3rem', padding: '0 24px', textAlign: 'center' }}>
                   {interludeMsg}<br /><span className="muted small">heat {heat + 1} begins…</span>
