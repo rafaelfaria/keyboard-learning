@@ -335,7 +335,14 @@ the later Supabase step is an integration, not a rewrite:
    `badges`, `settings`. A `docs/schema.sql` draft ships with the program so the
    Supabase step starts from a reviewed schema with row-level security per
    profile owner.
-5. **What the later Supabase step looks like** (owner-side, ~an hour): create the
+5. **Local history cap (the one real performance angle)**: `sessions` currently
+   grows unbounded in localStorage — a slow-boot problem waiting to happen after
+   years of practice. Once the DB archive exists, local keeps a rolling window
+   (e.g. last 300 sessions) and the database holds the full record; aggregates
+   (keyStats, records, xp) are already summaries and stay small. To be clear:
+   the DB adds durability and capability, not speed — local-first exists so it
+   can never *cost* speed either.
+6. **What the later Supabase step looks like** (owner-side, ~an hour): create the
    Supabase project (account creation is yours to do), run `schema.sql`, put the
    project URL + anon key in `.env` — then the integration session implements
    `SyncAdapter` + auth against it, and existing local profiles upload themselves
