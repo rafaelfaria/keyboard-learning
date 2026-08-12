@@ -16,6 +16,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const MODE_CHIPS = [
   ['brain', 'Adaptive practice', 'Sets built from your weak keys'],
+  ['dumbbell', 'Weak-key workout', 'Your worst key, repaired'],
   ['zap', 'Speed sprints', '15s to 5 minutes'],
   ['target', 'Accuracy Lab', 'Precision-first scoring'],
   ['waves', 'Rhythm studio', 'Type on the beat'],
@@ -23,6 +24,7 @@ const MODE_CHIPS = [
   ['eye-off', 'Lights out', 'Wean off looking down'],
   ['braces', 'Code forge', 'Brackets & symbols'],
   ['headphones', 'Dictation', 'Type what you hear'],
+  ['peaks', 'Numeral Peaks', 'Numbers & symbols row'],
   ['lifebuoy', 'Recovery', 'Stay calm after misses'],
   ['route', 'Endurance', 'Long-form stamina'],
   ['clipboard', 'Real-world desk', 'Emails & documents'],
@@ -139,11 +141,12 @@ export default function Landing() {
         });
       });
 
-      // parallax cards
+      // parallax cards — small fixed-pixel drift so cards can never
+      // wander into a neighbouring grid row (yPercent of a tall card could)
       gsap.utils.toArray<HTMLElement>('[data-speed]').forEach((el) => {
         const sp = Number(el.dataset.speed ?? 0);
         gsap.to(el, {
-          yPercent: sp * 18, ease: 'none',
+          y: sp * 14, ease: 'none',
           scrollTrigger: { trigger: el.parentElement, start: 'top bottom', end: 'bottom top', scrub: true },
         });
       });
@@ -285,8 +288,8 @@ export default function Landing() {
           <h2 className="rv">Train your way.</h2>
           <p className="land-lede rv">Fourteen modes, one engine. Each names the skill it builds — so practice always has a purpose.</p>
           <div className="mode-grid">
-            {MODE_CHIPS.map(([ic, name, sub], i) => (
-              <div className="mode-chip rv" key={name} data-speed={(i % 3) - 1}>
+            {MODE_CHIPS.map(([ic, name, sub]) => (
+              <div className="mode-chip rv" key={name}>
                 <span className="mode-chip-ic"><Ic n={ic} size={24} /></span>
                 <strong>{name}</strong>
                 <small>{sub}</small>
@@ -310,8 +313,8 @@ export default function Landing() {
             <article className="play-card rv" data-speed={0.4}>
               <div className="play-art pa-forge" aria-hidden><Ic n="hammer" size={40} /><i>✦</i><i>✦</i><i>✦</i></div>
               <h3><Ic n="hammer" size={18} /> Keyforge</h3>
-              <p>Forge artifacts from flawless rune-words. No timer — perfection makes rarity. Collect Mythics.</p>
-              <Chip tone="accent">Perfect-word streaks</Chip>
+              <p>The fire only burns while you type — misses vent heat, treasures make it hungrier. Forge before it goes cold.</p>
+              <Chip tone="accent">Fast, flawless words</Chip>
             </article>
             <article className="play-card rv" data-speed={-0.2}>
               <div className="play-art pa-flight" aria-hidden><Ic n="send" size={40} /></div>
@@ -319,12 +322,48 @@ export default function Landing() {
               <p>A glider that climbs when your rhythm is even and wobbles when you rush. Thread the golden gates.</p>
               <Chip tone="accent">Rhythm & flow</Chip>
             </article>
-          </div>
-          <div className="row gap wrap rv" style={{ justifyContent: 'center', marginTop: 22 }}>
-            <Chip><Ic n="swords" size={13} /> Quill Duel — 1v1 phrase battles</Chip>
-            <Chip><Ic n="crown" size={13} /> Survivor Sprint — 8-typist heats</Chip>
-            <Chip><Ic n="puzzle" size={13} /> Cipher Run — decode scrambles</Chip>
-            <Chip><Ic n="blocks" size={13} /> Block Stack — precision towers</Chip>
+            <article className="play-card rv" data-speed={0.5}>
+              <div className="play-art pa-duel" aria-hidden>
+                <span className="pd-lane"><i className="pd-fill pd-you" /></span>
+                <span className="pd-badge"><Ic n="swords" size={17} /></span>
+                <span className="pd-lane"><i className="pd-fill pd-foe" /></span>
+              </div>
+              <h3><Ic n="swords" size={18} /> Quill Duel</h3>
+              <p>Best-of-seven phrase duel against a rival matched to your pace — you watch them typing, cursor and all.</p>
+              <Chip tone="accent">Burst speed under pressure</Chip>
+            </article>
+            <article className="play-card rv" data-speed={-0.3}>
+              <div className="play-art pa-sprint" aria-hidden>
+                <span className="ps-finish"><Ic n="crown" size={16} /></span>
+                <i className="ps-dot" /><i className="ps-dot" /><i className="ps-dot" /><i className="ps-dot" />
+              </div>
+              <h3><Ic n="crown" size={18} /> Survivor Sprint</h3>
+              <p>Eight typists, four rapid heats — the slowest head to the cheer bench each round. Outlast them all.</p>
+              <Chip tone="accent">Consistency under pressure</Chip>
+            </article>
+            <article className="play-card rv" data-speed={0.3}>
+              <div className="play-art pa-cipher" aria-hidden>
+                {([['h', 'c'], ['p', 'i'], ['c', 'p'], ['i', 'h'], ['r', 'e'], ['e', 'r']] as const).map(([a, b], i) => (
+                  <span className="pc-tile" key={i} style={{ animationDelay: `${i * 0.22}s` }}><b>{a}</b><i>{b}</i></span>
+                ))}
+              </div>
+              <h3><Ic n="puzzle" size={18} /> Cipher Run</h3>
+              <p>Unscramble rune-words against the clock. Decoding builds the deep letter-map fast typing sits on.</p>
+              <Chip tone="accent">Spelling recall & mapping</Chip>
+            </article>
+            <article className="play-card rv" data-speed={-0.5}>
+              <div className="play-art pa-stack" aria-hidden>
+                <span className="pst-col">
+                  <i className="pst-drop" />
+                  <i className="pst-b" style={{ width: 58 }} />
+                  <i className="pst-b" style={{ width: 42 }} />
+                  <i className="pst-b" style={{ width: 66 }} />
+                </span>
+              </div>
+              <h3><Ic n="blocks" size={18} /> Block Stack</h3>
+              <p>Every word becomes a block — clean words build wide and steady, sloppy ones crumble the tower.</p>
+              <Chip tone="accent">Word-perfect precision</Chip>
+            </article>
           </div>
         </div>
       </section>
