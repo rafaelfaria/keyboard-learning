@@ -302,3 +302,44 @@ Kip coach lines and quest copy; region/stop flavor text for all ten skins.
 3. **World names** — working names in use; rename freely later. ✅ Approved.
 4. **Kid stop density** — one node per lesson (7–10 per island). ✅ Approved;
    fallback stays nodes-per-stage with a lesson drawer if maps feel crowded.
+5. **Database timing** (decided 2026-08-12): the program ships **database-ready,
+   database-later** — the sync foundation below is part of the program; the live
+   Supabase integration is the step immediately after it lands. Rationale: the
+   program churns the exact data shapes a sync layer would have to stabilize;
+   coupling the two multiplies risk on both.
+
+---
+
+## 8. Persistence foundation — database-ready, database-later
+
+The app is local-first today (zustand `persist` → localStorage `keytopia-v1`) and
+**stays local-first forever**: the browser store remains the source of truth the UI
+reads and writes; a database is a *sync target*, never a gate the UI waits on.
+Kids on school machines with flaky wifi keep working. What the program lays down so
+the later Supabase step is an integration, not a rewrite:
+
+1. **All mutations through named actions** (already true — `recordSession`,
+   `patch`, `finishAssessment`, …) and now stamped: every profile section gets an
+   `updatedAt`, and sessions get stable client ids. Dirty-tracking rides on this.
+2. **A `SyncAdapter` seam next to the existing auth seam** (`src/lib/auth.ts` was
+   built for exactly this moment): `pushChanges(profileId, changeset)`,
+   `pullProfile(profileId)`, with a no-op localStorage implementation shipped.
+   Supabase later = implementing this one interface + swapping `auth.ts`.
+3. **Merge semantics defined now, in code**, per section — the part that hurts to
+   retrofit: sessions **append-only union** (trivially syncable), lessons
+   **max(stars) per id**, badges/unlocks **set union**, xp/records **max**,
+   keyStats **last-write-wins by `updatedAt`**, settings **last-write-wins**.
+   The same functions serve future multi-device merge and the v4 migrate.
+4. **Relational-friendly shapes**: the future schema falls straight out —
+   `profiles`, `sessions` (append-only rows), `lesson_progress`, `key_stats`,
+   `badges`, `settings`. A `docs/schema.sql` draft ships with the program so the
+   Supabase step starts from a reviewed schema with row-level security per
+   profile owner.
+5. **What the later Supabase step looks like** (owner-side, ~an hour): create the
+   Supabase project (account creation is yours to do), run `schema.sql`, put the
+   project URL + anon key in `.env` — then the integration session implements
+   `SyncAdapter` + auth against it, and existing local profiles upload themselves
+   on first sign-in via the merge functions above.
+
+Workstream **A (Engine)** absorbs items 1–3; item 4 lands with **F** as a docs
+deliverable. Nothing else in the program depends on any of this.
