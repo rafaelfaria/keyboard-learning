@@ -350,20 +350,37 @@ h1 .ic, h2 .ic, h3 .ic { margin-right: 4px; color: var(--accent); }
 .kw-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1.5px solid var(--border); padding: 8px 14px; border-radius: 999px; font-weight: 750; }
 .kw-chip .ic { color: var(--warn); }
 .kw-map-card { background: linear-gradient(160deg, color-mix(in oklab, var(--accent) 10%, var(--surface)), color-mix(in oklab, var(--accent2) 8%, var(--surface))); }
-.kw-map svg { width: 100%; height: auto; }
-.kw-path { fill: none; stroke: var(--ring-track); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1 14; }
-.kw-path-done { fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1 14; }
+.kw-map svg { width: 100%; height: auto; border-radius: 18px; }
+
+/* island road: dirt trail + stepping stones; the travelled part marches */
+.kwm-road { fill: none; stroke: #e7d5a4; stroke-width: 15; stroke-linecap: round; stroke-linejoin: round; }
+.kwm-road-dots { fill: none; stroke: #fffdf2; stroke-width: 6; stroke-linecap: round; stroke-dasharray: 0.5 16; }
+.kwm-road-done { fill: none; stroke: #ff9d2e; stroke-width: 7.5; stroke-linecap: round; stroke-dasharray: 0.5 16; animation: roadmarch 1.2s linear infinite; }
+@keyframes roadmarch { to { stroke-dashoffset: -16.5; } }
+
 .kw-node { cursor: pointer; }
-.kw-node-bg { fill: var(--surface); stroke: var(--border); stroke-width: 2.5; }
-.kw-done .kw-node-bg { fill: color-mix(in oklab, var(--good) 22%, var(--surface)); stroke: var(--good); }
-.kw-cur .kw-node-bg { fill: color-mix(in oklab, var(--accent) 24%, var(--surface)); stroke: var(--accent); }
-.kw-locked { cursor: default; opacity: 0.55; }
-.kw-node-ic { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; color: var(--text); }
-.kw-done .kw-node-ic { color: var(--good); }
-.kw-cur .kw-node-ic { color: var(--accent); }
-.kw-pulse { fill: none; stroke: var(--accent); stroke-width: 2; opacity: 0.6; animation: kwpulse 1.8s ease infinite; }
+.kw-node-bg { fill: #fffdf6; stroke-width: 4; }
+.kw-node:hover .kw-node-bg { stroke-width: 5.5; }
+.kw-node-locked { fill: #fbf6ea; stroke: #c9beA2; stroke-width: 2.5; stroke-dasharray: 4 6; stroke-linecap: round; }
+.kw-locked { cursor: default; opacity: 0.72; }
+.kw-node-ic { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
+.kw-num { fill: #fff; font-size: 12.5px; font-weight: 800; }
+.kw-num-locked { fill: #97917e; font-size: 14px; font-weight: 800; }
+.kw-star { fill: #f5a802; font-size: 17px; paint-order: stroke; stroke: #fffdf6; stroke-width: 3px; }
+.kw-pulse { fill: none; stroke: var(--accent); stroke-width: 2.5; opacity: 0.6; animation: kwpulse 1.8s ease infinite; }
 @keyframes kwpulse { 0% { transform: scale(0.8); opacity: 0.7; } 100% { transform: scale(1.25); opacity: 0; } }
-.kw-node-label { fill: var(--text); font-size: 17px; font-weight: 750; }
+
+/* current-stop marker: the child stands on the node, signpost below */
+.kw-you { display: flex; align-items: flex-end; justify-content: center; width: 100%; height: 100%; animation: guardianbob 1.4s ease-in-out infinite; }
+.kw-you > * { border-radius: 8px; box-shadow: 0 3px 0 rgba(58, 51, 40, 0.25); }
+.kw-sign { display: flex; justify-content: center; width: 100%; height: 100%; pointer-events: none; }
+.kw-sign span { background: #fffdf6; border: 2.5px solid #d9c9a8; color: #4a4234; font-weight: 800; font-size: 13.5px; padding: 3px 12px; border-radius: 999px; box-shadow: 0 2.5px 0 rgba(58, 51, 40, 0.18); white-space: nowrap; align-self: flex-start; }
+
+/* sky life */
+.kwm-sunrays { transform-box: fill-box; transform-origin: center; animation: sunspin 30s linear infinite; }
+.kwm-cloud { animation: clouddrift 26s ease-in-out infinite alternate; }
+.kwm-cloud2 { animation-duration: 34s; animation-delay: -9s; }
+@keyframes clouddrift { from { transform: translateX(0); } to { transform: translateX(44px); } }
 .kw-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; }
 @media (max-width: 780px) { .kw-grid { grid-template-columns: 1fr; } }
 .kw-quest { background: linear-gradient(135deg, color-mix(in oklab, var(--accent) 14%, var(--surface)), color-mix(in oklab, var(--accent2) 12%, var(--surface))); }
@@ -628,9 +645,14 @@ h1 .ic, h2 .ic, h3 .ic { margin-right: 4px; color: var(--accent); }
 .critter { position: absolute; z-index: 4; pointer-events: none; }
 .critter-fly { animation: critterfloat 4.5s ease-in-out infinite; }
 @keyframes critterfloat { 0%, 100% { transform: translate(0, 0) rotate(-6deg); } 50% { transform: translate(10px, -14px) rotate(8deg); } }
-.cr-wing-l { animation: wingflap 0.3s ease-in-out infinite alternate; transform-origin: right center; }
-.cr-wing-r { animation: wingflap 0.3s ease-in-out infinite alternate-reverse; transform-origin: left center; }
+.cr-wing-l { animation: wingflap 0.3s ease-in-out infinite alternate; transform-origin: right center; transform-box: fill-box; }
+.cr-wing-r { animation: wingflap 0.3s ease-in-out infinite alternate-reverse; transform-origin: left center; transform-box: fill-box; }
 @keyframes wingflap { from { transform: scaleX(1); } to { transform: scaleX(0.55); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .critter-fly, .cr-wing-l, .cr-wing-r, .kw-guardian-bob, .kw-you,
+  .kwm-cloud, .kwm-sunrays, .kwm-road-done, .kw-pulse, .flight-sun { animation: none; }
+}
 
 /* map guardians */
 .kw-guardian { display: flex; align-items: flex-end; justify-content: center; width: 100%; height: 100%; }

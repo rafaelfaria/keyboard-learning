@@ -194,10 +194,19 @@ export function Critter({ kind, style }: { kind: 'butterfly' | 'bee' | 'snail'; 
   if (kind === 'butterfly') {
     return (
       <span className="critter critter-fly" style={style} aria-hidden>
-        <svg viewBox="0 0 20 14" width="22" height="16" shapeRendering="crispEdges">
-          <rect className="cr-wing-l" x="1" y="2" width="7" height="8" rx="2" fill="#c99cf5" />
-          <rect className="cr-wing-r" x="12" y="2" width="7" height="8" rx="2" fill="#ff8fa3" />
-          <rect x="9" y="1" width="2" height="12" rx="1" fill="#3a3342" />
+        <svg viewBox="0 0 26 22" width="30" height="26">
+          <g className="cr-wing-l">
+            <ellipse cx="8" cy="7" rx="6.5" ry="5.5" fill="#c99cf5" />
+            <ellipse cx="7" cy="15" rx="5" ry="4.2" fill="#f59cd8" />
+            <circle cx="8" cy="7" r="2" fill="#fff" opacity="0.65" />
+          </g>
+          <g className="cr-wing-r">
+            <ellipse cx="18" cy="7" rx="6.5" ry="5.5" fill="#ff8fa3" />
+            <ellipse cx="19" cy="15" rx="5" ry="4.2" fill="#ffb26b" />
+            <circle cx="18" cy="7" r="2" fill="#fff" opacity="0.65" />
+          </g>
+          <rect x="11.7" y="4" width="2.6" height="15" rx="1.3" fill="#3a3342" />
+          <path d="M12.5,4 Q10.5,0.5 8.8,1.4 M13.5,4 Q15.5,0.5 17.2,1.4" fill="none" stroke="#3a3342" strokeWidth="1.2" strokeLinecap="round" />
         </svg>
       </span>
     );
