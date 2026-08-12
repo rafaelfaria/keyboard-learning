@@ -92,7 +92,9 @@ export default function KidHome() {
     const unlocked = stageUnlocked(data, data.profile.layout, st.id);
     return { st, done, unlocked };
   });
-  const currentIdx = Math.max(0, stageState.findIndex((s) => s.unlocked && !s.done));
+  // when every land is explored, the explorer stands at the castle, not back at Base Camp
+  const firstOpen = stageState.findIndex((s) => s.unlocked && !s.done);
+  const currentIdx = firstOpen === -1 ? stageState.length - 1 : firstOpen;
   const readyToGraduate = prog.done >= Math.floor(prog.total * 0.5) || lvl.level >= 8;
 
   const roadD = curveThrough(NODES);
