@@ -29,7 +29,7 @@ import SurvivorGame from './pages/SurvivorGame';
 import RaceHub from './pages/RaceHub';
 import RaceLive from './pages/RaceLive';
 import Challenge from './pages/Challenge';
-import Progress from './pages/Progress';
+import ProgressHub from './pages/ProgressHub';
 import BadgesPage from './pages/BadgesPage';
 import Family from './pages/Family';
 import Profile from './pages/Profile';
@@ -67,6 +67,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route path="practice" element={<PracticeHub />} />
           <Route path="train/:mode" element={<TrainSession />} />
           <Route path="games" element={<Games />} />
+          <Route path="arena" element={<Games />} />
           <Route path="games/wordfall" element={<WordfallGame />} />
           <Route path="games/keyforge" element={<KeyforgeGame />} />
           <Route path="games/wordflight" element={<WordflightGame />} />
@@ -77,7 +78,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route path="race" element={<RaceHub />} />
           <Route path="race/live" element={<RaceLive />} />
           <Route path="challenge" element={<Challenge />} />
-          <Route path="progress" element={<Progress />} />
+          <Route path="progress" element={<ProgressHub />} />
           <Route path="badges" element={<BadgesPage />} />
           <Route path="family" element={<Family />} />
           <Route path="profile" element={<Profile />} />

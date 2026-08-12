@@ -24,18 +24,17 @@ export function ThemeSync() {
   return null;
 }
 
+// Five doors (plan §4.2): the journey is home; games and races share the
+// Arena; everything the dashboard used to show lives under Progress.
 const NAV = [
-  { to: '/app', label: 'Home', icon: 'house', end: true },
-  { to: '/app/learn', label: 'Learn', icon: 'map' },
-  { to: '/app/practice', label: 'Practise', icon: 'keyboard' },
-  { to: '/app/games', label: 'Play', icon: 'gamepad' },
-  { to: '/app/race', label: 'Race', icon: 'rocket' },
+  { to: '/app', label: 'Journey', icon: 'map', end: true },
+  { to: '/app/practice', label: 'Train', icon: 'keyboard' },
+  { to: '/app/games', label: 'Arena', icon: 'swords' },
   { to: '/app/progress', label: 'Progress', icon: 'trending' },
 ];
 
 const NAV2 = [
   { to: '/app/challenge', label: 'Daily Challenge', icon: 'calendar' },
-  { to: '/app/badges', label: 'Badges', icon: 'medal' },
   { to: '/app/family', label: 'Family & Schools', icon: 'school' },
   { to: '/app/profile', label: 'Profile', icon: 'user' },
   { to: '/app/settings', label: 'Settings', icon: 'settings' },
@@ -83,7 +82,7 @@ export function AppShell() {
         <NavLink to={nextL ? `/app/lesson/${nextL.id}` : '/app/train/adaptive'} className="continue-btn">
           <Ic n="play" size={18} className="continue-ic" />
           <span>
-            <strong>{kid ? 'Next quest' : 'Continue training'}</strong>
+            <strong>{kid ? 'Next quest' : 'Continue the ascent'}</strong>
             <small>{nextL ? nextL.title : 'Adaptive practice'}</small>
           </span>
         </NavLink>

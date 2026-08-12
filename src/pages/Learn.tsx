@@ -1,77 +1,117 @@
 import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { useData } from '../lib/store';
-import { buildStages, curriculumProgress, nextLesson, stageUnlocked } from '../lib/curriculum';
+import {
+  buildLessonPlan, buildStages, lessonUnlocked, nextLesson,
+  worldLessons, worldProgress, worldUnlocked,
+} from '../lib/curriculum';
+import { WORLDS } from '../lib/worlds';
 import { Card, Chip, Stars } from '../components/ui';
-import { MasteryMap } from '../components/MasteryMap';
+import { BlockAvatar } from '../components/avatars';
+import { PIXEL_PALS } from '../components/gamekit';
 import { Ic } from '../components/icons';
+import type { ProfileData } from '../lib/types';
 
+/**
+ * /app/learn — the Quest Book for kids (plan §2.5). Grown-ups get their
+ * step list as the Trail Guide inside Journey, so they redirect home.
+ */
 export default function Learn() {
   const data = useData();
   if (!data) return null;
-  const stages = useMemo(() => buildStages(data.profile.layout), [data.profile.layout]);
-  const prog = curriculumProgress(data);
+  const kid = data.profile.ageGroup === 'kid' && data.settings.kidWorld !== false;
+  if (!kid) return <Navigate to="/app" replace />;
+  return <QuestBook data={data} />;
+}
+
+function QuestBook({ data }: { data: ProfileData }) {
+  const layout = data.profile.layout;
+  const stages = useMemo(() => buildStages(layout), [layout]);
   const nextL = nextLesson(data);
 
+  // Stable star requirements (targets derive from world position, not seed)
+  const targets = useMemo(() => {
+    const out: Record<string, { wpm: number; acc: number }> = {};
+    for (const w of WORLDS) {
+      if (!worldUnlocked(data, w.id)) continue;
+      for (const l of worldLessons(layout, w.id)) {
+        const p = buildLessonPlan(layout, l, data.profile.ageGroup, 42);
+        out[l.id] = { wpm: p.targetWpm, acc: p.targetAcc };
+      }
+    }
+    return out;
+  }, [layout, data.profile.ageGroup, data.lessons]);
+
   return (
-    <div>
+    <div className="questbook">
       <div className="page-head">
         <div>
-          <h1>The Atlas</h1>
-          <p>Nine regions, one keyboard. Earn at least one star in most lessons of a region to open the next. ({prog.done}/{prog.total} lessons · {prog.stars}★)</p>
+          <h1>My Quest Book</h1>
+          <p>Every spot on every island — what it teaches, and what your next star needs.</p>
         </div>
-        {nextL && <Link className="btn btn-primary" to={`/app/lesson/${nextL.id}`}>▶ Continue: {nextL.title}</Link>}
       </div>
 
-      <Card>
-        <h3>Your keyboard world today</h3>
-        <MasteryMap data={data} compact />
-      </Card>
-
-      <div className="atlas" style={{ marginTop: 22 }}>
-        {stages.map((st) => {
-          const unlocked = stageUnlocked(data, data.profile.layout, st.id);
-          const doneCount = st.lessons.filter((l) => (data.lessons[l.id]?.stars ?? 0) >= 1).length;
-          const allDone = doneCount === st.lessons.length;
+      {WORLDS.map((w) => {
+        const unlocked = worldUnlocked(data, w.id);
+        const p = worldProgress(data, w.id);
+        const pal = PIXEL_PALS[w.kid.guardian % PIXEL_PALS.length];
+        if (!unlocked) {
           return (
-            <div key={st.id} className={`stage-card ${unlocked ? (allDone ? 'stage-done' : 'stage-open') : 'stage-locked'}`}>
-              <div className="stage-node" aria-hidden><Ic n={unlocked ? st.icon : 'lock'} size={26} /></div>
-              <Card className="stage-body">
-                <div className="row spread wrap gap">
-                  <div>
-                    <div className="stage-skill">{st.skill}</div>
-                    <div className="stage-region">{st.region}</div>
-                  </div>
-                  <Chip tone={allDone ? 'good' : unlocked ? 'accent' : 'default'}>
-                    {allDone ? 'Region complete ✔' : unlocked ? `${doneCount}/${st.lessons.length} crossed` : 'Locked'}
-                  </Chip>
+            <Card key={w.id} className="qb-island qb-island-fog">
+              <div className="row gap">
+                <span className="qb-fog-ic"><Ic n="lock" size={20} /></span>
+                <div>
+                  <h3>{w.kid.kidName}</h3>
+                  <p className="small muted">{w.tagline} — still hidden in the fog. Finish the island before it to reveal the way!</p>
                 </div>
-                <p className="small muted" style={{ margin: '6px 0 0' }}>{st.desc}</p>
-                <div className="lesson-pills">
-                  {st.lessons.map((l) => {
-                    const lp = data.lessons[l.id];
-                    const isNext = nextL?.id === l.id;
-                    return (
-                      <Link
-                        key={l.id}
-                        to={`/app/lesson/${l.id}`}
-                        className={`lesson-pill ${isNext ? 'lesson-pill-next' : ''} ${unlocked ? '' : 'lesson-pill-locked'}`}
-                        aria-disabled={!unlocked}
-                      >
-                        {lp?.stars ? <Stars n={lp.stars} size={11} /> : <span aria-hidden>{isNext ? '▶' : '○'}</span>}
-                        {l.title}
-                      </Link>
-                    );
-                  })}
-                </div>
-              </Card>
-            </div>
+              </div>
+            </Card>
           );
-        })}
-      </div>
-      <p className="small muted" style={{ marginTop: 18 }}>
-        Impatient explorer? You can unlock every region in <Link to="/app/settings" style={{ color: 'var(--accent)' }}>Settings → Learning</Link>.
-      </p>
+        }
+        return (
+          <Card key={w.id} className="qb-island">
+            <div className="row spread wrap gap qb-island-head">
+              <div className="row gap">
+                <span className="kw-quest-pal"><BlockAvatar preset={pal.preset} size={38} /></span>
+                <div>
+                  <h3>{w.kid.kidName}</h3>
+                  <p className="small muted" style={{ margin: 0 }}>{pal.name} the {pal.kind} keeps this island · {w.tagline}</p>
+                </div>
+              </div>
+              <Chip tone={p.complete ? 'good' : 'accent'}>{p.complete ? 'Explored! ★' : `${p.done}/${p.total} spots`}</Chip>
+            </div>
+            <div className="qb-rows">
+              {worldLessons(layout, w.id).map((l, i) => {
+                const lp = data.lessons[l.id];
+                const stars = Math.min(3, lp?.stars ?? 0);
+                const open = lessonUnlocked(data, l.id);
+                const isNext = nextL?.id === l.id;
+                const t = targets[l.id];
+                const focus = l.newKeys.length
+                  ? `Learn ${l.newKeys.map((k) => (k === ' ' ? 'Space' : k.toUpperCase())).join(' & ')}`
+                  : stages[l.stage]?.skill ?? '';
+                const need = !open ? 'Finish the spot before it first'
+                  : stars === 0 ? `Get a star: type carefully (85% right)`
+                  : stars < 3 && t ? `Next star: ${stars === 1 ? `${t.acc}% right and a bit quicker` : `${t.wpm} wpm at ${t.acc}%`}`
+                  : 'All three stars — shiny!';
+                return (
+                  <div key={l.id} className={`qb-row ${open ? '' : 'locked'} ${isNext ? 'qb-next' : ''}`}>
+                    <span className="jn-guide-num">{i + 1}</span>
+                    <div className="jn-guide-txt">
+                      <strong>{l.title}</strong>
+                      <small>{focus} · {need}</small>
+                    </div>
+                    {stars > 0 ? <Stars n={stars} size={13} /> : <span className="qb-hollow" aria-hidden>☆☆☆</span>}
+                    {open
+                      ? <Link className={`btn ${isNext ? 'btn-primary' : 'btn-soft'}`} to={`/app/lesson/${l.id}`}>{stars === 0 ? (isNext ? 'Go!' : 'Start') : 'Replay'}</Link>
+                      : <Ic n="lock" size={15} className="muted" />}
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        );
+      })}
     </div>
   );
 }

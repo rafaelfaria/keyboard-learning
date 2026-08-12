@@ -752,6 +752,24 @@ h1 .ic, h2 .ic, h3 .ic { margin-right: 4px; color: var(--accent); }
 .jn-guide-camp { display: flex; align-items: center; gap: 6px; padding: 7px 4px 5px; color: var(--gold); font-size: 0.78rem; font-weight: 700; }
 .jn-camp-link { background: none; border: none; color: var(--accent); font: inherit; cursor: pointer; text-decoration: underline; padding: 0; }
 
+/* progress hub tabs */
+.proghub-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.proghub-tab { display: inline-flex; align-items: center; gap: 7px; background: var(--surface); border: 1.5px solid var(--border); border-radius: 999px; padding: 8px 16px; color: var(--text); font: inherit; font-weight: 700; font-size: 0.88rem; cursor: pointer; transition: border-color 0.15s; }
+.proghub-tab:hover { border-color: var(--accent); }
+.proghub-tab.on { border-color: var(--accent); background: color-mix(in oklab, var(--accent) 12%, var(--surface)); }
+
+/* the quest book (kid step list) */
+.questbook { display: flex; flex-direction: column; gap: 14px; }
+.qb-island-head { margin-bottom: 8px; }
+.qb-rows { display: flex; flex-direction: column; }
+.qb-row { display: flex; align-items: center; gap: 12px; padding: 8px 6px; border-bottom: 1px solid var(--border); }
+.qb-rows .qb-row:last-child { border-bottom: none; }
+.qb-row.locked { opacity: 0.55; }
+.qb-next { background: color-mix(in oklab, var(--accent) 9%, transparent); border-radius: 12px; }
+.qb-hollow { color: var(--muted); letter-spacing: 1px; font-size: 0.85rem; flex: none; }
+.qb-island-fog { opacity: 0.75; }
+.qb-fog-ic { width: 38px; height: 38px; border-radius: 12px; background: var(--surface2); display: flex; align-items: center; justify-content: center; color: var(--muted); flex: none; }
+
 /* map guardians */
 .kw-guardian { display: flex; align-items: flex-end; justify-content: center; width: 100%; height: 100%; }
 .kw-guardian-bob { animation: guardianbob 1.6s ease-in-out infinite; }

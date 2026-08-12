@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useData, useStore, useUi } from '../lib/store';
-import { buildLessonPlan, buildStages, lessonById, nextLesson, starsFor } from '../lib/curriculum';
+import { activeData, useData, useStore, useUi } from '../lib/store';
+import { buildLessonPlan, buildStages, lessonById, nextLesson, starsFor, worldOfLesson, worldProgress } from '../lib/curriculum';
+import { worldDef } from '../lib/worlds';
 import { GhostInput, LiveStats, TypingText, combineResults, useTypingSession } from '../components/typing';
 import { KeyboardVisual, HandsVisual } from '../components/KeyboardVisual';
 import { Btn, Chip } from '../components/ui';
@@ -58,6 +59,8 @@ export default function LessonPlayer() {
           combined.extra = { lessonId: lesson.id };
           const stars = starsFor(plan, combined.wpm, combined.acc);
           combined.extra.stars = stars;
+          const world = worldOfLesson(lesson.id, data.profile.layout);
+          const wasComplete = worldProgress(data, world.id).complete;
           const rewards = recordSession(combined);
           patch((d) => {
             const prev = d.lessons[lesson.id];
@@ -66,7 +69,21 @@ export default function LessonPlayer() {
             }
           });
           if (data.settings.soundOn) (stars >= 3 ? snd.badge() : snd.done());
-          if (rewards.levelUp) celebrate({ kind: 'level', icon: 'party', title: `Level ${rewards.levelUp}!`, body: 'New themes and avatars may be waiting in Settings.' });
+          // World completion beats every other celebration — the plan's "finish the finish"
+          const after = activeData();
+          const nowComplete = after ? worldProgress(after, world.id).complete : false;
+          const kid = data.profile.ageGroup === 'kid' && data.settings.kidWorld !== false;
+          const wd = worldDef(world.id);
+          if (!wasComplete && nowComplete) {
+            celebrate({
+              kind: 'level',
+              icon: kid ? 'rocket' : 'flag',
+              title: kid ? `${wd.kid.kidName} explored!` : `${wd.adult.adultName} — complete!`,
+              body: kid
+                ? `${wd.kid.landmark} lights up for you. A new island rises on the sea chart…`
+                : 'Flag planted. The next leg of the ascent is open.',
+            });
+          } else if (rewards.levelUp) celebrate({ kind: 'level', icon: 'party', title: `Level ${rewards.levelUp}!`, body: 'New themes and avatars may be waiting in Settings.' });
           else if (rewards.badges.length) pushToast({ kind: 'badge', icon: 'medal', title: 'Badge unlocked!', body: 'See it in your collection.' });
           setFinished({ result: combined, rewards, stars });
         }
@@ -89,8 +106,12 @@ export default function LessonPlayer() {
   });
 
   if (!data || !lesson || !plan) {
-    return <div className="empty"><div className="empty-icon">🧭</div><h3>Lesson not found</h3><p>This trail doesn't exist on your map.</p><Btn to="/app/learn">Back to the Atlas</Btn></div>;
+    return <div className="empty"><div className="empty-icon">🧭</div><h3>Lesson not found</h3><p>This trail doesn't exist on your map.</p><Btn to="/app">Back to the map</Btn></div>;
   }
+
+  const kidView = data.profile.ageGroup === 'kid' && data.settings.kidWorld !== false;
+  const wd = worldDef(worldOfLesson(lesson.id, data.profile.layout).id);
+  const placeName = kidView ? wd.kid.kidName : wd.adult.adultName;
 
   if (finished) {
     const nextL = nextLesson(data);
@@ -98,6 +119,7 @@ export default function LessonPlayer() {
       <div className="train-page">
         <div className="train-top">
           <h1><Ic n={stage?.icon ?? 'map'} size={20} /> {lesson.title} — complete</h1>
+          <Chip tone="accent">{placeName}</Chip>
         </div>
         <ResultsPanel
           result={finished.result}
@@ -105,9 +127,9 @@ export default function LessonPlayer() {
           stars={finished.stars}
           targets={{ wpm: plan.targetWpm, acc: plan.targetAcc }}
           insight={sessionInsight(data, finished.result)}
-          next={finished.stars >= 1 && nextL ? { label: `Next: ${nextL.title}`, to: `/app/lesson/${nextL.id}` } : nextAction(data, finished.result)}
+          next={finished.stars >= 1 && nextL ? { label: `${kidView ? 'Next stop' : 'Next waypoint'}: ${nextL.title}`, to: `/app/lesson/${nextL.id}` } : nextAction(data, finished.result)}
           onRetry={() => { parts.current = []; setFinished(null); setStepIdx(0); setSeed(Math.floor(Math.random() * 1e9)); }}
-          extraActions={<Btn kind="ghost" to="/app/learn"><Ic n="map" size={15} /> Atlas</Btn>}
+          extraActions={<Btn kind="ghost" to="/app"><Ic n="map" size={15} /> {kidView ? 'My World' : 'The trail'}</Btn>}
           soundOn={data.settings.soundOn}
         />
       </div>
@@ -119,7 +141,7 @@ export default function LessonPlayer() {
   return (
     <div className="train-page" onClick={session.focus}>
       <div className="train-top">
-        <Btn kind="ghost" onClick={() => nav('/app/learn')} ariaLabel="Exit lesson">←</Btn>
+        <Btn kind="ghost" onClick={() => nav('/app')} ariaLabel="Exit lesson">←</Btn>
         <h1><Ic n={stage?.icon ?? 'map'} size={20} /> {lesson.title}</h1>
         <div className="step-dots" aria-label={`Step ${stepIdx + 1} of ${plan.steps.length}`}>
           {plan.steps.map((_, i) => <span key={i} className={`step-dot ${i < stepIdx ? 'done' : i === stepIdx ? 'cur' : ''}`} />)}
@@ -163,7 +185,7 @@ export default function LessonPlayer() {
         open={paused}
         onResume={() => { setPaused(false); setTimeout(session.focus, 50); }}
         onRestart={() => { parts.current = []; setPaused(false); setStepIdx(0); setSeed(Math.floor(Math.random() * 1e9)); }}
-        onExit={() => nav('/app/learn')}
+        onExit={() => nav('/app')}
       />
     </div>
   );

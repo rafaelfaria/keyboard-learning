@@ -66,12 +66,12 @@ export default function Games() {
     <div>
       <div className="page-head">
         <div>
-          <h1>The Arcade</h1>
-          <p>Seven original games, each built around a real typing skill — not typing glued onto someone else's game.</p>
+          <h1>{kid ? 'Playtime' : 'The Arena'}</h1>
+          <p>Seven original games and full races, each built around a real typing skill — not typing glued onto someone else's game.</p>
         </div>
       </div>
 
-      <h2 className="section-title"><Ic n="swords" size={19} /> Competitive arena</h2>
+      <h2 className="section-title"><Ic n="swords" size={19} /> Competitive</h2>
       <div className="grid3">
         {COMPETITIVE.map((g) => <GameCard key={g.id} g={g} best={data.gameBests[g.id]} />)}
       </div>
