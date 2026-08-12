@@ -348,5 +348,25 @@ the later Supabase step is an integration, not a rewrite:
    `SyncAdapter` + auth against it, and existing local profiles upload themselves
    on first sign-in via the merge functions above.
 
+### The instant bar (Linear-style, non-negotiable)
+
+Acceptance criteria for the sync layer, set now so the integration session
+inherits them:
+
+- **Every user action commits to the local store synchronously.** Optimistic
+  always; sync is fire-and-forget behind it. The sync layer adds 0ms to any
+  interaction *by construction* — it is off the critical path, not merely fast.
+- **No user-facing operation ever blocks on the network.** The only permitted
+  network-blocking moment is the sign-in handshake itself.
+- **Boot paints from localStorage before any network call.** Returning users
+  never see an auth-gate spinner — the local session renders immediately and
+  revalidates in the background. Server reconciliation applies after first
+  paint through the §8 merge functions, patching in quietly (no flash-replace).
+- **Transient failures are invisible.** Outbox queue with retry/backoff; no
+  error toasts for network blips. The only surface is one ambient indicator
+  (✓ synced / ↻ syncing / ⌁ offline) tucked in the profile corner.
+- **Conflicts never ask.** The merge semantics above resolve everything
+  automatically — a "which version?" dialog is a design failure here.
+
 Workstream **A (Engine)** absorbs items 1–3; item 4 lands with **F** as a docs
 deliverable. Nothing else in the program depends on any of this.
