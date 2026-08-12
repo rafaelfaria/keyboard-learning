@@ -12,7 +12,7 @@ export type ThemeId =
 export type SessionMode =
   | 'lesson' | 'adaptive' | 'weakkeys' | 'speed' | 'accuracy' | 'rhythm' | 'zen'
   | 'endurance' | 'realworld' | 'code' | 'numbers' | 'dictation' | 'copy'
-  | 'blind' | 'recovery' | 'game' | 'race' | 'challenge' | 'assessment';
+  | 'blind' | 'recovery' | 'checkpoint' | 'game' | 'race' | 'challenge' | 'assessment';
 
 export interface Profile {
   id: string;
@@ -128,6 +128,10 @@ export interface ProfileData {
   planStage: number;
   customTexts: string[];
   seedCleared?: boolean;
+  /** Journey cosmetics only — world unlock/completion is derived from `lessons`. */
+  journey?: { lastWorld?: string };
+  /** Per-section last-write stamps for the future sync layer (plan §8). Missing = 0. */
+  touched?: Record<string, number>;
 }
 
 export interface Rewards {

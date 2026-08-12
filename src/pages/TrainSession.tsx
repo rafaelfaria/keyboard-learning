@@ -38,6 +38,7 @@ export const MODES: ModeMeta[] = [
   { id: 'copy', name: 'Copy desk', icon: 'file', desc: 'Paste any text of your own and practise typing it. It never leaves this device.', skill: 'Your own material', pre: 'copy' },
   { id: 'blind', name: 'Lights out', icon: 'eye-off', desc: 'The on-screen keyboard fades as you progress. Learn to trust your fingers.', skill: 'Typing without looking' },
   { id: 'recovery', name: 'Recovery training', icon: 'lifebuoy', desc: 'Tricky words are planted on purpose. Practise staying calm after a miss and rebuilding rhythm fast.', skill: 'Composure after errors' },
+  { id: 'checkpoint', name: 'Camp checkpoint', icon: 'tent', desc: 'A calm mixed review of everything you\'ve learned so far. Optional, badge-worthy, never a gate.', skill: 'Retention & recall' },
 ];
 
 export default function TrainSession() {

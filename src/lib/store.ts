@@ -60,7 +60,16 @@ export function freshData(profile: Profile): ProfileData {
     assessment: null,
     planStage: 0,
     customTexts: [],
+    journey: {},
+    touched: {},
   };
+}
+
+/** Stamp a profile section as changed — the future sync layer diffs on these (plan §8). */
+export function touch(d: ProfileData, ...sections: string[]): void {
+  d.touched ??= {};
+  const now = Date.now();
+  for (const s of sections) d.touched[s] = now;
 }
 
 // Brand rename migration: carry data saved under the old Typerra key into KeyTopia's.
@@ -180,6 +189,7 @@ function applySession(d: ProfileData, r: SessionResult): Rewards {
       d.unlockedThemes.push(t.id);
     }
   }
+  touch(d, 'sessions', 'keyStats', 'xp', 'records', 'days', 'missions', 'badges');
   return rewards;
 }
 
@@ -346,7 +356,7 @@ export const useStore = create<RootState>()(
     })),
     {
       name: STORE_KEY,
-      version: 3,
+      version: 4,
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({ activeId: s.activeId, profiles: s.profiles }),
       migrate: (persisted) => {
@@ -365,6 +375,11 @@ export const useStore = create<RootState>()(
           }
           for (const m of d.missions?.list ?? []) if (iconMap[m.icon]) m.icon = iconMap[m.icon];
           for (const f of d.forge ?? []) if (iconMap[f.icon]) f.icon = iconMap[f.icon];
+          // v4: journey cosmetics + sync stamps (world progress itself derives
+          // from `lessons`, so old profiles land at the right stop untouched)
+          d.journey ??= {};
+          d.touched ??= {};
+          for (const sess of d.sessions ?? []) sess.id ||= uid();
         }
         return s;
       },

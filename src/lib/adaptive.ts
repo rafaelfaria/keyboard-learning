@@ -2,6 +2,7 @@ import type { KeyMastery, KeyStat, ProfileData, SessionMode } from './types';
 import { COMMON_WORDS, KID_WORDS, SENTENCES, KID_SENTENCES, PARAGRAPHS, WORK_TEXTS, CODE_SNIPPETS, TRICKY_WORDS, ZEN_LINES, numberDrill } from './words';
 import { mulberry32, pick, pickN, shuffle, weightedPick, type Rng } from './rng';
 import { median } from './metrics';
+import { allLessons, knownKeysAt } from './curriculum';
 
 export function mergeKeyStats(base: Record<string, KeyStat>, agg: Record<string, KeyStat>): void {
   for (const [k, s] of Object.entries(agg)) {
@@ -197,6 +198,23 @@ export function buildModeText(mode: SessionMode, data: ProfileData, opts?: { sec
         mix.push(i % 4 === 2 ? pick(rng, TRICKY_WORDS) : pick(rng, pool));
       }
       return { text: mix.join(' '), why: 'Tricky words are planted on purpose. When you miss one: exhale, fix it calmly, and rebuild your rhythm within three words.', label: 'Recovery training' };
+    }
+    case 'checkpoint': {
+      // Camp checkpoint (plan §2.6): spaced retrieval over everything learned so
+      // far — only keys the learner has actually been introduced to appear.
+      const layout = data.profile.layout;
+      const done = allLessons(layout).filter((l) => (data.lessons[l.id]?.stars ?? 0) >= 1);
+      const last = done[done.length - 1];
+      const known = last ? new Set(knownKeysAt(layout, last.id)) : null;
+      const base = poolFor(data);
+      const pool = known ? base.filter((w) => [...w].every((c) => known.has(c))) : base.slice(0, 60);
+      const n = kid ? 16 : 24;
+      const ws = pool.length >= 8 ? pickN(rng, pool, Math.min(n, pool.length)) : pickN(rng, base, n);
+      return {
+        text: shuffle(rng, ws).join(' '),
+        why: 'Camp checkpoint: a calm mixed review of every key you\'ve learned so far. Coming back to old ground is exactly what makes it stick.',
+        label: 'Camp checkpoint',
+      };
     }
     case 'copy': {
       return { text: (opts?.custom ?? '').replace(/\s+/g, ' ').trim(), why: 'Your own text. It stays on this device and is never uploaded.', label: 'Copy desk' };

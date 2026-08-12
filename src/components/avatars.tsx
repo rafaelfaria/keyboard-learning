@@ -5,7 +5,7 @@ import { hashStr } from '../lib/rng';
 interface Preset {
   skin: string;
   hair: string;
-  style: 'flat' | 'spiky' | 'side' | 'long' | 'buzz' | 'beanie' | 'none' | 'bot' | 'creeper' | 'cat' | 'fox' | 'frog' | 'panda';
+  style: 'flat' | 'spiky' | 'side' | 'long' | 'buzz' | 'beanie' | 'none' | 'bot' | 'creeper' | 'cat' | 'fox' | 'frog' | 'panda' | 'owl';
   eyes: string;
   acc?: 'glasses' | 'cheeks' | 'visor' | 'freckles';
   level: number;
@@ -40,11 +40,12 @@ export const AVATAR_PRESETS: Preset[] = [
   P('#e8955c', '#c96b2f', 'fox', '#2b2622', undefined, 0),
   P('#9fd8a8', '#5aa964', 'frog', '#123318', undefined, 0),
   P('#f2f2f2', '#1c1c1c', 'panda', '#1c1c1c', undefined, 0),
+  P('#d9c2a0', '#8a6a4a', 'owl', '#2b2622', undefined, 0),
 ];
 
 /** Index of the first animal preset; kid-mode sims draw from this range. */
-export const ANIMAL_START = AVATAR_PRESETS.length - 4;
-export const ANIMAL_COUNT = 4;
+export const ANIMAL_START = AVATAR_PRESETS.length - 5;
+export const ANIMAL_COUNT = 5;
 
 function px(x: number, y: number, c: string, key: string) {
   return <rect key={key} x={x} y={y} width="1" height="1" fill={c} />;
@@ -100,15 +101,26 @@ export function BlockAvatar({ preset, size = 40, className = '' }: { preset: num
     cells.push(px(7, 3, p.hair, 'pp5'), px(8, 3, p.hair, 'pp6'), px(7, 5, p.hair, 'pp7'), px(8, 5, p.hair, 'pp8'));
     cells.push(px(4, 6, p.hair, 'pn1'), px(5, 6, p.hair, 'pn2'));
   }
-  // eyes (frog draws its own on the bumps)
-  const skipFace = p.style === 'frog';
+  if (p.style === 'owl') {
+    // ear tufts
+    cells.push(px(0, 0, p.hair, 'ot1'), px(1, 0, p.hair, 'ot2'), px(0, 1, p.hair, 'ot3'));
+    cells.push(px(8, 0, p.hair, 'ot4'), px(9, 0, p.hair, 'ot5'), px(9, 1, p.hair, 'ot6'));
+    // huge round eyes
+    cells.push(px(1, 3, '#ffffff', 'ow1'), px(2, 3, '#ffffff', 'ow2'), px(1, 4, '#ffffff', 'ow3'), px(2, 4, p.eyes, 'op1'));
+    cells.push(px(7, 3, '#ffffff', 'ow4'), px(8, 3, '#ffffff', 'ow5'), px(8, 4, '#ffffff', 'ow6'), px(7, 4, p.eyes, 'op2'));
+    // beak + chest feathers
+    cells.push(px(4, 5, '#e0a33a', 'ob1'), px(5, 5, '#e0a33a', 'ob2'));
+    cells.push(px(3, 8, p.hair, 'oc1'), px(5, 8, p.hair, 'oc2'), px(7, 8, p.hair, 'oc3'));
+  }
+  // eyes (frog and owl draw their own)
+  const skipFace = p.style === 'frog' || p.style === 'owl';
   const ey = 4;
   if (!skipFace) {
     cells.push(px(2, ey, '#ffffff', 'ew1'), px(3, ey, p.eyes, 'ep1'));
     cells.push(px(7, ey, '#ffffff', 'ew2'), px(6, ey, p.eyes, 'ep2'));
   }
   // mouth (creeper/animals draw their own)
-  if (!['creeper', 'cat', 'fox', 'frog', 'panda'].includes(p.style)) {
+  if (!['creeper', 'cat', 'fox', 'frog', 'panda', 'owl'].includes(p.style)) {
     if (p.style === 'bot') { for (let x = 3; x <= 6; x++) cells.push(px(x, 7, p.eyes, `m${x}`)); }
     else { cells.push(px(3, 7, '#7a4030', 'm1'), px(4, 7, '#7a4030', 'm2'), px(5, 7, '#7a4030', 'm3'), px(6, 7, '#7a4030', 'm4')); }
   }

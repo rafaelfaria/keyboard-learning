@@ -181,12 +181,13 @@ export function PixelCar({ color = '#14d8c4', you, ghost }: { color?: string; yo
   );
 }
 
-/** The four pixel pals — named animal friends who guard the kid world. */
+/** The five pixel pals — named animal friends, one guarding each island. */
 export const PIXEL_PALS = [
   { name: 'Clementine', kind: 'cat', preset: ANIMAL_START },
   { name: 'Miso', kind: 'fox', preset: ANIMAL_START + 1 },
   { name: 'Pip', kind: 'frog', preset: ANIMAL_START + 2 },
   { name: 'Waffles', kind: 'panda', preset: ANIMAL_START + 3 },
+  { name: 'Biscuit', kind: 'owl', preset: ANIMAL_START + 4 },
 ];
 
 /** Tiny decorative critter that floats/flutters. Purely ornamental. */
