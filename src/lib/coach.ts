@@ -1,6 +1,8 @@
 import type { CoachStyle, ProfileData, SessionResult } from './types';
 import { weakKeys } from './adaptive';
 import { streakFrom } from './metrics';
+import { activeWorldId, worldProgress } from './curriculum';
+import { worldDef } from './worlds';
 
 export const COACH_STYLES: Record<CoachStyle, { name: string; desc: string; emoji: string }> = {
   calm:        { name: 'Calm Guide',       desc: 'Quiet, steady, encouraging', emoji: 'moon' },
@@ -124,6 +126,26 @@ export function dashboardTip(data: ProfileData): string {
       `${names} think they're safe. Prove them wrong — weak-key workout!`,
       `${names} are your current limiters. Targeted reps on them pay off faster than general practice right now.`,
       `${names} are your gap to the next rank. Close it.`);
+  }
+  // Otherwise: talk about where they are on the journey (plan §F).
+  const kid = data.profile.ageGroup === 'kid' && data.settings.kidWorld !== false;
+  const wid = activeWorldId(data);
+  const wp = worldProgress(data, wid);
+  const wd = worldDef(wid);
+  const place = kid ? wd.kid.kidName : wd.adult.adultName;
+  if (wp.total && !wp.complete) {
+    const left = wp.total - wp.done;
+    return tone(style,
+      kid
+        ? `${place} has ${left} spot${left === 1 ? '' : 's'} left to explore. One little quest today keeps the road glowing.`
+        : `${left} waypoint${left === 1 ? '' : 's'} left on ${place}. One steady session today moves the flag.`,
+      kid
+        ? `Only ${left} spot${left === 1 ? '' : 's'} left on ${place} — the ${wd.kid.landmark} is waiting for you!`
+        : `${left} to go on ${place} — the summit of this leg is close. Push!`,
+      kid
+        ? `You're ${wp.done} of ${wp.total} through ${place}. Finishing a region before polishing stars keeps momentum high.`
+        : `You're ${wp.done} of ${wp.total} through ${place}. Clearing a leg before star-polishing keeps the difficulty curve honest.`,
+      `${place}: ${wp.done}/${wp.total}. Finish the leg.`);
   }
   return tone(style,
     'Steady progress suits you. Today\'s recommendation is queued below whenever you\'re ready.',
