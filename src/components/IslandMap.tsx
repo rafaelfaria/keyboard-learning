@@ -400,9 +400,12 @@ export function IslandMap({ skin, worldId, stops, currentIdx, youAvatar, complet
                   <foreignObject x="-19" y="-66" width="38" height="40">
                     <div className="kw-you" title="You are here!"><Avatar v={youAvatar} size={34} /></div>
                   </foreignObject>
-                  <foreignObject x="24" y="-52" width="36" height="38">
+                  {/* the guardian pal: clearly smaller and at your side on the
+                      ground, so it reads as a companion — not a second explorer */}
+                  <ellipse cx="42" cy="27" rx="12" ry="4" fill="rgba(58, 51, 40, 0.12)" />
+                  <foreignObject x="30" y="-4" width="26" height="30">
                     <div className="kw-guardian kw-guardian-bob" style={{ animationDelay: '-0.7s' }} title={`${pal.name} the ${pal.kind}`}>
-                      <BlockAvatar preset={pal.preset} size={28} />
+                      <BlockAvatar preset={pal.preset} size={21} />
                     </div>
                   </foreignObject>
                   <foreignObject x="-90" y="40" width="180" height="38">
