@@ -381,6 +381,33 @@ h1 .ic, h2 .ic, h3 .ic { margin-right: 4px; color: var(--accent); }
 .kwm-cloud { animation: clouddrift 26s ease-in-out infinite alternate; }
 .kwm-cloud2 { animation-duration: 34s; animation-delay: -9s; }
 @keyframes clouddrift { from { transform: translateX(0); } to { transform: translateX(44px); } }
+
+/* archipelago: per-island life */
+.kw-mapwrap { position: relative; }
+.kwm-firefly { animation: fireflyglow 2.6s ease-in-out infinite; }
+@keyframes fireflyglow { 0%, 100% { opacity: 0.15; } 50% { opacity: 1; } }
+.kwm-lantern { animation: lanternsway 3.2s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: top center; }
+@keyframes lanternsway { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
+.kwm-crystal { animation: crystalglow 3.4s ease-in-out infinite; }
+@keyframes crystalglow { 0%, 100% { opacity: 0.75; } 50% { opacity: 1; } }
+.kwm-bird { animation: birdglide 9s ease-in-out infinite alternate; }
+@keyframes birdglide { from { transform: translate(0, 0); } to { transform: translate(60px, -14px); } }
+.kwm-beacon { animation: fireflyglow 1.8s ease-in-out infinite; }
+.kwm-landmark-lit { filter: drop-shadow(0 0 14px rgba(255, 209, 102, 0.75)); }
+
+/* the sea chart */
+.kw-chart svg { border-radius: 18px; }
+.kw-chart-route { fill: none; stroke: #fffdf2; stroke-width: 5; stroke-linecap: round; stroke-dasharray: 0.5 14; opacity: 0.85; }
+.kw-chart-isle { cursor: pointer; }
+.kw-chart-fog { cursor: default; }
+.kw-chart-active { animation: islebob 3s ease-in-out infinite; transform-box: fill-box; }
+@keyframes islebob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -7px; } }
+.kw-chart-q { fill: #7a8a96; font-size: 26px; font-weight: 800; }
+.kw-chart-sign span { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.15; padding: 4px 12px; }
+.kw-chart-sign small { font-size: 10.5px; color: #8a7f68; font-weight: 700; }
+.kw-chart-boat { animation: boatrock 3.6s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
+@keyframes boatrock { from { rotate: -4deg; } to { rotate: 4deg; } }
+.kw-star3 { fill: #f5a802; font-size: 11px; letter-spacing: -1px; }
 .kw-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; }
 @media (max-width: 780px) { .kw-grid { grid-template-columns: 1fr; } }
 .kw-quest { background: linear-gradient(135deg, color-mix(in oklab, var(--accent) 14%, var(--surface)), color-mix(in oklab, var(--accent2) 12%, var(--surface))); }
@@ -651,7 +678,9 @@ h1 .ic, h2 .ic, h3 .ic { margin-right: 4px; color: var(--accent); }
 
 @media (prefers-reduced-motion: reduce) {
   .critter-fly, .cr-wing-l, .cr-wing-r, .kw-guardian-bob, .kw-you,
-  .kwm-cloud, .kwm-sunrays, .kwm-road-done, .kw-pulse, .flight-sun { animation: none; }
+  .kwm-cloud, .kwm-sunrays, .kwm-road-done, .kw-pulse, .flight-sun,
+  .kwm-firefly, .kwm-lantern, .kwm-crystal, .kwm-bird, .kwm-beacon,
+  .kw-chart-active, .kw-chart-boat { animation: none; }
 }
 
 /* map guardians */
