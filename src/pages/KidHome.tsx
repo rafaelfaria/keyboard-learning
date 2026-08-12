@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import Dashboard from './Dashboard';
+import Journey from './Journey';
 import { useData, useStore, useUi, currentStreak, levelInfo } from '../lib/store';
 import {
   activeWorldId, buildStages, graduationReady, lessonUnlocked,
@@ -22,7 +22,7 @@ import { BADGES } from '../lib/badges';
 export function HomeGate() {
   const data = useData();
   if (data && data.profile.ageGroup === 'kid' && data.settings.kidWorld !== false) return <KidHome />;
-  return <Dashboard />;
+  return <Journey />;
 }
 
 export default function KidHome() {

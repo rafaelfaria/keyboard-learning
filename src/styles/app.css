@@ -680,8 +680,77 @@ h1 .ic, h2 .ic, h3 .ic { margin-right: 4px; color: var(--accent); }
   .critter-fly, .cr-wing-l, .cr-wing-r, .kw-guardian-bob, .kw-you,
   .kwm-cloud, .kwm-sunrays, .kwm-road-done, .kw-pulse, .flight-sun,
   .kwm-firefly, .kwm-lantern, .kwm-crystal, .kwm-bird, .kwm-beacon,
-  .kw-chart-active, .kw-chart-boat { animation: none; }
+  .kw-chart-active, .kw-chart-boat, .trail-pulse, .trail-path-done, .trail-flag-up { animation: none; }
 }
+
+/* ================= The Ascent (adult journey) ================= */
+
+.journey { display: flex; flex-direction: column; gap: 16px; }
+.jn-head { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.jn-head h1 { font-size: clamp(1.5rem, 3.4vw, 2rem); margin: 2px 0; }
+.jn-stats { display: flex; gap: 8px; margin-left: auto; flex-wrap: wrap; }
+
+.jn-elev { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.jn-leg { background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 8px 10px; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 6px; color: var(--text); font: inherit; transition: border-color 0.15s, transform 0.15s; }
+.jn-leg:hover:not(:disabled) { border-color: var(--accent); transform: translateY(-2px); }
+.jn-leg.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.jn-leg.locked { opacity: 0.55; cursor: default; }
+.jn-leg-name { font-size: 0.78rem; font-weight: 750; display: flex; align-items: center; gap: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jn-leg.done .jn-leg-name { color: var(--good); }
+.jn-leg-bar { height: 5px; border-radius: 999px; background: var(--ring-track); overflow: hidden; }
+.jn-leg-bar i { display: block; height: 100%; border-radius: 999px; background: var(--accent); }
+.jn-leg.done .jn-leg-bar i { background: var(--good); }
+
+.jn-grid { display: grid; grid-template-columns: 1.7fr 1fr; gap: 16px; align-items: start; }
+@media (max-width: 960px) { .jn-grid { grid-template-columns: 1fr; } .jn-elev { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); } }
+.jn-rail { display: flex; flex-direction: column; gap: 14px; }
+.jn-continue h2 { margin: 4px 0 6px; }
+
+.jn-missions { display: flex; flex-direction: column; gap: 9px; margin-top: 8px; }
+.jn-mission-label { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 650; margin-bottom: 3px; }
+.jn-mission.done .jn-mission-label { color: var(--good); }
+.jn-mission-bar { display: block; height: 5px; border-radius: 999px; background: var(--ring-track); overflow: hidden; }
+.jn-mission-bar i { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+.jn-mission.done .jn-mission-bar i { background: var(--good); }
+
+/* the trail map itself */
+.trail-map svg { width: 100%; height: auto; }
+.trail-massif { fill: color-mix(in oklab, var(--accent) 7%, var(--surface)); }
+.trail-massif2 { fill: color-mix(in oklab, var(--accent) 12%, var(--surface)); }
+.trail-contour { fill: none; stroke: var(--border); stroke-width: 1.5; opacity: 0.5; }
+.trail-path { fill: none; stroke: var(--border); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 1 12; }
+.trail-path-done { fill: none; stroke: var(--accent); stroke-width: 5.5; stroke-linecap: round; stroke-dasharray: 1 12; animation: roadmarch 1.2s linear infinite; }
+.trail-wp { cursor: pointer; }
+.trail-locked { cursor: default; }
+.trail-wp-bg { fill: var(--surface); stroke: var(--border); stroke-width: 2.5; }
+.trail-open .trail-wp-bg, .trail-cur .trail-wp-bg { stroke: var(--accent); }
+.trail-done .trail-wp-bg { fill: color-mix(in oklab, var(--accent) 24%, var(--surface)); stroke: var(--accent); }
+.trail-locked .trail-wp-bg { stroke-dasharray: 3 5; opacity: 0.7; }
+.trail-wp-num { fill: var(--muted); font-size: 12.5px; font-weight: 750; }
+.trail-wp-stars { fill: var(--accent); font-size: 13px; font-weight: 800; }
+.trail-pulse { fill: none; stroke: var(--accent); stroke-width: 2; opacity: 0.6; animation: kwpulse 1.8s ease infinite; }
+.trail-sign { display: flex; justify-content: center; pointer-events: none; }
+.trail-sign span { background: var(--surface); border: 1.5px solid var(--accent); color: var(--text); font-weight: 750; font-size: 12.5px; padding: 3px 11px; border-radius: 999px; white-space: nowrap; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14); }
+.trail-camp { cursor: pointer; }
+.trail-camp-bg { fill: color-mix(in oklab, var(--gold) 20%, var(--surface)); stroke: var(--gold); stroke-width: 2; }
+.trail-camp-ic { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; color: var(--gold); }
+.trail-camp-label { fill: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.trail-flag rect { fill: var(--muted); }
+.trail-flag path { fill: var(--ring-track); stroke: var(--border); stroke-width: 1; }
+.trail-flag-up path { fill: var(--gold); stroke: none; animation: fireflyglow 2.4s ease-in-out infinite; }
+.trail-flag-up rect { fill: var(--text); }
+
+/* the trail guide list */
+.jn-guide { display: flex; flex-direction: column; }
+.jn-guide-row.locked .jn-guide-main { opacity: 0.55; }
+.jn-guide-main { display: flex; align-items: center; gap: 12px; padding: 9px 4px; border-bottom: 1px solid var(--border); }
+.jn-guide-row:last-child .jn-guide-main { border-bottom: none; }
+.jn-guide-num { flex: none; width: 26px; height: 26px; border-radius: 999px; background: var(--surface2); border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 750; }
+.jn-guide-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.jn-guide-txt small { color: var(--muted); font-size: 0.76rem; }
+.jn-guide-stars { color: var(--gold); font-size: 0.86rem; letter-spacing: 1px; flex: none; }
+.jn-guide-camp { display: flex; align-items: center; gap: 6px; padding: 7px 4px 5px; color: var(--gold); font-size: 0.78rem; font-weight: 700; }
+.jn-camp-link { background: none; border: none; color: var(--accent); font: inherit; cursor: pointer; text-decoration: underline; padding: 0; }
 
 /* map guardians */
 .kw-guardian { display: flex; align-items: flex-end; justify-content: center; width: 100%; height: 100%; }
