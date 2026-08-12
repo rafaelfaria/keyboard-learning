@@ -350,6 +350,8 @@ h1 .ic, h2 .ic, h3 .ic { margin-right: 4px; color: var(--accent); }
 .kw-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1.5px solid var(--border); padding: 8px 14px; border-radius: 999px; font-weight: 750; }
 .kw-chip .ic { color: var(--warn); }
 .kw-map-card { background: linear-gradient(160deg, color-mix(in oklab, var(--accent) 10%, var(--surface)), color-mix(in oklab, var(--accent2) 8%, var(--surface))); }
+.kw-map-card > .row { align-items: center; margin-bottom: 12px; }
+.kw-map-card h2 { line-height: 1.2; }
 .kw-map svg { width: 100%; height: auto; border-radius: 18px; }
 
 /* island road: dirt trail + stepping stones; the travelled part marches */
@@ -703,6 +705,7 @@ h1 .ic, h2 .ic, h3 .ic { margin-right: 4px; color: var(--accent); }
 
 .jn-grid { display: grid; grid-template-columns: 1.7fr 1fr; gap: 16px; align-items: start; }
 @media (max-width: 960px) { .jn-grid { grid-template-columns: 1fr; } .jn-elev { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); } }
+.jn-left { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .jn-rail { display: flex; flex-direction: column; gap: 14px; }
 .jn-continue h2 { margin: 4px 0 6px; }
 

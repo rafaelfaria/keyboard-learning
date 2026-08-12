@@ -40,15 +40,16 @@ const NAV2 = [
   { to: '/app/settings', label: 'Settings', icon: 'settings' },
 ];
 
+// Kids get the same merge as grown-ups: races live inside Play (plan §7.2),
+// which frees the fourth door for the sticker book they actually visit.
 const KID_NAV = [
   { to: '/app', label: 'My World', icon: 'map', end: true },
   { to: '/app/learn', label: 'Quests', icon: 'book' },
   { to: '/app/games', label: 'Play', icon: 'gamepad' },
-  { to: '/app/race', label: 'Race', icon: 'rocket' },
+  { to: '/app/badges', label: 'My Stickers', icon: 'medal' },
 ];
 
 const KID_NAV2 = [
-  { to: '/app/badges', label: 'My Stickers', icon: 'medal' },
   { to: '/app/profile', label: 'My Character', icon: 'user' },
   { to: '/app/family', label: 'Grown-ups', icon: 'school' },
   { to: '/app/settings', label: 'Settings', icon: 'settings' },

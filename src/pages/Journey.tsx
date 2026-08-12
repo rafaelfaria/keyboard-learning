@@ -116,6 +116,7 @@ export default function Journey() {
       </div>
 
       <div className="jn-grid">
+        <div className="jn-left">
         <Card className="jn-map-card">
           <div className="row spread wrap gap" style={{ marginBottom: 8 }}>
             <div className="row gap">
@@ -165,6 +166,8 @@ export default function Journey() {
             </div>
           )}
         </Card>
+        <CoachCard text={tip} />
+        </div>
 
         <div className="jn-rail">
           <Card className="jn-continue">
@@ -208,7 +211,6 @@ export default function Journey() {
               ))}
             </div>
           </Card>
-          <CoachCard text={tip} />
         </div>
       </div>
     </div>

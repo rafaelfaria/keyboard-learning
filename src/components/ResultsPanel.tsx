@@ -153,15 +153,15 @@ export function ResultsPanel({ result, rewards, insight, next, stars, targets, o
               <span className="muted small">Hesitations: <strong>{result.hesitations}</strong></span>
             </div>
             {troubleKeys.length > 0 ? (
-              <div className="row wrap gap" style={{ marginTop: 10 }}>
+              <div className="row wrap gap" style={{ marginTop: 12 }}>
                 {troubleKeys.map(([k, s]) => (
-                  <Chip key={k} tone="warn">{displayChar(k)} · {s.e} miss{s.e > 1 ? 'es' : ''}</Chip>
+                  <Chip key={k} tone="warn">{k === ' ' ? 'Space' : displayChar(k)} · {s.e} miss{s.e > 1 ? 'es' : ''}</Chip>
                 ))}
               </div>
-            ) : <p className="good" style={{ marginTop: 10 }}>✔ No missed keys — a perfectly clean run.</p>}
+            ) : <p className="good" style={{ marginTop: 12 }}>✔ No missed keys — a perfectly clean run.</p>}
             {result.slowPairs.length > 0 && (
-              <p className="muted small" style={{ marginTop: 10 }}>
-                Slowest transitions: {result.slowPairs.slice(0, 3).map(([p, ms]) => `${displayChar(p[0])}→${displayChar(p[1])} (${Math.round(ms)}ms)`).join(' · ')}
+              <p className="muted small" style={{ marginTop: 12 }}>
+                Slowest transitions: {result.slowPairs.slice(0, 3).map(([p, ms]) => `${(p[0] === ' ' ? 'Space' : displayChar(p[0]))}→${(p[1] === ' ' ? 'Space' : displayChar(p[1]))} (${Math.round(ms)}ms)`).join(' · ')}
               </p>
             )}
           </div>
