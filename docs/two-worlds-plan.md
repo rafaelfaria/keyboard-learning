@@ -88,6 +88,53 @@ per-world curve:
   level 8, and stays visible thereafter. Graduating switches the skin to The
   Ascent at the same position — progress is shared, so nothing resets.
 
+### 2.5 The Guide — the map's companion (Learn/Quests, renamed & upgraded)
+
+The map answers *where am I*; a list view must keep answering *what is each step
+and what does it ask of me*. The current Learn (adult) and Quests (kid) pages
+survive as that companion, renamed and upgraded rather than removed:
+
+- **Adults: "Trail Guide"** — a toggle view inside Journey (map ⇄ guide, so nav
+  stays five doors). Every waypoint listed with: name, **typing focus** (the keys
+  it introduces and the skill it trains — the data already exists as
+  `REGION_META.skill`/`desc` and each lesson's key set), the **requirement to
+  pass** (target WPM + accuracy for 1 star, spelled out), star thresholds, and
+  current status. Camps and legs group the list visually.
+- **Kids: "Quest Book"** — the existing Quests nav door, restyled as a sticker
+  book: one row per stop with the guardian, a kid-worded focus line ("Learn the
+  reach up to E and I!"), earned stars, and what the next star needs.
+- Locked steps show their focus too — seeing *what's coming* is part of the
+  guidance ("Numbers live on Crystal Caverns, two islands away").
+
+### 2.6 The pedagogy underneath (why this path)
+
+The sequence is not invented; it follows the established evidence on how typing
+and motor skills are learned, and each principle has a concrete home in the app:
+
+| Principle (evidence base) | Where it lives |
+|---|---|
+| **Home-row anchoring, small key sets introduced progressively** — the standard instructional sequence since typewriting research | W1→W2 order; each lesson introduces 1–3 keys with dedicated drills |
+| **Accuracy before speed** — errors practised early become automatized errors; speed must emerge from accurate strokes (motor-learning consensus) | Accuracy gates (92%→96%), star formula requiring accuracy first, Kip's coaching rules |
+| **Deliberate practice on weaknesses with immediate feedback** (Ericsson) | The adaptive engine: per-key stats → weak-key drills; per-keystroke feedback; post-session coach line |
+| **Distributed practice beats massed practice** — short frequent sessions retain motor skill better | Short lessons, daily goal minutes, streaks, daily challenge |
+| **Chunking: letters → bigrams → words → sentences** builds larger motor programs (Logan & Crump's two-loop model of skilled typing) | Lesson drill ladders; letter-pair (bigram) stats driving practice generation |
+| **Blocked practice for new material, interleaved review for retention** | New-key drills within a lesson (blocked); adaptive sets and the 3-star polish loop (interleaved) |
+| **Typing without looking** accelerates map-building once anchors exist | Lights-out mode; on-screen keyboard guide that fades as mastery grows |
+| **Rhythm/evenness correlates with expertise** — experts show low inter-key variance | Consistency metric, Rhythm studio, Wordflight |
+| **Time-on-task is the biggest predictor; motivation buys time-on-task** | The entire world/game layer — gamification in service of practice volume |
+
+Two additions this plan makes because the science asks for them:
+
+- **Camp checkpoints (new)**: each camp/stage boundary offers a short optional
+  mixed-review drill over everything learned so far — spaced retrieval formalized,
+  rewarded with a badge, never a gate.
+- **Honest position on key order**: we teach row-by-row (the dominant school
+  method) rather than letter-frequency order (keybr's approach). Both are
+  defensible; frequency order reaches "real words" marginally sooner, row order
+  builds cleaner spatial anchors. Our adaptive engine compensates for the main
+  weakness of either order by re-weighting whatever keys *this* learner struggles
+  with — which matters more than the introduction order itself.
+
 ---
 
 ## 3. The kid path: The Archipelago
@@ -209,8 +256,8 @@ dependency, not by release phases. Estimated honestly: this is the largest singl
 change since the initial build (roughly 8–12 focused working sessions).
 
 **A. Engine** — `WORLDS` registry; curriculum regroup + W5 generated lessons;
-difficulty retune (§2.3); unlock + graduation rules; store v4; world-scoped
-selectors; celebration triggers.
+difficulty retune (§2.3); unlock + graduation rules; camp checkpoint drills
+(§2.6); store v4; world-scoped selectors; celebration triggers.
 
 **B. Journey components** — shared `<JourneyMap>` mechanics (nodes, road,
 current-marker, tap-to-start, a11y labels) with two renderers: `IslandMap`
@@ -226,7 +273,8 @@ home, "Today" rail.
 
 **E. Guided shell** — adult nav 5 doors, Arena merge, Progress consolidation
 (Dashboard + Progress + Badges re-homed), post-lesson Next-chaining for both
-paths.
+paths, and the two Guide views (§2.5): Trail Guide toggle inside Journey,
+Quest Book restyle of the kid Quests page.
 
 **F. Content & coach** — W5 lesson definitions over existing generators; per-world
 Kip coach lines and quest copy; region/stop flavor text for all ten skins.
@@ -247,11 +295,10 @@ Kip coach lines and quest copy; region/stop flavor text for all ten skins.
 
 ---
 
-## 7. Open decisions (defaults chosen, veto anytime)
+## 7. Decisions — **all four approved 2026-08-12**
 
-1. **Adult home = Journey map** (dashboard re-homed under Progress). Default: yes —
-   it is the point of the redesign.
-2. **Arena naming/merge** (Games + Race under one nav door). Default: merge.
-3. **World names** — working names above; happy to bikeshed after it works.
-4. **Kid stop density** — one node per lesson (7–10 per island). Default: yes;
-   fallback is nodes-per-stage with a lesson list drawer if maps feel crowded.
+1. **Adult home = Journey map** (dashboard re-homed under Progress). ✅ Approved.
+2. **Arena merge** (Games + Race under one nav door). ✅ Approved.
+3. **World names** — working names in use; rename freely later. ✅ Approved.
+4. **Kid stop density** — one node per lesson (7–10 per island). ✅ Approved;
+   fallback stays nodes-per-stage with a lesson drawer if maps feel crowded.
