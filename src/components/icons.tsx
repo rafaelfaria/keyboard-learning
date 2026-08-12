@@ -15,7 +15,7 @@ import {
   Snowflake, Umbrella, Bike, Camera, Gift, Key, Magnet, Origami, Pyramid, Rainbow,
   Save, Ship, Stamp, Sword, Telescope, Watch, Axe, Banana, Cat, Dog, Fish, Squirrel,
   Signpost, ZoomIn, Type, Ear, PersonStanding, Snail, Dices, Castle, Candy, Pause, CircleHelp,
-  LogOut, UserPlus,
+  LogOut, UserPlus, ChevronRight, Check,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -49,7 +49,7 @@ export const ICONS: Record<string, LucideIcon> = {
   axe: Axe, banana: Banana, cat: Cat, dog: Dog, fish: Fish, squirrel: Squirrel,
   signpost: Signpost, zoom: ZoomIn, type: Type, ear: Ear, person: PersonStanding,
   snail: Snail, dice: Dices, castle: Castle, candy: Candy, pause: Pause, help: CircleHelp,
-  logout: LogOut, 'user-plus': UserPlus,
+  logout: LogOut, 'user-plus': UserPlus, 'chevron-right': ChevronRight, tick: Check,
 };
 
 /** Icon by kebab name; falls back to rendering the string itself (legacy emoji data). */

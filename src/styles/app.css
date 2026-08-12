@@ -755,6 +755,28 @@ h1 .ic, h2 .ic, h3 .ic { margin-right: 4px; color: var(--accent); }
 .jn-guide-camp { display: flex; align-items: center; gap: 6px; padding: 7px 4px 5px; color: var(--gold); font-size: 0.78rem; font-weight: 700; }
 .jn-camp-link { background: none; border: none; color: var(--accent); font: inherit; cursor: pointer; text-decoration: underline; padding: 0; }
 
+/* train hub: one hero, four groups of compact rows */
+.trainhub { display: flex; flex-direction: column; gap: 16px; }
+.train-hero { border: 1.5px solid color-mix(in oklab, var(--accent) 45%, var(--border)); background: linear-gradient(135deg, color-mix(in oklab, var(--accent) 10%, var(--surface)), var(--surface)); }
+.train-hero-ic { width: 52px; height: 52px; border-radius: 16px; background: color-mix(in oklab, var(--accent) 16%, var(--surface)); display: flex; align-items: center; justify-content: center; color: var(--accent); flex: none; }
+.train-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 780px) { .train-groups { grid-template-columns: 1fr; } }
+.train-group { padding: 14px 16px; }
+.train-group-head { display: flex; align-items: baseline; gap: 8px; padding-bottom: 6px; }
+.train-group-head .ic { align-self: center; color: var(--accent); }
+.train-group-head h3 { margin: 0; font-size: 1rem; }
+.train-group-head small { font-size: 0.76rem; }
+.train-row { display: flex; align-items: center; gap: 11px; padding: 9px 6px; border-top: 1px solid var(--border); color: var(--text); text-decoration: none; border-radius: 10px; transition: background 0.12s; min-height: 44px; }
+.train-row:hover { background: color-mix(in oklab, var(--accent) 8%, transparent); }
+.train-row-ic { width: 30px; height: 30px; border-radius: 9px; background: var(--surface2); display: flex; align-items: center; justify-content: center; color: var(--accent); flex: none; }
+.train-row-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.25; }
+.train-row-txt small { color: var(--muted); font-size: 0.75rem; }
+.train-row-go { color: var(--muted); flex: none; }
+.train-retest { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border: 1.5px dashed var(--border); border-radius: 14px; color: var(--text); text-decoration: none; transition: border-color 0.15s; }
+.train-retest:hover { border-color: var(--accent); }
+.train-retest .ic { color: var(--accent); }
+.train-retest span { flex: 1; font-size: 0.9rem; }
+
 /* progress hub tabs */
 .proghub-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
 .proghub-tab { display: inline-flex; align-items: center; gap: 7px; background: var(--surface); border: 1.5px solid var(--border); border-radius: 999px; padding: 8px 16px; color: var(--text); font: inherit; font-weight: 700; font-size: 0.88rem; cursor: pointer; transition: border-color 0.15s; }
