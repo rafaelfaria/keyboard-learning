@@ -11,6 +11,37 @@
    base.css, which lists .pub-root alongside [data-theme='midnight'] so the
    whole token set arrives together. See the comment there for why. */
 .pub-root {
+  /* Measure and rhythm.
+     ------------------------------------------------------------------
+     These pages had five different prose widths (62ch, 68ch, 70ch, 48ch, and
+     whatever a card happened to be) and ten different vertical gaps, each one
+     picked in isolation. The result reads as misalignment rather than as a
+     system: a lede that wraps at one point sitting above an intro that wraps
+     at another, with no reason a reader could infer.
+
+     One measure for every block of prose, so all of it shares a right edge.
+     One spacing scale, so every gap on the page is a multiple of the same
+     idea. Wide pages still let grids and bands span the full container: two
+     deliberate widths read as structure, five arbitrary ones read as an
+     accident.
+
+     The measure is in rem, not ch, which is the detail that actually fixes
+     this. `ch` is relative to the element's own font size, so a single
+     `68ch` token still produced three different right edges: one for the
+     lede, one for the intro and one for body copy. A rem measure gives every
+     block the same edge whatever size it is set in. It also equals the
+     standard container, so on a prose page the text fills its column exactly
+     and there is one width on screen; wide pages keep the wider container for
+     grids, and the two-tier difference is large enough to read as structure. */
+  --measure: 42rem;       /* prose, and the headings that sit above it */
+  --measure-tight: 30rem; /* centred copy, which needs a shorter line */
+
+  --flow-1: 0.5rem;
+  --flow-2: 0.9rem;
+  --flow-3: 1.5rem;
+  --flow-4: 2.5rem;
+  --flow-5: 3.5rem;
+
   min-height: 100vh;
   background: var(--bg);
   color: var(--text);
@@ -185,7 +216,7 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
   padding: 2.5rem 0 4.5rem;
 }
 
-.pub-main .pub-wrap { width: min(100% - 2.5rem, 50rem); }
+.pub-main .pub-wrap { width: min(100% - 2.5rem, var(--measure)); }
 .pub-main-wide .pub-wrap { width: min(100% - 2.5rem, 68rem); }
 
 .pub-crumbs { margin-bottom: 1.5rem; }
@@ -209,43 +240,41 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
   font-size: clamp(2rem, 1.4rem + 2.4vw, 3.1rem);
   line-height: 1.08;
   letter-spacing: -0.025em;
-  margin: 0 0 0.9rem;
-  max-width: 22ch;
+  margin: 0 0 var(--flow-2);
+  max-width: var(--measure);
 }
-
-.pub-root-home .pub-h1,
-.pub-main-wide .pub-h1 { max-width: 26ch; }
 
 .pub-lede {
   font-size: clamp(1.05rem, 1rem + 0.45vw, 1.3rem);
   line-height: 1.55;
   color: var(--muted);
-  max-width: 62ch;
-  margin: 0 0 2.5rem;
+  max-width: var(--measure);
+  margin: 0 0 var(--flow-4);
 }
 
 .pub-intro {
   font-size: 1.05rem;
   line-height: 1.7;
-  max-width: 68ch;
-  margin: 0 0 2.5rem;
+  max-width: var(--measure);
+  margin: 0 0 var(--flow-4);
 }
 
-.pub-section { margin: 0 0 3rem; }
+.pub-section { margin: 0 0 var(--flow-5); }
 
 .pub-section h2 {
   font-size: clamp(1.35rem, 1.2rem + 0.7vw, 1.75rem);
   letter-spacing: -0.015em;
-  margin: 0 0 0.9rem;
+  margin: 0 0 var(--flow-2);
+  max-width: var(--measure);
   scroll-margin-top: 5.5rem;
 }
 
-.pub-section h3 { font-size: 1.08rem; margin: 0 0 0.4rem; }
+.pub-section h3 { font-size: 1.08rem; margin: 0 0 var(--flow-1); }
 
 .pub-section p {
   line-height: 1.72;
-  max-width: 68ch;
-  margin: 0 0 1rem;
+  max-width: var(--measure);
+  margin: 0 0 var(--flow-2);
   color: color-mix(in srgb, var(--text) 88%, var(--muted));
 }
 
@@ -274,7 +303,8 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 1.15rem 1.4rem;
-  margin: 0 0 2.75rem;
+  margin: 0 0 var(--flow-5);
+  max-width: var(--measure);
   background: color-mix(in srgb, var(--text) 3%, transparent);
 }
 
@@ -298,7 +328,7 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
   gap: 1.1rem;
-  margin: 1.5rem 0 0;
+  margin: var(--flow-3) 0 0;
 }
 
 .pub-card {
@@ -314,7 +344,7 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
 
 .pub-steps {
   line-height: 1.75;
-  max-width: 68ch;
+  max-width: var(--measure);
   padding-left: 1.2rem;
 }
 
@@ -325,8 +355,8 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
 .pub-bullets {
   list-style: none;
   padding: 0;
-  margin: 0 0 1rem;
-  max-width: 68ch;
+  margin: 0 0 var(--flow-2);
+  max-width: var(--measure);
 }
 
 .pub-bullets li {
@@ -350,7 +380,7 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
 
 /* A term/definition pair reads as one thought; a card grid reads as N things
    to compare. These pages want the former. */
-.pub-defs { margin: 1.25rem 0 0; max-width: 70ch; }
+.pub-defs { margin: var(--flow-3) 0 0; max-width: var(--measure); }
 
 .pub-defs > div {
   display: grid;
@@ -375,8 +405,8 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
 .pub-legal-stamp {
   font-size: 0.85rem;
   color: var(--muted);
-  margin: -1.25rem 0 2rem;
-  padding-bottom: 1.5rem;
+  margin: calc(var(--flow-4) * -0.5) 0 var(--flow-4);
+  padding-bottom: var(--flow-3);
   border-bottom: 1px solid var(--border);
 }
 
@@ -401,7 +431,7 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
 .pub-faq-item summary::before { content: '+'; color: var(--accent); font-weight: 700; }
 .pub-faq-item[open] summary::before { content: '−'; }
 .pub-faq-item summary h2 { display: inline; font-size: 1.1rem; margin: 0; letter-spacing: -0.01em; }
-.pub-faq-item p { margin: 0.7rem 0 0 1.2rem; line-height: 1.72; max-width: 68ch; color: var(--muted); }
+.pub-faq-item p { margin: var(--flow-1) 0 0 1.2rem; line-height: 1.72; max-width: var(--measure); color: var(--muted); }
 
 /* ── Glossary ───────────────────────────────────────────────────────────── */
 
@@ -414,7 +444,7 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
 }
 
 .pub-term dt h2 { font-size: 1.1rem; margin: 0 0 0.45rem; letter-spacing: -0.01em; }
-.pub-term dd { margin: 0; line-height: 1.72; max-width: 68ch; color: var(--muted); }
+.pub-term dd { margin: 0; line-height: 1.72; max-width: var(--measure); color: var(--muted); }
 
 /* ── Typing test ────────────────────────────────────────────────────────── */
 
@@ -422,7 +452,7 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 1.5rem;
-  margin-bottom: 3rem;
+  margin-bottom: var(--flow-5);
   background: color-mix(in srgb, var(--text) 3%, transparent);
 }
 
@@ -430,7 +460,7 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
-  margin-bottom: 1.25rem;
+  margin-bottom: var(--flow-3);
 }
 
 .tt-dur, .tt-restart {
@@ -461,7 +491,7 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
   align-items: baseline;
   flex-wrap: wrap;
   gap: 0.4rem 1.1rem;
-  margin: 1.25rem 0 1.9rem;
+  margin: var(--flow-3) 0 var(--flow-4);
 }
 
 .tt-score-n {
@@ -485,8 +515,8 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
 .tt-summary {
   color: var(--muted);
   line-height: 1.6;
-  margin: 0.5rem 0 0;
-  max-width: 68ch;
+  margin: var(--flow-1) 0 0;
+  max-width: var(--measure);
 }
 
 .tt-stats {
@@ -682,17 +712,17 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 2.25rem;
-  margin: 3rem 0;
+  margin: var(--flow-5) 0;
   text-align: center;
   background: color-mix(in srgb, var(--accent) 8%, transparent);
 }
 
-.pub-cta-band h2 { margin: 0 0 0.6rem; font-size: 1.5rem; letter-spacing: -0.02em; }
-.pub-cta-band p { margin: 0 auto 1.5rem; max-width: 48ch; color: var(--muted); line-height: 1.65; }
+.pub-cta-band h2 { margin: 0 0 var(--flow-1); font-size: 1.5rem; letter-spacing: -0.02em; }
+.pub-cta-band p { margin: 0 auto var(--flow-3); max-width: var(--measure-tight); color: var(--muted); line-height: 1.65; }
 .pub-cta-row { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
 
-.pub-next { margin-top: 3.5rem; }
-.pub-next h2 { font-size: 1.2rem; margin: 0 0 1rem; }
+.pub-next { margin-top: var(--flow-5); }
+.pub-next h2 { font-size: 1.2rem; margin: 0 0 var(--flow-2); }
 
 .pub-next-grid {
   display: grid;
