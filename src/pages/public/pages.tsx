@@ -16,6 +16,7 @@ import { CtaBand, NextSteps, PublicPage } from '../../components/public/PublicPa
 import {
   MockAnalytics, MockCoach, MockModes, MockPractice, MockRace,
 } from '../../components/public/Mock';
+import { GameArt, RaceArt } from '../../components/public/GameArt';
 import { pageByPath, type PublicPage as PageDef } from '../../lib/seo/site';
 import {
   ACCESSIBILITY, AUDIENCES, CORE_FEATURES, CURRICULUM, FAQS, GAMES, GLOSSARY,
@@ -170,25 +171,34 @@ export function TypingGamesPage() {
         specific skill named on each card, and the result feeds the same mastery map your lessons do.
       </p>
 
-      <div className="pub-grid">
+      {/* The same animated cards the landing page uses. This page is the one
+          search actually sends people to, and it was showing the games as
+          paragraphs in plain boxes while the home page showed them moving. */}
+      <div className="play-grid pub-play-grid">
+        <article className="play-card play-card-lead">
+          <RaceArt />
+          <div className="play-lead-body">
+            <span className="pub-skill">The main event</span>
+            <h2>Lightstream Race</h2>
+            <p>
+              Rivals with believable habits: slow starters who come back at you, streaky sprinters
+              who surge and stall. Race the ghost of your own best run, or open a private room with
+              a join code for friends and classrooms. No public matchmaking, no strangers, no chat,
+              ever.
+            </p>
+            <p className="pub-meta">Five difficulties plus an adaptive rival.</p>
+          </div>
+        </article>
+
         {GAMES.map((g) => (
-          <article className="pub-card pub-card-game" key={g.slug}>
-            <h2>{g.name}</h2>
+          <article className="play-card" key={g.slug}>
+            <GameArt slug={g.slug} />
+            <h3>{g.name}</h3>
             <p className="pub-skill">Trains: {g.skill}</p>
             <p>{g.description}</p>
           </article>
         ))}
       </div>
-
-      <section className="pub-section">
-        <h2>Racing</h2>
-        <p>
-          Beyond the games, races put you against CPU rivals with believable habits: slow starters,
-          streaky sprinters, across five difficulties plus an adaptive one. You can race the ghost
-          of your own best run, and private rooms with join codes let friends or a classroom race
-          together. There is no public matchmaking, no strangers and no chat, ever.
-        </p>
-      </section>
 
       <CtaBand title="Play something that actually trains you" body="Every game is free and runs in the browser. Nothing to download." />
 

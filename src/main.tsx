@@ -9,6 +9,7 @@ import '@fontsource/atkinson-hyperlegible/700.css';
 import './styles/base.css';
 import './styles/app.css';
 import './styles/landing.css';
+import './styles/gameart.css';
 import './styles/public.css';
 import './styles/mock.css';
 import './styles/classroom.css';

@@ -15,6 +15,7 @@ import { EXPLORER_QUOTES } from '../lib/words';
 import { Ic } from '../components/icons';
 import { SiteFooter } from '../components/public/SiteFooter';
 import { SiteHeader } from '../components/public/SiteHeader';
+import { GameArt, RaceArt } from '../components/public/GameArt';
 import { BlockAvatar } from '../components/avatars';
 import { MODE_CLUSTERS, SESSION_LOOP } from '../lib/seo/content';
 
@@ -634,16 +635,7 @@ export default function Landing() {
           </div>
           <div className="play-grid">
             <article className="play-card play-card-lead rv">
-              <div className="play-art pa-race" aria-hidden>
-                {[2, 5, 8, 11].map((p, i) => (
-                  <span className="pr-lane" key={p}>
-                    <i className="pr-trail" />
-                    <span className="pr-comet" style={{ animationDelay: `${i * 0.55}s` }}>
-                      <BlockAvatar preset={p} size={20} />
-                    </span>
-                  </span>
-                ))}
-              </div>
+              <RaceArt marker={(p) => <BlockAvatar preset={p} size={20} />} />
               <div className="play-lead-body">
                 <span className="land-eyebrow">The main event</span>
                 <h3><Ic n="zap" size={20} /> Lightstream Race</h3>
@@ -663,61 +655,43 @@ export default function Landing() {
               </div>
             </article>
             <article className="play-card rv" data-speed={-0.6}>
-              <div className="play-art pa-wordfall" aria-hidden><span>w</span><span>o</span><span>r</span><span>d</span><span>s</span></div>
+              <GameArt slug="wordfall" />
               <h3><Ic n="shield" size={18} /> Wordfall Defence</h3>
               <p>Words drift toward your light-shield. Careless speed weakens it; calm accuracy saves the city.</p>
               <Chip tone="accent">Accuracy under pressure</Chip>
             </article>
             <article className="play-card rv" data-speed={0.4}>
-              <div className="play-art pa-forge" aria-hidden><Ic n="hammer" size={40} /><i>✦</i><i>✦</i><i>✦</i></div>
+              <GameArt slug="keyforge" />
               <h3><Ic n="hammer" size={18} /> Keyforge</h3>
               <p>The fire only burns while you type. Misses vent heat, treasures make it hungrier. Forge before it goes cold.</p>
               <Chip tone="accent">Fast, flawless words</Chip>
             </article>
             <article className="play-card rv" data-speed={-0.2}>
-              <div className="play-art pa-flight" aria-hidden><Ic n="send" size={40} /></div>
+              <GameArt slug="wordflight" />
               <h3><Ic n="send" size={18} /> Wordflight</h3>
               <p>A glider that climbs when your rhythm is even and wobbles when you rush. Thread the golden gates.</p>
               <Chip tone="accent">Rhythm & flow</Chip>
             </article>
             <article className="play-card rv" data-speed={0.5}>
-              <div className="play-art pa-duel" aria-hidden>
-                <span className="pd-lane"><i className="pd-fill pd-you" /></span>
-                <span className="pd-badge"><Ic n="swords" size={17} /></span>
-                <span className="pd-lane"><i className="pd-fill pd-foe" /></span>
-              </div>
+              <GameArt slug="duel" />
               <h3><Ic n="swords" size={18} /> Quill Duel</h3>
               <p>Best-of-seven phrase duel against a rival matched to your pace, and you watch them typing, cursor and all.</p>
               <Chip tone="accent">Burst speed under pressure</Chip>
             </article>
             <article className="play-card rv" data-speed={-0.3}>
-              <div className="play-art pa-sprint" aria-hidden>
-                <span className="ps-finish"><Ic n="crown" size={16} /></span>
-                <i className="ps-dot" /><i className="ps-dot" /><i className="ps-dot" /><i className="ps-dot" />
-              </div>
+              <GameArt slug="survivor" />
               <h3><Ic n="crown" size={18} /> Survivor Sprint</h3>
               <p>Eight typists, four rapid heats. The slowest head to the cheer bench each round. Outlast them all.</p>
               <Chip tone="accent">Consistency under pressure</Chip>
             </article>
             <article className="play-card rv" data-speed={0.3}>
-              <div className="play-art pa-cipher" aria-hidden>
-                {([['h', 'c'], ['p', 'i'], ['c', 'p'], ['i', 'h'], ['r', 'e'], ['e', 'r']] as const).map(([a, b], i) => (
-                  <span className="pc-tile" key={i} style={{ animationDelay: `${i * 0.22}s` }}><b>{a}</b><i>{b}</i></span>
-                ))}
-              </div>
+              <GameArt slug="cipher" />
               <h3><Ic n="puzzle" size={18} /> Cipher Run</h3>
               <p>Unscramble rune-words against the clock. Decoding builds the deep letter-map fast typing sits on.</p>
               <Chip tone="accent">Spelling recall & mapping</Chip>
             </article>
             <article className="play-card rv" data-speed={-0.5}>
-              <div className="play-art pa-stack" aria-hidden>
-                <span className="pst-col">
-                  <i className="pst-drop" />
-                  <i className="pst-b" style={{ width: 58 }} />
-                  <i className="pst-b" style={{ width: 42 }} />
-                  <i className="pst-b" style={{ width: 66 }} />
-                </span>
-              </div>
+              <GameArt slug="stack" />
               <h3><Ic n="blocks" size={18} /> Block Stack</h3>
               <p>Every word becomes a block. Clean words build wide and steady, sloppy ones crumble the tower.</p>
               <Chip tone="accent">Word-perfect precision</Chip>
