@@ -34,6 +34,13 @@ function buildPassage(seed: number, words: number): string {
   return out.join(' ');
 }
 
+/** A key as it should be read aloud: a space is a word, not a blank box. */
+function keyLabel(k: string): string {
+  if (k === ' ') return 'space';
+  if (k === '\n') return 'enter';
+  return k;
+}
+
 function Verdict({ r }: { r: SessionResult }) {
   const worst = Object.entries(r.keyAgg)
     .filter(([k, s]) => k.trim() && s.a >= 3)
@@ -43,26 +50,69 @@ function Verdict({ r }: { r: SessionResult }) {
 
   const gap = Math.max(0, Math.round((r.raw - r.wpm) * 10) / 10);
 
+  /**
+   * The read-out, as separate findings rather than one paragraph.
+   *
+   * These used to be concatenated into a single block of prose, so four
+   * unrelated diagnoses ran together and the reader had to unpick which
+   * sentence applied to which number. One line per finding is the whole fix.
+   */
+  const notes: string[] = [];
+  if (gap > 0.5) {
+    notes.push(`Your mistakes cost you ${gap} WPM. Closing that gap is almost always faster than typing harder.`);
+  }
+  if (r.acc < 95) {
+    notes.push('Below 95% accuracy, practice reinforces the errors. Ease off about 10% until it recovers.');
+  }
+  if (r.consistency < 60) {
+    notes.push('Your pace swings between keystrokes. Evening out the rhythm is the next real gain.');
+  }
+  if (r.acc >= 97 && r.consistency >= 70) {
+    notes.push('Accuracy and rhythm are both strong. You have earned the right to push the pace.');
+  }
+
   return (
     <section className="tt-results" aria-live="polite">
       <h2>Your result</h2>
-      <div className="tt-score-row">
-        <div className="tt-score tt-score-main"><b>{r.wpm}</b><span>WPM</span></div>
-        <div className="tt-score"><b>{r.acc}%</b><span>accuracy</span></div>
-        <div className="tt-score"><b>{r.raw}</b><span>raw WPM</span></div>
-        <div className="tt-score"><b>{r.consistency}</b><span>consistency</span></div>
-        <div className="tt-score"><b>{r.hesitations}</b><span>hesitations</span></div>
+
+      <div className="tt-headline">
+        <b>{r.wpm}</b>
+        <span>words per minute</span>
       </div>
 
-      <p className="tt-read">
-        You typed {r.correct} correct characters in {r.seconds} seconds, with {r.uncorrected}{' '}
+      <p className="tt-summary">
+        {r.correct} correct characters in {r.seconds} seconds, with {r.uncorrected}{' '}
         {r.uncorrected === 1 ? 'error' : 'errors'} left uncorrected and {r.backspaces}{' '}
         {r.backspaces === 1 ? 'backspace' : 'backspaces'}.
-        {gap > 0.5 && ` The ${gap} WPM gap between your raw and net speed is the cost of your mistakes — closing it is usually faster than typing harder.`}
-        {r.consistency < 60 && ' Your pace varies a lot between keystrokes; steady rhythm is where the next gain is.'}
-        {r.acc < 95 && ' Accuracy below 95% means practice is reinforcing errors. Slow down about 10% until it recovers.'}
-        {r.acc >= 97 && r.consistency >= 70 && ' Accuracy and rhythm are both strong — you have earned the right to push pace.'}
       </p>
+
+      {/* Units on everything, and a plain-English gloss under each: "30" told
+          the reader nothing, and consistency is the one number nobody guesses. */}
+      <dl className="tt-stats">
+        <div>
+          <dt>{r.acc}<i>%</i></dt>
+          <dd>Accuracy<span>share of keystrokes that landed</span></dd>
+        </div>
+        <div>
+          <dt>{r.raw}</dt>
+          <dd>Raw speed<span>every keystroke, mistakes included</span></dd>
+        </div>
+        <div>
+          <dt>{r.consistency}<i>%</i></dt>
+          <dd>Consistency<span>how even your rhythm was</span></dd>
+        </div>
+        <div>
+          <dt>{r.hesitations}</dt>
+          <dd>Hesitations<span>pauses long enough to notice</span></dd>
+        </div>
+      </dl>
+
+      {notes.length > 0 && (
+        <div className="tt-notes">
+          <h3>What that means</h3>
+          <ul>{notes.map((n) => <li key={n.slice(0, 24)}>{n}</li>)}</ul>
+        </div>
+      )}
 
       {worst.length > 0 && (
         <div className="tt-keys">
@@ -70,8 +120,8 @@ function Verdict({ r }: { r: SessionResult }) {
           <ul>
             {worst.map((k) => (
               <li key={k.key}>
-                <kbd>{k.key === ' ' ? 'space' : k.key}</kbd>
-                <span>{Math.round(k.errRate * 100)}% error rate · {Math.round(k.ms)}ms average</span>
+                <kbd>{keyLabel(k.key)}</kbd>
+                <span><b>{Math.round(k.errRate * 100)}%</b> missed, {Math.round(k.ms)}ms average</span>
               </li>
             ))}
           </ul>
@@ -86,8 +136,16 @@ function Verdict({ r }: { r: SessionResult }) {
         <div className="tt-keys">
           <h3>Slowest transitions</h3>
           <ul>
+            {/* Both keys, always. These are pairs, and the slowest are usually
+                letter-then-space, so rendering the raw string showed a lone
+                letter and a caption claiming there were two. */}
             {r.slowPairs.map(([pair, ms]) => (
-              <li key={pair}><kbd>{pair}</kbd><span>{Math.round(ms)}ms between the two keys</span></li>
+              <li key={pair}>
+                <kbd>{keyLabel(pair[0])}</kbd>
+                <i className="tt-arrow" aria-hidden>→</i>
+                <kbd>{keyLabel(pair[1])}</kbd>
+                <span>{Math.round(ms)}ms to move between them</span>
+              </li>
             ))}
           </ul>
         </div>

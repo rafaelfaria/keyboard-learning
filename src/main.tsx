@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import '@fontsource-variable/manrope';
 import '@fontsource/jetbrains-mono/400.css';
 import '@fontsource/jetbrains-mono/600.css';
@@ -50,6 +50,28 @@ import JoinClass from './pages/JoinClass';
 import { startSync } from './lib/syncEngine';
 import { startClassroomWatch } from './lib/classroom';
 
+/**
+ * Reset the scroll position on navigation.
+ *
+ * A browser does this for free; a client-side router does not, so following a
+ * footer link from halfway down the landing page dropped you into the middle of
+ * the next one. Nothing appeared to happen except that the content changed
+ * under you.
+ *
+ * Hash links are left alone so in-page anchors (the table of contents on the
+ * guides, the landing's own section links) still jump where they mean to. The
+ * scroll is explicitly instant because base.css sets `scroll-behavior: smooth`,
+ * which would otherwise animate the whole length of the page you just left.
+ */
+function ScrollToTop() {
+  const { pathname, hash } = useLocation();
+  React.useEffect(() => {
+    if (hash) return;
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+  }, [pathname, hash]);
+  return null;
+}
+
 class Boundary extends React.Component<{ children: React.ReactNode }, { err: Error | null }> {
   state = { err: null as Error | null };
   static getDerivedStateFromError(err: Error) { return { err }; }
@@ -71,6 +93,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <Boundary>
     <BrowserRouter>
       <ThemeSync />
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Landing />} />
 

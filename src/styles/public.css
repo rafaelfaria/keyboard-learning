@@ -373,17 +373,102 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
 .tt-field { position: relative; cursor: text; margin-top: 1rem; }
 .tt-hint { font-size: 0.88rem; color: var(--muted); margin-top: 0.9rem; }
 
-.tt-score-row {
+/* The headline number, given the weight it deserves. Five equal-sized figures
+   in a row made the reader hunt for the one they came for. */
+.tt-headline {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1.75rem;
-  margin: 1rem 0 1.5rem;
+  align-items: baseline;
+  gap: 0.7rem;
+  margin: 1.25rem 0 0.6rem;
 }
 
-.tt-score { display: flex; flex-direction: column; }
-.tt-score b { font-size: 1.9rem; line-height: 1; letter-spacing: -0.02em; }
-.tt-score-main b { font-size: 3rem; color: var(--accent); }
-.tt-score span { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); margin-top: 0.3rem; }
+.tt-headline b {
+  font-size: clamp(3.2rem, 2rem + 5vw, 5rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: var(--accent);
+}
+
+.tt-headline span {
+  font-size: 0.86rem;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  color: var(--muted);
+}
+
+.tt-summary {
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0 0 1.75rem;
+  max-width: 56ch;
+}
+
+.tt-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(10.5rem, 100%), 1fr));
+  gap: 1px;
+  margin: 0 0 2rem;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.tt-stats > div {
+  background: var(--bg);
+  padding: 1rem 1.1rem 1.05rem;
+}
+
+.tt-stats dt {
+  font-size: 1.85rem;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.5rem;
+}
+
+.tt-stats dt i { font-size: 0.95rem; font-style: normal; color: var(--muted); margin-left: 1px; }
+
+.tt-stats dd {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+
+/* The gloss is the point of this block: "30" on its own taught nobody what
+   consistency is. */
+.tt-stats dd span {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.78rem;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.tt-notes { margin: 0 0 2rem; }
+.tt-notes h3 { font-size: 1rem; margin: 0 0 0.75rem; }
+.tt-notes ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.7rem; }
+
+.tt-notes li {
+  position: relative;
+  padding-left: 1.6rem;
+  line-height: 1.65;
+  max-width: 64ch;
+  color: color-mix(in srgb, var(--text) 88%, var(--muted));
+}
+
+.tt-notes li::before {
+  content: '';
+  position: absolute;
+  left: 0.15rem;
+  top: 0.6em;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.tt-arrow { color: var(--muted); font-style: normal; margin: 0 -0.15rem; }
 
 .tt-read { line-height: 1.72; max-width: 68ch; color: var(--muted); }
 

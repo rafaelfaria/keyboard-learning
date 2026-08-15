@@ -453,6 +453,9 @@ export default function Landing() {
           <a href="#play">Play</a>
           <a href="#stats">Analytics</a>
           <a href="#everyone">For everyone</a>
+          {/* The only nav item that leaves the page, so it is marked as such
+              rather than sitting in the anchor list pretending to scroll. */}
+          <Link className="land-nav-out" to="/typing-test">Typing test</Link>
         </nav>
         <div className="row gap">
           {hasProfile
@@ -474,7 +477,7 @@ export default function Landing() {
             </p>
             <div className="hero-ctas">
               <Link className="btn btn-primary btn-big" to="/onboarding">Start learning, it's free</Link>
-              <Link className="btn btn-soft btn-big" to="/onboarding?quick=1">Take the 60-second assessment</Link>
+              <Link className="btn btn-soft btn-big" to="/typing-test">Take the free typing test</Link>
             </div>
             <div className="hero-try" aria-live="off">
               <span className="hero-try-label">psst, the keyboard below is live. try typing!</span>
