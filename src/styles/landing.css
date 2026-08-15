@@ -171,6 +171,64 @@
 .how-quote cite { display: block; margin-top: 12px; color: #8b93b8; font-size: 0.84rem; font-style: normal; }
 .how-quote-k { font-size: 1.6rem; display: block; margin-bottom: 8px; }
 
+/* ── The session loop ────────────────────────────────────────────────────
+   Four beats reading left to right, the last one closing the circle. Sits
+   above the specimen sheet because it is the thesis the sheet is evidence
+   for: without it the samples are artifacts with no argument attached. */
+
+.loop {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(215px, 100%), 1fr));
+  gap: 1px;
+  margin: 0 0 clamp(40px, 5vw, 64px);
+  padding: 0;
+  list-style: none;
+  background: #1e2748;
+  border: 1px solid #1e2748;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+/* Hairline dividers made of the grid gap showing through, so the four beats
+   read as one continuous run rather than four cards. */
+.loop li {
+  background: #0f1631;
+  padding: 20px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.loop-n {
+  font-family: var(--font-type, ui-monospace, monospace);
+  /* Fixed box so the loop-closing glyph, which is larger than the numerals,
+     cannot lift its title off the shared baseline. */
+  height: 1rem;
+  display: flex;
+  align-items: center;
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #14d8c4;
+  margin-bottom: 4px;
+}
+
+.loop li strong { font-size: 1.02rem; letter-spacing: -0.015em; }
+.loop-say { font-size: 0.86rem; line-height: 1.55; color: #8b93b8; }
+
+.loop-again { background: #0c1228; }
+.loop-again strong, .loop-again .loop-say { color: #6a7cb8; }
+.loop-again .loop-n { font-size: 0.95rem; }
+
+.spec-intro {
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #6a7cb8;
+  margin-bottom: 22px;
+}
+
 /* ── Modes, as a specimen sheet ──────────────────────────────────────────
    Fourteen paragraphs describing typing practice, replaced by fourteen lines
    of the practice itself. Three columns: what it is called, what it puts in
@@ -190,14 +248,6 @@
   padding-bottom: 12px;
   margin-bottom: 2px;
   border-bottom: 1px solid #232d55;
-}
-
-.spec-group h3 span {
-  font-family: var(--font-type, ui-monospace, monospace);
-  font-size: 0.76rem;
-  font-weight: 600;
-  color: #14d8c4;
-  letter-spacing: 0.06em;
 }
 
 .spec-group dl { margin: 0; }

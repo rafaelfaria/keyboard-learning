@@ -14,7 +14,7 @@ import { THEMES } from '../lib/themes';
 import { EXPLORER_QUOTES } from '../lib/words';
 import { Ic } from '../components/icons';
 import { BlockAvatar } from '../components/avatars';
-import { MODE_CLUSTERS } from '../lib/seo/content';
+import { MODE_CLUSTERS, SESSION_LOOP } from '../lib/seo/content';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -567,19 +567,39 @@ export default function Landing() {
           <div className="land-head rv">
             <span className="land-eyebrow">Practice</span>
             <h2>Train your way.</h2>
-            <p className="land-lede">Not descriptions of the modes. The text each one puts in front of you.</p>
+            <p className="land-lede">
+              A session is a few minutes of text written for you, on the spot, out of the keys you
+              keep getting wrong. The mode decides what kind of text that is.
+            </p>
           </div>
+
+          {/* The loop, before the catalogue. The specimen sheet answers "what
+              text will I see", which is useless until the reader knows what a
+              session is and what it does with the result. */}
+          <ol className="loop rv">
+            {SESSION_LOOP.map((st, i) => (
+              <li key={st.name}>
+                <span className="loop-n" aria-hidden>{String(i + 1).padStart(2, '0')}</span>
+                <strong>{st.name}</strong>
+                <span className="loop-say">{st.text}</span>
+              </li>
+            ))}
+            <li className="loop-again" aria-hidden>
+              <span className="loop-n">↻</span>
+              <strong>and again</strong>
+              <span className="loop-say">Every session is built from the one before it.</span>
+            </li>
+          </ol>
+
+          <p className="spec-intro rv">Every mode, and the text it puts on screen.</p>
 
           {/* A specimen sheet, not a feature list. A line of Code forge says
               what it is faster than a sentence about brackets can, so the prose
               moved to /typing-practice-modes and the samples took its place. */}
           <div className="spec-sheet">
-            {MODE_CLUSTERS.map((c, i) => (
+            {MODE_CLUSTERS.map((c) => (
               <section className="spec-group rv" key={c.name}>
-                <h3>
-                  <span aria-hidden>{String(i + 1).padStart(2, '0')}</span>
-                  {c.name}
-                </h3>
+                <h3>{c.name}</h3>
                 <dl>
                   {c.modes.map((m) => (
                     <div className="spec-row" key={m.name}>

@@ -88,6 +88,22 @@ export const TRAINING_MODES: Feature[] = [
   { name: 'Copy desk', description: 'Practise with your own text' },
 ];
 
+/**
+ * What actually happens in a practice session.
+ *
+ * The modes catalogue answers "what text will I see?" but never answered the
+ * prior question: what is a session, and what does it do with the result? The
+ * loop is the product's whole mechanic and it was missing from the page.
+ *
+ * Distinct from METHOD_STEPS, which is the learning philosophy across weeks.
+ * This is one sitting, start to finish.
+ */
+export const SESSION_LOOP: Step[] = [
+  { name: 'Pick a mode', text: 'Or take the default and let the engine pick for you. The mode decides what kind of text you get.' },
+  { name: 'Type for a minute or five', text: 'The passage is written on the spot, out of the keys and letter-pairs you keep getting wrong.' },
+  { name: 'Your map moves', text: 'Keys promote or slip back on the evidence, so the next set you are given is a different set.' },
+];
+
 export interface ModeEntry extends Feature {
   /**
    * A line of the text this mode actually makes you type.

@@ -20,7 +20,7 @@ import { pageByPath, type PublicPage as PageDef } from '../../lib/seo/site';
 import {
   ACCESSIBILITY, AUDIENCES, CORE_FEATURES, CURRICULUM, FAQS, GAMES, GLOSSARY,
   KIDS_POINTS, LEARN_GUIDE, LEARN_GUIDE_INTRO, LEGAL_CONTACT, LEGAL_EFFECTIVE,
-  METHOD_STEPS, MODE_CLUSTERS, PRIVACY_SECTIONS, PRODUCT_SUMMARY, SCHOOLS_POINTS,
+  METHOD_STEPS, MODE_CLUSTERS, PRIVACY_SECTIONS, PRODUCT_SUMMARY, SCHOOLS_POINTS, SESSION_LOOP,
   SUBPROCESSORS, TERMS_SECTIONS, TRAINING_MODES,
   type GuideSection,
 } from '../../lib/seo/content';
@@ -451,6 +451,15 @@ export function PracticeModesPage() {
       <Shot note="The mode picker. Whatever you choose, the text you get is still generated from your own map.">
         <MockModes />
       </Shot>
+
+      <section className="pub-section">
+        <h2>What a session actually is</h2>
+        <ol className="pub-steps">
+          {SESSION_LOOP.map((st) => (
+            <li key={st.name}><strong>{st.name}.</strong> {st.text}</li>
+          ))}
+        </ol>
+      </section>
 
       {MODE_CLUSTERS.map((c) => (
         <section className="pub-section" key={c.name}>
