@@ -468,17 +468,234 @@
   .trail-label > span { font-size: 0.88rem; }
 }
 
-/* Access — ten pills read as decoration. Ten rows read as a specification. */
-.access-list {
+/* ── Accessibility, demonstrated ─────────────────────────────────────────
+   The section proves its own claim: a specimen of the app rebuilds itself as
+   the reader scrolls, one setting at a time. Every visual difference between
+   steps is a CSS custom property on .a11y-screen, so the steps stack rather
+   than swap and nothing ever un-improves on the way down. */
+
+.a11y {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(330px, 100%), 1fr));
-  gap: 0 40px;
-  margin: 0;
+  grid-template-columns: 1fr 1.02fr;
+  gap: clamp(28px, 5vw, 70px);
+  align-items: start;
 }
-.access-list > div { padding: 15px 0; border-top: 1px solid #1e2748; }
-.access-list dt { display: flex; align-items: center; gap: 10px; font-weight: 650; font-size: 0.97rem; margin-bottom: 4px; }
-.access-list dt svg { color: #14d8c4; flex: 0 0 auto; }
-.access-list dd { margin: 0 0 0 26px; font-size: 0.88rem; line-height: 1.55; color: #8b93b8; }
+
+.a11y-stage {
+  order: 2;
+  position: sticky;
+  top: 16vh;
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+}
+
+.a11y-steps { order: 1; margin: 0; padding: 0; list-style: none; }
+
+.a11y-step {
+  min-height: 54vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 30ch;
+  opacity: 0.32;
+  transition: opacity 0.4s ease;
+}
+
+.a11y-step.is-on { opacity: 1; }
+
+.a11y-step-n {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 15px;
+  margin-bottom: 20px;
+  color: #14d8c4;
+  border: 1px solid #232d55;
+  background: #121936;
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.a11y-step.is-on .a11y-step-n {
+  border-color: rgba(20, 216, 196, 0.5);
+  box-shadow: 0 0 30px -8px rgba(20, 216, 196, 0.75);
+}
+
+.a11y-step h3 {
+  font-size: clamp(1.7rem, 3.5vw, 2.7rem);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  margin-bottom: 14px;
+}
+
+.a11y-step p {
+  font-size: clamp(1rem, 1.15vw, 1.15rem);
+  line-height: 1.65;
+  max-width: 34ch;
+}
+
+/* ── The specimen ─────────────────────────────────────────────────────── */
+
+.a11y-screen {
+  --a-size: 1.2rem;
+  --a-font: var(--font-type, ui-monospace, monospace);
+  --a-panel: #131a38;
+  --a-edge: rgba(255, 255, 255, 0.08);
+  --a-fg: #eef1fb;
+  --a-dim: #8b93b8;
+  --a-bad: #f2789f;
+  --a-accent: #14d8c4;
+
+  width: 100%;
+  background: var(--a-panel);
+  border: 1px solid var(--a-edge);
+  border-radius: 22px;
+  padding: clamp(22px, 3vw, 34px);
+  box-shadow: 0 30px 70px -34px rgba(0, 0, 0, 0.9);
+  transition: background 0.45s ease, border-color 0.45s ease, box-shadow 0.45s ease;
+}
+
+.a11y-bar { display: flex; gap: 10px; margin-bottom: 22px; }
+
+.a11y-chip {
+  border: 1px solid var(--a-edge);
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: 0.8rem;
+  color: var(--a-dim);
+  transition: opacity 0.45s ease, color 0.45s ease, border-color 0.45s ease;
+}
+
+.a11y-spec {
+  font-family: var(--a-font);
+  font-size: var(--a-size);
+  line-height: 1.75;
+  color: var(--a-dim);
+  margin: 0;
+  /* The size change is the whole point of step one, so it has to be visible
+     rather than instantaneous. */
+  transition: font-size 0.5s cubic-bezier(0.4, 0, 0.2, 1), font-family 0.2s ease, color 0.45s ease;
+}
+
+.a11y-spec .ok { color: var(--a-fg); font-weight: inherit; }
+.a11y-spec .todo { color: var(--a-dim); opacity: 0.5; }
+
+.a11y-spec .bad {
+  color: var(--a-bad);
+  position: relative;
+  transition: color 0.45s ease;
+}
+
+.a11y-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.05em;
+  vertical-align: text-bottom;
+  background: var(--a-accent);
+  margin: 0 1px;
+  box-shadow: 0 0 8px var(--a-accent);
+  animation: mk-blink 1.1s steps(1) infinite;
+}
+
+/* The legend only earns its place once colour stops being the only signal. */
+.a11y-key {
+  display: flex;
+  gap: 18px;
+  margin-top: 22px;
+  font-size: 0.8rem;
+  color: var(--a-dim);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+.a11y-key span { display: inline-flex; align-items: center; gap: 7px; }
+.a11y-key span::before { content: ''; width: 11px; height: 11px; border-radius: 3px; }
+.a11y-key .ok::before { background: var(--a-accent); }
+.a11y-key .bad::before { background: var(--a-bad); }
+
+/* ── The five cumulative states ───────────────────────────────────────── */
+
+.a11y-screen.is-size { --a-size: clamp(1.5rem, 2.4vw, 2rem); }
+
+.a11y-screen.is-font { --a-font: 'Atkinson Hyperlegible', system-ui, sans-serif; }
+
+/* A real theme swap, not a filter over the top: every token is restated so no
+   state degrades into grey on grey. */
+.a11y-screen.is-contrast {
+  --a-panel: #000;
+  --a-edge: #fff;
+  --a-fg: #fff;
+  --a-dim: #d6dbf0;
+  --a-bad: #ff9ec4;
+  --a-accent: #5cffe8;
+}
+
+.a11y-screen.is-contrast .a11y-chip { color: #fff; }
+
+/* Colour plus a shape, never colour on its own. */
+.a11y-screen.is-shape .a11y-spec .bad {
+  text-decoration: underline wavy var(--a-bad);
+  text-underline-offset: 5px;
+  text-decoration-thickness: 2px;
+}
+
+.a11y-screen.is-shape .a11y-spec .bad::after {
+  content: '×';
+  position: absolute;
+  top: -0.72em;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.5em;
+  line-height: 1;
+  color: var(--a-bad);
+}
+
+.a11y-screen.is-shape .a11y-key { opacity: 1; transform: none; }
+.a11y-screen.is-shape .a11y-key .bad::before { border-radius: 0; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+
+.a11y-screen.is-calm .a11y-timer { opacity: 0; }
+.a11y-screen.is-calm .a11y-caret { animation: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .a11y-caret { animation: none; }
+  .a11y-spec, .a11y-screen, .a11y-step, .a11y-key { transition: none; }
+}
+
+/* One column on a phone: the stage sticks under the header and the steps run
+   beneath it, so the specimen stays on screen while its caption changes. */
+@media (max-width: 900px) {
+  .a11y { grid-template-columns: 1fr; gap: 22px; }
+  .a11y-stage { order: 0; position: sticky; top: 68px; min-height: 0; padding-bottom: 14px; }
+  .a11y-steps { order: 1; }
+  .a11y-step { min-height: 62vh; max-width: none; }
+
+  /* The sticky stage needs an opaque backdrop or the steps scroll up through
+     it. It must not extend above its own box: reaching upward to cover the gap
+     under the header painted over the section lede instead. */
+  .a11y-stage::before {
+    content: '';
+    position: absolute;
+    inset: 0 -20px -22px;
+    background: linear-gradient(180deg, var(--lbg) 0 84%, transparent);
+    z-index: -1;
+  }
+
+  /* Dimming the inactive steps to 0.32 works on a desktop where several are
+     visible at once. On a phone only one is on screen, so it just reads as
+     low-contrast body text. */
+  .a11y-step { opacity: 0.5; }
+}
+
+.a11y-rest {
+  margin-top: clamp(30px, 5vw, 60px);
+  padding-top: clamp(24px, 3vw, 34px);
+  border-top: 1px solid #1e2748;
+  max-width: 72ch;
+  font-size: clamp(1rem, 1.15vw, 1.12rem);
+  line-height: 1.7;
+}
 
 /* Themes marquee */
 .theme-marquee { overflow: hidden; margin: 10px 0 30px; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }

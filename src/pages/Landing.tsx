@@ -67,17 +67,48 @@ const TRAIL_PATH =
   + 'C 500 62 500 178 583 178 C 666 178 666 62 750 62 '
   + 'C 833 62 833 178 917 178 L 1000 178';
 
-const ACCESS_ROWS = [
-  ['keyboard', 'Full keyboard navigation', 'Every screen, every control, no mouse required.'],
-  ['zoom', 'Four text sizes', 'Set per profile, so it follows the person across shared devices.'],
-  ['type', 'Atkinson Hyperlegible', 'The typeface designed for low vision, available everywhere.'],
-  ['eye', 'High-contrast theme', 'Alongside twelve others, all free.'],
-  ['leaf', 'Reduced motion', 'Honours the system setting and can be forced on.'],
-  ['hourglass', 'Untimed learning', 'Every lesson can be taken with the clock switched off.'],
-  ['chat', 'Spoken target letters', 'The next key read aloud, at your pace.'],
-  ['headphones', 'Dictation with replay', 'Repeat and slow down any passage.'],
-  ['check', 'Never colour-only', 'Every state carries a shape or a label as well as a hue.'],
-  ['eye-off', 'Hideable leaderboards', 'Competition is opt-in, not a condition of learning.'],
+/**
+ * The accessibility section, as a demonstration rather than a list.
+ *
+ * Ten feature rows is a claim the reader has to take on trust. These five are
+ * applied to a real specimen as you scroll, cumulatively, so by the last step
+ * the sample on screen *is* the accessible configuration: bigger, hyperlegible,
+ * high contrast, marked by shape as well as colour, and unhurried.
+ *
+ * `cls` is the modifier the stage picks up. Steps stack, never swap, so nothing
+ * ever un-improves as the reader moves down.
+ */
+const A11Y_STEPS = [
+  {
+    cls: 'is-size',
+    icon: 'zoom',
+    title: 'Four text sizes',
+    body: 'Not a browser zoom that breaks the layout. A real setting, stored on the profile, so it follows the person onto a shared classroom machine.',
+  },
+  {
+    cls: 'is-font',
+    icon: 'type',
+    title: 'A typeface built for low vision',
+    body: 'Atkinson Hyperlegible, from the Braille Institute, draws letters that are hard to confuse with one another. Available everywhere, not just on a settings page.',
+  },
+  {
+    cls: 'is-contrast',
+    icon: 'eye',
+    title: 'High contrast, in one tap',
+    body: 'A full theme rather than a filter laid over the top, so every state stays distinguishable instead of turning into grey on grey.',
+  },
+  {
+    cls: 'is-shape',
+    icon: 'check',
+    title: 'Never colour alone',
+    body: 'Around one man in twelve cannot rely on red against green. Every state here carries a shape or a label as well as a hue.',
+  },
+  {
+    cls: 'is-calm',
+    icon: 'hourglass',
+    title: 'Untimed, and unhurried',
+    body: 'The clock comes off, the motion stops, and the lesson still counts. Nobody learns to type well while being rushed.',
+  },
 ] as const;
 
 const SAMPLE_MASTERY: Record<string, string> = {};
@@ -111,11 +142,96 @@ export default function Landing() {
   const trailClipRef = useRef<SVGRectElement>(null);
   const sceneRef = useRef<KeyboardScene | null>(null);
   const [typed, setTyped] = useState<string[]>([]);
+  const [aStep, setAStep] = useState(0);
 
   const rm = useMemo(
     () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
     [],
   );
+
+  // The audience trail draws itself along the scroll.
+  //
+  // Same reasoning as the accessibility stepper below, and the same fix: this
+  // used to live in the GSAP effect, which bails out under reduced motion, so
+  // the road rendered permanently complete for anyone with Reduce Motion on.
+  // Progress is read straight from the section's own geometry, which also makes
+  // it independent of whether ScrollTrigger measured the page correctly.
+  //
+  // At progress p the wipe sits at x = 1000p and stop i's column centre is at
+  // (i + 0.5) / 6, so each stop finishes arriving exactly as the road reaches it.
+  useEffect(() => {
+    const clip = trailClipRef.current;
+    const section = document.querySelector('.land-everyone');
+    if (!clip || !section) return;
+    const stops = Array.from(document.querySelectorAll<HTMLElement>('.trail-stop'));
+
+    const render = (p: number) => {
+      clip.setAttribute('width', String(1000 * p));
+      stops.forEach((el, i) => {
+        const t = Math.min(1, Math.max(0, (p * TRAIL.length - i) / 0.7));
+        el.style.opacity = String(t);
+        el.style.transform = `translateY(${(1 - t) * 14}px)`;
+      });
+    };
+
+    let raf = 0;
+    const measure = () => {
+      raf = 0;
+      const r = section.getBoundingClientRect();
+      const vh = window.innerHeight;
+      // r.top when the draw should start, and when it should be complete.
+      const from = vh * 0.72;
+      const to = vh * 0.85 - r.height;
+      render(Math.min(1, Math.max(0, (from - r.top) / (from - to))));
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(measure); };
+
+    measure();
+    if (import.meta.env.DEV) (window as unknown as { __trail?: (p: number) => void }).__trail = render;
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  // Accessibility demo stepper.
+  //
+  // Deliberately outside the GSAP effect, and deliberately not gated on
+  // `rm`. Reduced motion means "do not animate at me", not "hide the content":
+  // these steps are driven directly by scroll position, which is manipulation
+  // rather than autonomous movement. Under reduced motion the CSS transitions
+  // are switched off in landing.css, so the states snap instead of easing and
+  // the reader still sees all five. It also means the section no longer depends
+  // on ScrollTrigger having measured the page correctly.
+  useEffect(() => {
+    const root = document.querySelector('.a11y');
+    if (!root) return;
+    const steps = Array.from(root.querySelectorAll<HTMLElement>('.a11y-step'));
+    if (!steps.length) return;
+
+    let raf = 0;
+    const measure = () => {
+      raf = 0;
+      // The last step whose top has crossed the reading line is the live one.
+      const line = window.innerHeight * 0.62;
+      let next = 0;
+      steps.forEach((el, i) => { if (el.getBoundingClientRect().top <= line) next = i; });
+      setAStep(next);
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(measure); };
+
+    measure();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
 
   // 3D scene
   useEffect(() => {
@@ -219,42 +335,6 @@ export default function Landing() {
       // The trigger is the whole section, not `.trail` itself — a 320px element
       // gives almost no scroll distance to scrub across, which made the old
       // version snap to finished the moment it appeared.
-      const clip = trailClipRef.current;
-      if (clip) {
-        const stops = gsap.utils.toArray<HTMLElement>('.trail-stop');
-
-        // Driven from onUpdate rather than by handing the ScrollTrigger a
-        // scrubbed timeline: the timeline form sat at progress 1 no matter where
-        // the page was, so the road was always already drawn. This is the same
-        // shape the 3D terrain uses above, and it is exact — at progress p the
-        // wipe is at x = 1000p, and stop i's column centre is at (i + 0.5) / 6,
-        // so a stop finishes arriving just as the road reaches it.
-        const render = (p: number) => {
-          clip.setAttribute('width', String(1000 * p));
-          stops.forEach((el, i) => {
-            const t = gsap.utils.clamp(0, 1, (p * TRAIL.length - i) / 0.7);
-            el.style.opacity = String(t);
-            el.style.transform = `translateY(${(1 - t) * 14}px)`;
-          });
-        };
-
-        // Nothing is set from CSS: with JavaScript off, or under reduced motion
-        // where this whole effect is skipped, the road and all six links render
-        // complete. They are the section's entire SEO payload.
-        render(0);
-        if (import.meta.env.DEV) (window as unknown as { __trail?: (p: number) => void }).__trail = render;
-
-        ScrollTrigger.create({
-          trigger: '.land-everyone',
-          start: 'top 72%',
-          end: 'bottom 85%',
-          onUpdate: (self) => render(self.progress),
-          onLeave: () => render(1),
-          onLeaveBack: () => render(0),
-          onRefresh: (self) => render(self.progress),
-        });
-      }
-
       // analytics chart draws itself
       if (chartPathRef.current) {
         const len = chartPathRef.current.getTotalLength();
@@ -654,19 +734,52 @@ export default function Landing() {
             <span className="land-eyebrow">Accessibility</span>
             <h2>Built for every body and brain.</h2>
             <p className="land-lede">
-              None of this sits behind a paid tier, and none of it was added later. Every setting
-              below belongs to the profile rather than the device, so an accommodation follows the
-              person onto a shared classroom machine.
+              Easy to claim, so here it is happening. Keep scrolling and watch the sample below
+              rebuild itself, one setting at a time.
             </p>
           </div>
-          <dl className="access-list rv">
-            {ACCESS_ROWS.map(([ic, name, note]) => (
-              <div key={name}>
-                <dt><Ic n={ic} size={16} /> {name}</dt>
-                <dd>{note}</dd>
+
+          <div className="a11y">
+            {/* The stage is first in the DOM so it can stick to the top of a
+                phone screen with the steps scrolling beneath it. On a desktop
+                `order` moves it back to the right. */}
+            <div className="a11y-stage">
+              <div className={`a11y-screen ${A11Y_STEPS.slice(0, aStep + 1).map((s) => s.cls).join(' ')}`}>
+                <div className="a11y-bar" aria-hidden>
+                  <span className="a11y-chip">Accuracy Lab</span>
+                  <span className="a11y-chip a11y-timer">0:42</span>
+                </div>
+                <p className="a11y-spec" aria-hidden>
+                  <b className="ok">the quiet library keeps </b>
+                  <b className="bad">o</b>
+                  <b className="ok">ts own kind of</b>
+                  <i className="a11y-caret" />
+                  <b className="todo"> weather</b>
+                </p>
+                <div className="a11y-key" aria-hidden>
+                  <span className="ok">correct</span>
+                  <span className="bad">mistyped</span>
+                </div>
               </div>
-            ))}
-          </dl>
+            </div>
+
+            <ol className="a11y-steps">
+              {A11Y_STEPS.map((st, i) => (
+                <li className={`a11y-step${i === aStep ? ' is-on' : ''}`} key={st.cls}>
+                  <span className="a11y-step-n" aria-hidden><Ic n={st.icon} size={22} /></span>
+                  <h3>{st.title}</h3>
+                  <p>{st.body}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <p className="a11y-rest rv">
+            Also, and without a paid tier anywhere in sight: full keyboard navigation on every
+            screen, spoken target letters, dictation with replay and speed control, and
+            leaderboards you can switch off entirely. Each one is a per-profile setting, because
+            an accommodation should belong to the person, not to the laptop they borrowed.
+          </p>
         </div>
       </section>
 
