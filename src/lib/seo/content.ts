@@ -88,11 +88,27 @@ export const TRAINING_MODES: Feature[] = [
   { name: 'Copy desk', description: 'Practise with your own text' },
 ];
 
+export interface ModeEntry extends Feature {
+  /**
+   * A line of the text this mode actually makes you type.
+   *
+   * The landing page shows these instead of the prose: a specimen tells you
+   * what Code forge is faster and more precisely than a sentence about
+   * brackets can, and it costs a fifth of the words. `description` still
+   * carries the full explanation for /typing-practice-modes and llms.txt.
+   */
+  sample: string;
+  /** Two or three words naming what the mode builds. */
+  skill: string;
+  /** Characters to tint inside `sample`, where the point is which keys. */
+  hi?: string;
+}
+
 export interface ModeCluster {
   name: string;
   /** One line naming what the whole cluster is for. */
   blurb: string;
-  modes: Feature[];
+  modes: ModeEntry[];
 }
 
 /**
@@ -108,38 +124,38 @@ export const MODE_CLUSTERS: ModeCluster[] = [
     name: 'Build the map',
     blurb: 'For the days when you do not want to decide. These read your mastery map and choose for you.',
     modes: [
-      { name: 'Adaptive practice', description: 'The default. Sets generated from your weakest keys and slowest letter transitions, wrapped in real words so a drill never reads as a drill.' },
-      { name: 'Weak-key workout', description: 'One key, taken apart. Your single worst letter in every position it appears in, until it stops being the reason you slow down.' },
-      { name: 'Numeral Peaks', description: 'The number row and the symbol row, the two stretches almost every self-taught typist skipped.' },
-      { name: 'Code forge', description: 'Brackets, braces, operators and the punctuation shapes that only appear in code.' },
+      { name: 'Adaptive practice', sample: 'the quiet library keeps its own kind of', hi: 'plo', skill: 'Your weak keys', description: 'The default. Sets generated from your weakest keys and slowest letter transitions, wrapped in real words so a drill never reads as a drill.' },
+      { name: 'Weak-key workout', sample: 'pepper  purple  apply  people  paper', hi: 'p', skill: 'One key, repaired', description: 'One key, taken apart. Your single worst letter in every position it appears in, until it stops being the reason you slow down.' },
+      { name: 'Numeral Peaks', sample: '07/12/2026  £48.20  90%  #4', skill: 'Numbers & symbols', description: 'The number row and the symbol row, the two stretches almost every self-taught typist skipped.' },
+      { name: 'Code forge', sample: "const keys = ['a','s','d','f'];", skill: 'Brackets & braces', description: 'Brackets, braces, operators and the punctuation shapes that only appear in code.' },
     ],
   },
   {
     name: 'Sharpen precision',
     blurb: 'Accuracy is the skill that makes speed possible. These train it directly rather than hoping it arrives.',
     modes: [
-      { name: 'Accuracy Lab', description: 'Precision-first scoring, where a mistake costs far more than a slow keystroke. The fastest cure for a typist who has learned to race their own error rate.' },
-      { name: 'Recovery', description: 'Passages seeded with awkward words on purpose, training the thing that actually loses runs: the three seconds of panic after a miss.' },
-      { name: 'Lights out', description: 'The on-screen keyboard goes dark. The only way to know whether you are touch typing or reading your own hands.' },
-      { name: 'Speed sprints', description: 'Fifteen seconds to five minutes, unlocked once your accuracy can carry it. Short, honest, and over before technique degrades.' },
+      { name: 'Accuracy Lab', sample: 'necessary  accommodate  liaison', skill: 'Precision first', description: 'Precision-first scoring, where a mistake costs far more than a slow keystroke. The fastest cure for a typist who has learned to race their own error rate.' },
+      { name: 'Recovery', sample: 'rythm, no, rhythm, and carry on', skill: 'After a miss', description: 'Passages seeded with awkward words on purpose, training the thing that actually loses runs: the three seconds of panic after a miss.' },
+      { name: 'Lights out', sample: 'the keyboard goes dark. keep going.', skill: 'From memory', description: 'The on-screen keyboard goes dark. The only way to know whether you are touch typing or reading your own hands.' },
+      { name: 'Speed sprints', sample: '15s   30s   1m   5m', skill: 'Burst pace', description: 'Fifteen seconds to five minutes, unlocked once your accuracy can carry it. Short, honest, and over before technique degrades.' },
     ],
   },
   {
     name: 'Find the rhythm',
     blurb: 'Even hands are faster than fast hands. These work on feel rather than on numbers.',
     modes: [
-      { name: 'Rhythm studio', description: 'Type on the beat. Smoothing your inter-key intervals is usually worth more words per minute than any amount of pushing.' },
-      { name: 'Zen typing', description: 'No timer, no score, no rank. Just text and the sound of it going right.' },
-      { name: 'Dictation', description: 'Type what you hear, with replay and speed control. It breaks the habit of reading ahead and typing behind.' },
-      { name: 'Endurance', description: 'Long-form passages, where the interesting question is not how fast you start but what is left of your technique in minute four.' },
+      { name: 'Rhythm studio', sample: 'e·v·e·n  h·a·n·d·s  w·i·n', skill: 'On the beat', description: 'Type on the beat. Smoothing your inter-key intervals is usually worth more words per minute than any amount of pushing.' },
+      { name: 'Zen typing', sample: 'no timer. no score. no rank.', skill: 'Just flow', description: 'No timer, no score, no rank. Just text and the sound of it going right.' },
+      { name: 'Dictation', sample: '♪  type only what you hear', skill: 'Listen & type', description: 'Type what you hear, with replay and speed control. It breaks the habit of reading ahead and typing behind.' },
+      { name: 'Endurance', sample: '… and on into minute four', skill: 'Stamina', description: 'Long-form passages, where the interesting question is not how fast you start but what is left of your technique in minute four.' },
     ],
   },
   {
     name: 'Type your real life',
     blurb: 'Practice that looks like the work. The point of all of this is the writing you do when nobody is scoring it.',
     modes: [
-      { name: 'Real-world desk', description: 'Emails, messages, meeting notes and documents, complete with the addresses, dates and formatting that trip people up.' },
-      { name: 'Copy desk', description: 'Paste in your own text and practise on that. Your essay, your code, your novel. It stays on your device.' },
+      { name: 'Real-world desk', sample: 'Hi Sam, attaching the Q3 notes.', skill: 'Emails & docs', description: 'Emails, messages, meeting notes and documents, complete with the addresses, dates and formatting that trip people up.' },
+      { name: 'Copy desk', sample: 'paste anything. it stays local.', skill: 'Your own words', description: 'Paste in your own text and practise on that. Your essay, your code, your novel. It stays on your device.' },
     ],
   },
 ];

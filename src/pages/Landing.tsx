@@ -14,7 +14,6 @@ import { THEMES } from '../lib/themes';
 import { EXPLORER_QUOTES } from '../lib/words';
 import { Ic } from '../components/icons';
 import { BlockAvatar } from '../components/avatars';
-import { MockModes } from '../components/public/Mock';
 import { MODE_CLUSTERS } from '../lib/seo/content';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -495,36 +494,43 @@ export default function Landing() {
           <div className="land-head rv">
             <span className="land-eyebrow">Practice</span>
             <h2>Train your way.</h2>
-            <p className="land-lede">
-              One engine, four kinds of session. Every mode names the single skill it builds,
-              so five minutes of practice always buys something you can point at.
-            </p>
+            <p className="land-lede">Not descriptions of the modes. The text each one puts in front of you.</p>
           </div>
 
-          <div className="land-shot rv"><MockModes /></div>
-
-          <div className="mode-clusters">
+          {/* A specimen sheet, not a feature list. A line of Code forge says
+              what it is faster than a sentence about brackets can, so the prose
+              moved to /typing-practice-modes and the samples took its place. */}
+          <div className="spec-sheet">
             {MODE_CLUSTERS.map((c, i) => (
-              <div className="mode-cluster rv" key={c.name}>
-                <div className="mode-cluster-head">
-                  <span className="land-eyebrow">{String(i + 1).padStart(2, '0')}</span>
-                  <h3>{c.name}</h3>
-                  <p>{c.blurb}</p>
-                </div>
-                <dl className="mode-list">
+              <section className="spec-group rv" key={c.name}>
+                <h3>
+                  <span aria-hidden>{String(i + 1).padStart(2, '0')}</span>
+                  {c.name}
+                </h3>
+                <dl>
                   {c.modes.map((m) => (
-                    <div key={m.name}>
+                    <div className="spec-row" key={m.name}>
                       <dt>{m.name}</dt>
-                      <dd>{m.description}</dd>
+                      <dd className="spec-sample">
+                        {m.hi
+                          ? [...m.sample].map((ch, k) => (
+                            m.hi!.includes(ch.toLowerCase())
+                              ? <b key={k}>{ch}</b>
+                              : <span key={k}>{ch}</span>
+                          ))
+                          : m.sample}
+                        <i className="spec-caret" aria-hidden />
+                      </dd>
+                      <dd className="spec-skill">{m.skill}</dd>
                     </div>
                   ))}
                 </dl>
-              </div>
+              </section>
             ))}
           </div>
 
           <p className="land-more rv">
-            <Link to="/typing-practice-modes">Every mode, in detail →</Link>
+            <Link to="/typing-practice-modes">What each mode trains, in full →</Link>
           </p>
         </div>
       </section>
