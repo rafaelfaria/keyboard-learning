@@ -57,9 +57,10 @@ function Verdict({ r }: { r: SessionResult }) {
     .sort((a, b) => b.errRate - a.errRate || b.ms - a.ms)
     .slice(0, 5);
 
-  /* Bars are only comparable against a shared scale, so each chart is scaled to
-     its own slowest/worst row rather than to an absolute maximum nobody has. */
-  const worstPeak = Math.max(0.01, ...worst.map((k) => k.errRate));
+  /* Miss rates get the absolute 0–100% scale they already have: normalising
+     them to the worst key would draw a full-width bar next to the figure 33%.
+     Milliseconds have no such ceiling, so those bars are scaled to the slowest
+     transition in the list and are read against each other. */
   const pairPeak = Math.max(1, ...r.slowPairs.map(([, ms]) => ms));
 
   const gap = Math.max(0, Math.round((r.raw - r.wpm) * 10) / 10);
@@ -159,13 +160,15 @@ function Verdict({ r }: { r: SessionResult }) {
                   <span />
                   <span />
                   <span>missed</span>
-                  <span>per key</span>
+                  <span>avg time</span>
                 </li>
                 {worst.map((k) => (
                   <li key={k.key}>
                     <kbd>{keyLabel(k.key)}</kbd>
                     <span className="tt-bar" aria-hidden>
-                      <i className="is-warn" style={{ width: `${(k.errRate / worstPeak) * 100}%` }} />
+                      {k.errRate > 0 && (
+                        <i className="is-warn" style={{ width: `${Math.max(2, k.errRate * 100)}%` }} />
+                      )}
                     </span>
                     <span className="tt-bar-v">{Math.round(k.errRate * 100)}%</span>
                     <span className="tt-bar-v is-soft">{Math.round(k.ms)}ms</span>

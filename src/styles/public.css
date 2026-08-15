@@ -603,6 +603,10 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
   min-width: 0;
 }
 
+/* A different hue from the miss bars: these rows are not errors, and teal on
+   this page reads as "good". */
+.tt-bars-pairs .tt-bar i { background: var(--accent2); }
+
 .tt-bar-v { text-align: right; color: var(--text); font-size: 0.85rem; }
 .tt-bar-v.is-soft { color: var(--muted); min-width: 3.4rem; }
 
