@@ -71,7 +71,7 @@ export default function Challenge() {
   if (phase === 'done' && finished) {
     return (
       <div className="train-page">
-        <div className="train-top"><h1><Ic n={spec.icon} size={20} /> {spec.title} — submitted</h1></div>
+        <div className="train-top"><h1><Ic n={spec.icon} size={20} /> {spec.title}. Submitted</h1></div>
         <p className="center">
           Today's score: <strong style={{ color: 'var(--accent)', fontSize: '1.3rem' }}>{scoreFor(spec.mode, finished.result.wpm, finished.result.acc, finished.result.rhythm)}</strong>
         </p>
@@ -93,7 +93,7 @@ export default function Challenge() {
       <div className="page-head">
         <div>
           <h1><Ic n="calendar" size={24} /> Daily Challenge</h1>
-          <p>One fresh, fair test each day — same text for everyone in your division. Resets at midnight.</p>
+          <p>One fresh, fair test each day: same text for everyone in your division. Resets at midnight.</p>
         </div>
       </div>
       <div className="grid2">

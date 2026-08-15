@@ -20,7 +20,7 @@ export default function BadgesPage() {
       <div className="page-head">
         <div>
           <h1><Ic n="medal" size={24} /> Badge collection</h1>
-          <p>{unlockedCount} of {BADGES.length} earned. Badges reward accuracy, technique, consistency and kindness to yourself — not just speed.</p>
+          <p>{unlockedCount} of {BADGES.length} earned. Badges reward accuracy, technique, consistency and kindness to yourself. Not just speed.</p>
         </div>
       </div>
       <div style={{ marginBottom: 16, overflowX: 'auto' }}>
@@ -36,7 +36,7 @@ export default function BadgesPage() {
               <BadgeIcon icon={hidden ? 'help' : b.icon} unlocked={unlocked} />
               <div className="grow">
                 <h4>{hidden ? 'Secret badge' : b.name}</h4>
-                <p>{hidden ? 'Keep exploring — some achievements reveal themselves only when earned.' : b.desc}</p>
+                <p>{hidden ? 'Keep exploring: some achievements reveal themselves only when earned.' : b.desc}</p>
                 {unlocked
                   ? <Chip tone="gold" className="chip" >Earned {relTime(data.badges[b.id])}</Chip>
                   : !hidden && <Bar value={p} height={6} color={p > 0.6 ? 'var(--gold)' : 'var(--accent)'} />}

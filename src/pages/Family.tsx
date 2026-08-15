@@ -67,7 +67,7 @@ function GuardianSummary({ data }: { data: ProfileData }) {
 
   return (
     <>
-      <h2 className="section-title">Guardian summary — {data.profile.name} <Avatar v={data.profile.avatar} size={24} /></h2>
+      <h2 className="section-title">Guardian summary. {data.profile.name} <Avatar v={data.profile.avatar} size={24} /></h2>
       <div className="grid2">
         <Card>
           <h3>This week at a glance</h3>
@@ -533,7 +533,7 @@ function ClassroomConcept() {
       <h2 className="section-title">KeyTopia Classroom <Chip>Concept preview</Chip></h2>
       <div className="grid2">
         <Card style={{ position: 'relative' }} className="card">
-          <h3>Class overview — 5B · Term 2</h3>
+          <h3>Class overview: 5B · Term 2</h3>
           <p className="small muted" style={{ marginBottom: 10 }}>Sample data. Classroom switches on when this build is connected to an account server.</p>
           <div style={{ overflowX: 'auto' }}>
             <table className="class-table">

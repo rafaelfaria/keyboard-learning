@@ -97,7 +97,7 @@ export function buildAdaptiveText(data: ProfileData, seed?: number): GeneratedTe
     const ws = pickN(rng, pool, targetLen);
     return {
       text: ws.join(' '),
-      why: 'No clear weak keys right now — this is a balanced set of common words to keep your whole map warm.',
+      why: 'No clear weak keys right now: this is a balanced set of common words to keep your whole map warm.',
       label: 'Balanced practice',
     };
   }
@@ -121,7 +121,7 @@ export function buildAdaptiveText(data: ProfileData, seed?: number): GeneratedTe
   }
   const names = focus.map((f) => f.key.toUpperCase()).join(', ');
   const worst = focus[0];
-  const why = `Built for you: extra reps on ${names}. ${worst.key.toUpperCase()} is your current focus — ${Math.round(worst.err * 100)}% miss rate over your last ${worst.n} attempts${worst.ms ? ` and ${Math.round(worst.ms)}ms average response` : ''}.`;
+  const why = `Built for you: extra reps on ${names}. ${worst.key.toUpperCase()} is your current focus. ${Math.round(worst.err * 100)}% miss rate over your last ${worst.n} attempts${worst.ms ? ` and ${Math.round(worst.ms)}ms average response` : ''}.`;
   return { text: shuffle(rng, words).join(' ').replace(/\s+/g, ' ').trim(), why, label: `Focus: ${names}` };
 }
 
@@ -137,7 +137,7 @@ export function buildWeakKeyWorkout(data: ProfileData, seed?: number): Generated
   const text = [drills[0], ...ws.slice(0, 5), drills[1], ...ws.slice(5, 10), drills[2], ...ws.slice(10)].join(' ');
   return {
     text: text.replace(/\s+/g, ' ').trim(),
-    why: `A concentrated workout for ${k.toUpperCase()} — ${Math.round(weak[0].err * 100)}% of your recent ${k.toUpperCase()} presses missed. Slow down 10% and aim for zero misses.`,
+    why: `A concentrated workout for ${k.toUpperCase()}. ${Math.round(weak[0].err * 100)}% of your recent ${k.toUpperCase()} presses missed. Slow down 10% and aim for zero misses.`,
     label: `Weak key: ${k.toUpperCase()}`,
   };
 }
@@ -155,11 +155,11 @@ export function buildModeText(mode: SessionMode, data: ProfileData, opts?: { sec
       const ws: string[] = [];
       const pool = poolFor(data);
       for (let i = 0; i < count; i++) ws.push(pick(rng, pool));
-      return { text: ws.join(' '), why: 'Common words, endless stream — pure speed measurement.', label: `${secs}s sprint` };
+      return { text: ws.join(' '), why: 'Common words, endless stream. Pure speed measurement.', label: `${secs}s sprint` };
     }
     case 'accuracy': {
       const s = pickN(rng, sent, 3).join(' ');
-      return { text: s, why: 'Scored on precision. Speed is ignored — every clean character builds your streak.', label: 'Accuracy Lab' };
+      return { text: s, why: 'Scored on precision. Speed is ignored: every clean character builds your streak.', label: 'Accuracy Lab' };
     }
     case 'rhythm': {
       const pool = poolFor(data).filter((w) => w.length >= 3 && w.length <= 6);
@@ -178,18 +178,18 @@ export function buildModeText(mode: SessionMode, data: ProfileData, opts?: { sec
     }
     case 'code': {
       const s = pick(rng, CODE_SNIPPETS);
-      return { text: s.text, why: `${s.label}. Brackets, symbols and indentation — indentation after a new line is filled in for you.`, label: s.label };
+      return { text: s.text, why: `${s.label}. Brackets, symbols and indentation: indentation after a new line is filled in for you.`, label: s.label };
     }
     case 'numbers': {
       return { text: numberDrill(rng, kid ? 12 : 20), why: 'Number-row control: quantities, times and decimals.', label: 'Numeral Peaks drill' };
     }
     case 'dictation': {
       const s = pickN(rng, sent, 2).join(' ');
-      return { text: s, why: 'Listen and type. Replay as often as you need — spelling from sound builds deep recall.', label: 'Dictation' };
+      return { text: s, why: 'Listen and type. Replay as often as you need: spelling from sound builds deep recall.', label: 'Dictation' };
     }
     case 'blind': {
       const pool = poolFor(data);
-      return { text: pickN(rng, pool, kid ? 14 : 22).join(' '), why: 'The on-screen keyboard fades as you go. Trust your fingers — they know the way.', label: 'Lights out' };
+      return { text: pickN(rng, pool, kid ? 14 : 22).join(' '), why: 'The on-screen keyboard fades as you go. Trust your fingers: they know the way.', label: 'Lights out' };
     }
     case 'recovery': {
       const pool = poolFor(data);

@@ -15,15 +15,15 @@ import type { Rewards } from '../lib/types';
 
 const DURATION = 60;
 const COLORS = ['#14d8c4', '#8b7cff', '#ffb454', '#f2789f', '#6fd695', '#5fc9e0'];
-const UNIT = 30;           // block height + gap, px — keep in sync with CSS
+const UNIT = 30;           // block height + gap, px. Keep in sync with CSS
 const SITE_H = 430;
 
 interface Block { id: number; word: string; width: number; color: string; gold: boolean; offset: number }
 
 const HINTS = [
-  'Type the blueprint word — the crane drops a block for each one.',
+  'Type the blueprint word: the crane drops a block for each one.',
   'Misses shrink the block you are holding. Width = accuracy.',
-  'Under 55% is too shaky — it crumbles the top. Breathe, aim clean.',
+  'Under 55% is too shaky: it crumbles the top. Breathe, aim clean.',
 ];
 
 export default function StackGame() {
@@ -214,7 +214,7 @@ export default function StackGame() {
               <Ic n="blocks" size={50} />
               <h2>Build the word tower</h2>
               <p className="muted" style={{ maxWidth: 470 }}>
-                Type the blueprint on the left and the crane drops a block on the right —
+                Type the blueprint on the left and the crane drops a block on the right. 
                 <strong> clean words drop wide, steady blocks</strong>, each miss shaves 15% off the one you're holding.
                 Under 55% it crumbles the top of the tower. Perfect + quick = <strong>gold</strong>.
               </p>

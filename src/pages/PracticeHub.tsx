@@ -25,8 +25,8 @@ export default function PracticeHub() {
   const byId = Object.fromEntries(MODES.map((m) => [m.id, m]));
   const rec = weak.length && weak[0].err > 0.08 ? byId['weakkeys'] : byId['adaptive'];
   const why = rec.id === 'weakkeys'
-    ? `Your map shows ${weak.map((w) => w.key.toUpperCase()).join(', ')} running soft — targeted reps there pay off most right now.`
-    : 'A balanced set generated from your Mastery Map — the right default for most days.';
+    ? `Your map shows ${weak.map((w) => w.key.toUpperCase()).join(', ')} running soft. Targeted reps there pay off most right now.`
+    : 'A balanced set generated from your Mastery Map. The right default for most days.';
 
   return (
     <div className="trainhub">
@@ -79,7 +79,7 @@ export default function PracticeHub() {
 
       <Link to="/onboarding?retest=1" className="train-retest">
         <Ic n="compass" size={18} />
-        <span><strong>Placement test</strong> — re-measure your level and refresh your plan</span>
+        <span><strong>Placement test</strong>: re-measure your level and refresh your plan</span>
         <Chip>2 min</Chip>
       </Link>
     </div>

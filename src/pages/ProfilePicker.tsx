@@ -44,7 +44,7 @@ export default function ProfilePicker() {
       <Link to="/" aria-label="Back to landing page"><Logo /></Link>
       <div className="who-wrap">
         <h1>Who's typing today?</h1>
-        <p className="muted">Pick your explorer — each one keeps their own world and stickers.</p>
+        <p className="muted">Pick your explorer: each one keeps their own world and stickers.</p>
 
         <div className="who-grid">
           {list.map((d) => {

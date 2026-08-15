@@ -307,7 +307,7 @@ export function IslandMap({ skin, worldId, stops, currentIdx, youAvatar, complet
     <div
       className="kw-map"
       role="img"
-      aria-label={`${skin.kidName}: ${doneCount} of ${stops.length} spots explored${complete ? ' — island complete!' : `. You are at spot ${currentIdx + 1}`}`}
+      aria-label={`${skin.kidName}: ${doneCount} of ${stops.length} spots explored${complete ? ': island complete!' : `. You are at spot ${currentIdx + 1}`}`}
     >
       <svg viewBox="0 0 1000 460">
         <defs>
@@ -373,7 +373,7 @@ export function IslandMap({ skin, worldId, stops, currentIdx, youAvatar, complet
               role="button"
               tabIndex={stop.unlocked ? 0 : -1}
               onKeyDown={(e) => { if (e.key === 'Enter') onStop(stop.id, stop.unlocked); }}
-              aria-label={`Spot ${i + 1}: ${stop.label}${done ? ` — ${stop.stars} star${stop.stars > 1 ? 's' : ''}` : cur ? ' — you are here' : stop.unlocked ? '' : ' — still locked'}`}
+              aria-label={`Spot ${i + 1}: ${stop.label}${done ? `: ${stop.stars} star${stop.stars > 1 ? 's' : ''}` : cur ? ': you are here' : stop.unlocked ? '' : ': still locked'}`}
             >
               <ellipse cy={stop.unlocked ? 30 : 21} rx={stop.unlocked ? 24 : 15} ry="6" fill="rgba(58, 51, 40, 0.14)" />
               {cur && <circle r="38" className="kw-pulse" style={{ stroke: c }} />}
@@ -409,7 +409,7 @@ export function IslandMap({ skin, worldId, stops, currentIdx, youAvatar, complet
                     </div>
                   </foreignObject>
                   <foreignObject x="-90" y="40" width="180" height="38">
-                    <div className="kw-sign"><span style={{ borderColor: c }}>{complete ? `${skin.kidName} — explored!` : stop.label}</span></div>
+                    <div className="kw-sign"><span style={{ borderColor: c }}>{complete ? `${skin.kidName}: explored!` : stop.label}</span></div>
                   </foreignObject>
                 </>
               )}

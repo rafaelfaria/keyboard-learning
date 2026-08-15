@@ -78,7 +78,7 @@ export default function LessonPlayer() {
             celebrate({
               kind: 'level',
               icon: kid ? 'rocket' : 'flag',
-              title: kid ? `${wd.kid.kidName} explored!` : `${wd.adult.adultName} — complete!`,
+              title: kid ? `${wd.kid.kidName} explored!` : `${wd.adult.adultName}. Complete!`,
               body: kid
                 ? `${wd.kid.landmark} lights up for you. A new island rises on the sea chart…`
                 : 'Flag planted. The next leg of the ascent is open.',
@@ -118,7 +118,7 @@ export default function LessonPlayer() {
     return (
       <div className="train-page">
         <div className="train-top">
-          <h1><Ic n={stage?.icon ?? 'map'} size={20} /> {lesson.title} — complete</h1>
+          <h1><Ic n={stage?.icon ?? 'map'} size={20} /> {lesson.title}: complete</h1>
           <Chip tone="accent">{placeName}</Chip>
         </div>
         <ResultsPanel

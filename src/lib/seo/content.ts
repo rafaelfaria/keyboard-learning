@@ -61,11 +61,11 @@ export const CORE_FEATURES: Feature[] = [
   { name: '60-second placement assessment', description: 'Reads speed, accuracy, rhythm, hesitation, backspace habits and per-key reflexes, then names your rank and draws your starting map.' },
   { name: '41-lesson curriculum', description: 'Nine regions grouped into five worlds, from the two home-row anchor keys through capitals, numbers, symbols, code, rhythm and endurance.' },
   { name: 'Fourteen training modes', description: 'Adaptive practice, weak-key workouts, speed sprints, Accuracy Lab, rhythm studio, zen, lights-out, code forge, dictation, numerals, recovery, endurance, real-world desk and copy desk.' },
-  { name: 'Seven original typing games', description: 'Each game is built around one named skill and tells you which skill it trains — no typing glued onto an unrelated arcade game.' },
+  { name: 'Seven original typing games', description: 'Each game is built around one named skill and tells you which skill it trains. No typing glued onto an unrelated arcade game.' },
   { name: 'Racing with CPU rivals', description: 'Five difficulties plus adaptive, rivals with believable habits, a ghost of your own best run, and private rooms with join codes for friends or a classroom.' },
   { name: 'Deep analytics', description: 'Per-key heatmaps, finger and hand balance, rhythm fingerprints, session echo replay, consistency scoring, records and a practice calendar.' },
   { name: 'A coach that is specific', description: 'Kip reads your actual session data and names the exact keys and transitions holding you back, then prescribes a drill for them.' },
-  { name: 'Layout-aware', description: 'QWERTY, QWERTZ, AZERTY, Dvorak and Colemak — the curriculum rebuilds itself around whichever layout you use.' },
+  { name: 'Layout-aware', description: 'QWERTY, QWERTZ, AZERTY, Dvorak and Colemak. The curriculum rebuilds itself around whichever layout you use.' },
   { name: 'Accessibility as a requirement', description: 'Full keyboard navigation, four text sizes, the Atkinson Hyperlegible typeface, a high-contrast theme, reduced-motion mode, untimed learning, spoken target letters and never colour-only feedback.' },
   { name: 'Local-first privacy', description: 'Nothing ever blocks on the network: keystrokes are written to your browser first and synced afterwards. One grown-up account covers the whole household, learners never sign in themselves, and everything can be erased in one click.' },
   { name: 'Twelve themes', description: 'Themes change illustration, keyboard, sound and celebration, and are unlocked by learning rather than by paying.' },
@@ -177,7 +177,7 @@ export const MODE_CLUSTERS: ModeCluster[] = [
 ];
 
 export const GAMES: GameEntry[] = [
-  { name: 'Wordfall Defence', slug: 'wordfall', skill: 'Accuracy under pressure', description: 'Words drift toward your light-shield. Careless speed weakens it; calm accuracy saves the city. The game punishes exactly the habit that stalls most learners — racing ahead of your own accuracy.' },
+  { name: 'Wordfall Defence', slug: 'wordfall', skill: 'Accuracy under pressure', description: 'Words drift toward your light-shield. Careless speed weakens it; calm accuracy saves the city. The game punishes exactly the habit that stalls most learners. Racing ahead of your own accuracy.' },
   { name: 'Keyforge', slug: 'keyforge', skill: 'Fast, flawless words', description: 'The forge fire only burns while you type. Misses vent heat and treasures make it hungrier, so you have to hold speed and precision at the same time rather than trading one for the other.' },
   { name: 'Wordflight', slug: 'wordflight', skill: 'Rhythm and flow', description: 'A glider that climbs when your keystroke rhythm is even and wobbles when you rush. Threading the golden gates trains the steady inter-key timing that separates smooth typists from bursty ones.' },
   { name: 'Quill Duel', slug: 'duel', skill: 'Burst speed under pressure', description: 'A best-of-seven phrase duel against a rival matched to your pace, with their cursor visible as they type. Head-to-head pressure without strangers or chat.' },
@@ -187,7 +187,7 @@ export const GAMES: GameEntry[] = [
 ];
 
 export const AUDIENCES: Audience[] = [
-  { name: 'Kids', description: 'Short quests, friendly words, big visual feedback and a glowing guardian companion — with rewards for care rather than for screen time, and safe generated names only.' },
+  { name: 'Kids', description: 'Short quests, friendly words, big visual feedback and a glowing guardian companion, with rewards for care rather than for screen time, and safe generated names only.' },
   { name: 'Teens', description: 'Streaks, missions, ranked divisions and themes worth unlocking: practice that respects both your time and your aesthetic.' },
   { name: 'Adults', description: 'Ten focused minutes a day, workplace texts and email drills, a minimal focus mode, and analytics that treat you like a grown-up.' },
   { name: 'Competitive typists', description: 'Consistency scoring, rhythm training, ghost racing, endurance tests and per-transition timing data to find the last few WPM.' },
@@ -226,27 +226,27 @@ export interface CurriculumWorld {
 
 export const CURRICULUM: CurriculumWorld[] = [
   {
-    name: 'World 1 — First Steps',
+    name: 'World 1: First Steps',
     tagline: 'Posture, anchors and the home row',
     targetWpm: '8–14 WPM',
     targetAccuracy: '92% accuracy',
     regions: [
-      { region: 'Base Camp', skill: 'Setup and anchors', description: 'Posture, hand position and your two anchor keys — the bump keys your index fingers can always find without looking.' },
+      { region: 'Base Camp', skill: 'Setup and anchors', description: 'Posture, hand position and your two anchor keys. The bump keys your index fingers can always find without looking.' },
       { region: 'The Heartlands', skill: 'Home row', description: 'The home row, where every journey starts and ends. Middle, ring and pinky fingers each learn their own key, then the index fingers stretch inward and return.' },
     ],
   },
   {
-    name: 'World 2 — The High & Low Roads',
+    name: 'World 2: The High & Low Roads',
     tagline: 'Top and bottom rows, completing the alphabet',
     targetWpm: '14–20 WPM',
     targetAccuracy: '93% accuracy',
     regions: [
-      { region: 'Skyreach Ridge', skill: 'Top row', description: 'Reaching up to the top row without losing your anchors — one hand reaches while the other rests, and every reach returns home.' },
+      { region: 'Skyreach Ridge', skill: 'Top row', description: 'Reaching up to the top row without losing your anchors. One hand reaches while the other rests, and every reach returns home.' },
       { region: 'Deeproot Vale', skill: 'Bottom row', description: 'Curling down to the bottom row with control. The hand stays level; only the finger dips. The rarest letters live here.' },
     ],
   },
   {
-    name: 'World 3 — The Written Word',
+    name: 'World 3: The Written Word',
     tagline: 'Capitals, punctuation and real sentences',
     targetWpm: '20–26 WPM',
     targetAccuracy: '94% accuracy',
@@ -256,7 +256,7 @@ export const CURRICULUM: CurriculumWorld[] = [
     ],
   },
   {
-    name: 'World 4 — Numbers & Glyphs',
+    name: 'World 4: Numbers & Glyphs',
     tagline: 'The number row, symbols and code',
     targetWpm: '26–32 WPM',
     targetAccuracy: '95% accuracy',
@@ -266,7 +266,7 @@ export const CURRICULUM: CurriculumWorld[] = [
     ],
   },
   {
-    name: 'World 5 — The Flow',
+    name: 'World 5: The Flow',
     tagline: 'Rhythm, endurance and real-world mastery',
     targetWpm: '30–42 WPM',
     targetAccuracy: '96% accuracy',
@@ -288,7 +288,7 @@ export interface GuideSection {
 export const LEARN_GUIDE_INTRO =
   'Touch typing is the ability to type without looking at your hands, using a fixed finger-to-key ' +
   'assignment so the movement becomes automatic. Almost everyone can learn it. What stops people is ' +
-  'rarely talent — it is practising the wrong thing, chasing speed before the map is built, or ' +
+  'rarely talent: it is practising the wrong thing, chasing speed before the map is built, or ' +
   'quitting during the dip where typing properly is temporarily slower than the hunt-and-peck habit ' +
   'it replaces. This guide is the method KeyTopia teaches, written out in full.';
 
@@ -296,14 +296,14 @@ export const LEARN_GUIDE: GuideSection[] = [
   {
     heading: 'Step 1: Set up before you type anything',
     paragraphs: [
-      'Sit so your forearms are roughly level with the keyboard and your wrists float rather than rest. Shoulders low, elbows loose at your sides. If your wrists are planted on the desk, your fingers have to stretch instead of the hand moving slightly — that is the source of most bottom-row misses.',
+      'Sit so your forearms are roughly level with the keyboard and your wrists float rather than rest. Shoulders low, elbows loose at your sides. If your wrists are planted on the desk, your fingers have to stretch instead of the hand moving slightly. That is the source of most bottom-row misses.',
       'Find the two bump keys, the small ridges on F and J on a QWERTY keyboard. Those are your anchors. Your index fingers return to them after every reach, and they are what makes typing without looking possible: you never need to find the keyboard visually, only to feel two bumps.',
     ],
   },
   {
     heading: 'Step 2: Learn the home row before anything else',
     paragraphs: [
-      'The home row is where all eight fingers rest, and every other key is described relative to it. Learning it first is not tradition for its own sake — it means every subsequent key can be learned as a movement from a known position rather than as an absolute location on a grid.',
+      'The home row is where all eight fingers rest, and every other key is described relative to it. Learning it first is not tradition for its own sake. It means every subsequent key can be learned as a movement from a known position rather than as an absolute location on a grid.',
       'Work through the home row one finger pair at a time: index fingers on the anchors, then the middle fingers, then the ring fingers, then the pinkies, then the inward stretch of the index fingers. Ring fingers are slower for everyone, including fast typists. That is anatomy, not a personal failing.',
     ],
   },
@@ -311,13 +311,13 @@ export const LEARN_GUIDE: GuideSection[] = [
     heading: 'Step 3: One finger owns each key, always',
     paragraphs: [
       'The single highest-value rule in touch typing is that each key belongs to exactly one finger, every time. Consistency is what lets the movement become automatic; using whichever finger is nearest keeps the task conscious forever, which is why self-taught fast typists usually plateau in the 50–70 WPM range.',
-      'The same applies to Shift. Capitals use the Shift key on the opposite side from the letter — right-hand letter, left Shift, and back. Same-hand Shift forces the hand off its anchors and is one of the most common hidden sources of error in otherwise decent typists.',
+      'The same applies to Shift. Capitals use the Shift key on the opposite side from the letter. Right-hand letter, left Shift, and back. Same-hand Shift forces the hand off its anchors and is one of the most common hidden sources of error in otherwise decent typists.',
     ],
   },
   {
     heading: 'Step 4: Accuracy before speed, without exception',
     paragraphs: [
-      'Typing fast with errors is not a faster version of typing well — it is a different, worse skill, because every uncorrected error costs a backspace, a re-read and a break in rhythm. Measured end to end, a 95%-accurate typist at 45 WPM finishes real work ahead of an 85%-accurate typist at 60 WPM.',
+      'Typing fast with errors is not a faster version of typing well. It is a different, worse skill, because every uncorrected error costs a backspace, a re-read and a break in rhythm. Measured end to end, a 95%-accurate typist at 45 WPM finishes real work ahead of an 85%-accurate typist at 60 WPM.',
       'The practical rule: hold accuracy above about 95% before you allow yourself to push pace. If accuracy drops, you are practising errors, and repetition makes them more automatic, not less. Slowing down by 10% until accuracy recovers is the fastest available route to being faster.',
     ],
   },
@@ -325,7 +325,7 @@ export const LEARN_GUIDE: GuideSection[] = [
     heading: 'Step 5: Practise rhythm, not bursts',
     paragraphs: [
       'Speed is mostly evenness. Two typists with the same average WPM can have very different experiences: one types at a steady pace, the other sprints through familiar words and stalls on the rest. The stalls are where the time actually goes, and they are invisible on a plain WPM score.',
-      'This is why KeyTopia measures the interval between every pair of keystrokes and shows it as a rhythm fingerprint — a round ring means metronome-steady hands. Training the slow transitions specifically, rather than typing more in general, is what moves the average.',
+      'This is why KeyTopia measures the interval between every pair of keystrokes and shows it as a rhythm fingerprint. A round ring means metronome-steady hands. Training the slow transitions specifically, rather than typing more in general, is what moves the average.',
     ],
   },
   {
@@ -346,7 +346,7 @@ export const LEARN_GUIDE: GuideSection[] = [
     heading: 'Why progress stalls, and what to do',
     paragraphs: [
       'Looking down at the keyboard is the most common cause. It feels like it helps and it prevents the map from ever forming. A lights-out or blind mode, where the keys are hidden, is uncomfortable for a session or two and then resolves it.',
-      'A second cause is a small number of specific weak keys — very often the pinky-operated keys, Q, P, Z and the punctuation cluster — dragging an otherwise fine average down. Per-key data finds these in one session; more general practice can hide them for months.',
+      'A second cause is a small number of specific weak keys, very often the pinky-operated keys, Q, P, Z and the punctuation cluster, dragging an otherwise fine average down. Per-key data finds these in one session; more general practice can hide them for months.',
       'A third is chasing a WPM number on a test rather than training. A test measures; it does not teach. Use it as a thermometer, not as the practice itself.',
     ],
   },
@@ -355,7 +355,7 @@ export const LEARN_GUIDE: GuideSection[] = [
 // ── Kids and schools ───────────────────────────────────────────────────────
 
 export const KIDS_POINTS: Feature[] = [
-  { name: 'An island world, not a worksheet', description: 'Five islands — Meadow Isle, Treetop Isle, Lantern Harbor, Crystal Caverns and Cloud Castle — with one stop per lesson along a sea chart, so a child always knows where they are and what comes next.' },
+  { name: 'An island world, not a worksheet', description: 'Five islands (Meadow Isle, Treetop Isle, Lantern Harbor, Crystal Caverns and Cloud Castle), with one stop per lesson along a sea chart, so a child always knows where they are and what comes next.' },
   { name: 'A guardian companion', description: 'Each island has a pal who travels alongside the explorer, reacting to progress. It is a companion, not a competitor, and it never scolds.' },
   { name: 'Rewards for care, not for time', description: 'Stickers, quests and celebrations are earned by accurate, careful typing rather than by minutes spent on the screen. There are no streak-guilt mechanics aimed at children.' },
   { name: 'Gentle difficulty', description: 'Kid word lists and sentences, a lower speed target than the adult track, and untimed mode available everywhere so a child can learn without a clock.' },
@@ -369,7 +369,7 @@ export const SCHOOLS_POINTS: Feature[] = [
   { name: 'Multiple explorers per device', description: 'A shared classroom machine can hold several student profiles side by side, each with its own mastery map, settings and accessibility profile.' },
   { name: 'Private race rooms', description: 'Races use join codes and are limited to the people you share the code with. There is no public matchmaking and no chat.' },
   { name: 'Per-student accessibility profiles', description: 'Text size, the Atkinson Hyperlegible typeface, high contrast, reduced motion, untimed mode and spoken target letters are per-profile, so an accommodation follows the student rather than the device.' },
-  { name: 'Progress you can actually read', description: 'A guardian and teacher summary built from real session data — per-key mastery, accuracy trends and practice frequency — rather than a participation score.' },
+  { name: 'Progress you can actually read', description: 'A guardian and teacher summary built from real session data (per-key mastery, accuracy trends and practice frequency) rather than a participation score.' },
 ];
 
 // ── FAQ ────────────────────────────────────────────────────────────────────
@@ -380,10 +380,10 @@ export const FAQS: Faq[] = [
   { question: 'Where is my typing data stored?', answer: 'Every keystroke is written to your browser\'s local storage first, so practice never waits on a network call and keeps working offline. Finished results and your mastery map then sync to your account so they survive a lost device. The raw text you typed is not uploaded. You can erase everything, locally and in the account, from Settings → Data.' },
   { question: 'How long does it take to learn touch typing?', answer: 'With about 15 minutes of daily practice, most adults type the whole alphabet without looking within two to three weeks and reach a usable 40 WPM in roughly four to eight weeks. Reaching 60–70 WPM typically takes a few months. Children usually take longer in calendar time but often finish with cleaner technique.' },
   { question: 'What is a good typing speed?', answer: 'Around 40 WPM is a functional working speed and roughly the average for an adult who types regularly. 60–70 WPM is comfortably fast and enough that typing stops being the bottleneck in most work. Above 90 WPM is genuinely fast. Accuracy matters more than any of these numbers: 45 WPM at 98% accuracy beats 60 WPM at 85% for real work.' },
-  { question: 'Does KeyTopia support Dvorak, Colemak, AZERTY or QWERTZ?', answer: 'Yes. The curriculum is layout-aware — it rebuilds the lesson order, the key groupings and the on-screen keyboard around QWERTY, QWERTZ, AZERTY, Dvorak or Colemak, so the lessons teach your actual layout rather than a translated QWERTY one.' },
+  { question: 'Does KeyTopia support Dvorak, Colemak, AZERTY or QWERTZ?', answer: 'Yes. The curriculum is layout-aware: it rebuilds the lesson order, the key groupings and the on-screen keyboard around QWERTY, QWERTZ, AZERTY, Dvorak or Colemak, so the lessons teach your actual layout rather than a translated QWERTY one.' },
   { question: 'Is it suitable for children?', answer: 'Yes. There is a dedicated kids world with an island map, quests, a guardian companion, gentler speed targets and kid-appropriate word lists. Children never create an account or give an email address: a parent or teacher signs in and the child gets a profile. There is no chat and no strangers, race rivals are computer-controlled, and rooms are join-code only.' },
   { question: 'Can it be used in a classroom?', answer: 'Yes. Assignable lessons, private race rooms with join codes, multiple student profiles per shared device and per-student accessibility profiles are all supported. Students join with a class code rather than an email address, and only finished results reach the class board. The teacher dashboard is currently a preview.' },
-  { question: 'Is there a typing test I can take without signing up?', answer: 'Yes — the free typing test runs in the browser at 15, 30, 60 or 120 seconds and reports WPM, raw WPM, accuracy, consistency and a per-key breakdown. No sign-up, and the result stays on your device.' },
+  { question: 'Is there a typing test I can take without signing up?', answer: 'Yes. The free typing test runs in the browser at 15, 30, 60 or 120 seconds and reports WPM, raw WPM, accuracy, consistency and a per-key breakdown. No sign-up, and the result stays on your device.' },
   { question: 'What accessibility support does KeyTopia have?', answer: 'Full keyboard navigation, four text sizes, the Atkinson Hyperlegible typeface, a high-contrast theme, reduced-motion mode, untimed learning, spoken target letters, dictation with replay and speed control, feedback that is never colour-only, and hideable leaderboards. These are per-profile settings.' },
   { question: 'Does it work offline?', answer: 'Yes. Once loaded, every lesson, game and analytics view runs from local storage, so practice continues if the connection drops and syncs up quietly when it returns. Only the initial sign-in needs a connection. It is installable as a progressive web app on desktop and mobile.' },
   { question: 'How is WPM calculated?', answer: 'The standard way: correctly typed characters divided by five (the conventional word length), scaled to one minute. Raw WPM applies the same formula to every keystroke including errors, so the gap between raw and net WPM is a direct measure of how much speed your mistakes are costing you.' },
@@ -392,19 +392,19 @@ export const FAQS: Faq[] = [
 // ── Glossary ───────────────────────────────────────────────────────────────
 
 export const GLOSSARY: GlossaryTerm[] = [
-  { term: 'Touch typing', slug: 'touch-typing', definition: 'Typing without looking at your hands, using a fixed assignment of fingers to keys so the movement becomes automatic. The defining feature is not speed but that the keyboard is located by feel — via the home-row anchor keys — rather than by sight.' },
+  { term: 'Touch typing', slug: 'touch-typing', definition: 'Typing without looking at your hands, using a fixed assignment of fingers to keys so the movement becomes automatic. The defining feature is not speed but that the keyboard is located by feel, via the home-row anchor keys, rather than by sight.' },
   { term: 'WPM (words per minute)', slug: 'wpm', definition: 'The standard measure of typing speed: correctly typed characters divided by five, scaled to one minute. Five characters is the conventional definition of a "word", so WPM is comparable across languages and texts of different word lengths.' },
   { term: 'Raw WPM', slug: 'raw-wpm', definition: 'The same calculation as WPM but counting every keystroke, including incorrect ones. The gap between raw and net WPM quantifies exactly how much speed your errors are costing.' },
   { term: 'CPM (characters per minute)', slug: 'cpm', definition: 'Typing speed expressed in characters rather than five-character words. CPM is simply WPM multiplied by five, and is more common outside English-language typing tools.' },
   { term: 'Accuracy', slug: 'accuracy', definition: 'The percentage of keystrokes that were correct on the first attempt. Because every error costs a backspace, a re-read and a break in rhythm, accuracy affects real-world throughput more than headline speed does.' },
   { term: 'Consistency', slug: 'consistency', definition: 'How even your typing pace is, derived from the variation in the interval between successive keystrokes. High consistency means a steady rhythm; low consistency means bursts of familiar words separated by stalls, which is where most lost time actually hides.' },
   { term: 'Inter-key interval (IKI)', slug: 'inter-key-interval', definition: 'The time in milliseconds between one keystroke and the next. The distribution of inter-key intervals across a session is the raw material for consistency scoring, rhythm fingerprints and hesitation detection.' },
-  { term: 'Hesitation', slug: 'hesitation', definition: 'A keystroke interval far longer than your own typical pace — the moment where you stopped to think or search for a key. Hesitations are more diagnostic than errors, because they show which keys are not yet automatic.' },
+  { term: 'Hesitation', slug: 'hesitation', definition: 'A keystroke interval far longer than your own typical pace. The moment where you stopped to think or search for a key. Hesitations are more diagnostic than errors, because they show which keys are not yet automatic.' },
   { term: 'Home row', slug: 'home-row', definition: 'The middle row of letter keys where all eight fingers rest between reaches. On QWERTY it is A S D F and J K L semicolon. Every other key in touch typing is learned as a movement relative to this row.' },
-  { term: 'Anchor keys', slug: 'anchor-keys', definition: 'The two keys carrying small tactile bumps — F and J on QWERTY — that the index fingers use to locate the keyboard by feel. They are what makes typing without looking possible.' },
+  { term: 'Anchor keys', slug: 'anchor-keys', definition: 'The two keys carrying small tactile bumps, F and J on QWERTY, that the index fingers use to locate the keyboard by feel. They are what makes typing without looking possible.' },
   { term: 'Bigram', slug: 'bigram', definition: 'A pair of consecutive letters, such as "th" or "er". Bigram timings reveal which transitions between specific keys are slow, which is usually more actionable than knowing which individual keys are slow.' },
   { term: 'Rollover', slug: 'rollover', definition: 'Pressing the next key before fully releasing the previous one. Overlapping keystrokes this way is a hallmark of fluent typing, and keyboards are rated by how many simultaneous keys they can register correctly.' },
-  { term: 'Burst speed', slug: 'burst-speed', definition: 'Your peak speed over a short window — often a familiar word or common bigram — as opposed to your sustained average. A large gap between burst and average speed indicates that specific keys or transitions, not general ability, are the limiting factor.' },
+  { term: 'Burst speed', slug: 'burst-speed', definition: 'Your peak speed over a short window, often a familiar word or common bigram, as opposed to your sustained average. A large gap between burst and average speed indicates that specific keys or transitions, not general ability, are the limiting factor.' },
   { term: 'Key mastery', slug: 'key-mastery', definition: 'A per-key state describing how reliable a key is for you, based on its error rate and typical timing. In KeyTopia keys move through learning, improving, reliable and mastered states, and fall back to needs-review when performance degrades.' },
   { term: 'Adaptive practice', slug: 'adaptive-practice', definition: 'Practice text generated from your own performance data rather than a fixed script, so that weak keys and slow transitions receive more repetitions than keys you already own.' },
   { term: 'Placement test', slug: 'placement-test', definition: 'A short assessment taken before training that measures current speed, accuracy, rhythm and per-key reliability in order to choose a realistic starting point in the curriculum.' },

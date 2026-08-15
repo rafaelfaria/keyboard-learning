@@ -86,7 +86,7 @@ export default function Progress() {
       <div className="page-head">
         <div>
           <h1>Progress</h1>
-          <p>Your whole journey — speed, accuracy, rhythm, keys and time. Rank: <strong>{data.assessment?.rank}</strong></p>
+          <p>Your whole journey: speed, accuracy, rhythm, keys and time. Rank: <strong>{data.assessment?.rank}</strong></p>
         </div>
         <div className="row gap wrap">
           <Seg options={[{ v: '7', label: '7d' }, { v: '30', label: '30d' }, { v: '90', label: '90d' }, { v: 'all', label: 'All' }]} value={range} onChange={setRange} ariaLabel="Time range" />
@@ -139,7 +139,7 @@ export default function Progress() {
                   rows={fingers.map((f) => ({ label: FINGER_NAMES[f.finger], v: f.acc, hint: `${f.n} presses · ${f.ms}ms avg`, color: `var(--fz${f.finger})` }))}
                   unit="%" max={100}
                 />
-                <p className="small muted" style={{ marginTop: 10 }}>Hand balance — left {hands.left}% · right {hands.right}% accuracy</p>
+                <p className="small muted" style={{ marginTop: 10 }}>Hand balance. Left {hands.left}% · right {hands.right}% accuracy</p>
               </>
             ) : <p className="muted small">Type a few sessions to unlock finger analytics.</p>}
           </Card>
@@ -156,7 +156,7 @@ export default function Progress() {
                 </div>
                 <Btn kind="soft" onClick={() => nav('/app/train/weakkeys')}><Ic n="dumbbell" size={15} /> Drill the worst one</Btn>
               </>
-            ) : <p className="good small">Nothing flagged — your map is in great shape.</p>}
+            ) : <p className="good small">Nothing flagged. Your map is in great shape.</p>}
           </Card>
         </div>
       </div>
@@ -202,7 +202,7 @@ export default function Progress() {
               </div>
             </div>
           ))}
-          {!data.sessions.length && <p className="muted small">No sessions yet — your story starts with the first one.</p>}
+          {!data.sessions.length && <p className="muted small">No sessions yet. Your story starts with the first one.</p>}
         </div>
       </Card>
 

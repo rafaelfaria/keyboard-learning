@@ -63,7 +63,7 @@ export default function Dashboard() {
             <div className="row gap wrap" style={{ marginTop: 8 }}>
               <Stat v={last.wpm} l="last wpm" tone="accent" />
               <Stat v={`${last.acc}%`} l="last acc" />
-              <Stat v={data.records.wpm?.v ?? '—'} l="best wpm" />
+              <Stat v={data.records.wpm?.v ?? ': '} l="best wpm" />
               <Stat v={`${Math.round(recent.reduce((a, s) => a + s.seconds, 0) / 60)}m`} l="last 14 sess." />
             </div>
           ) : (

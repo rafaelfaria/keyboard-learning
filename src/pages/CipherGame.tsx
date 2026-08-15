@@ -175,7 +175,7 @@ export default function CipherGame() {
               <Ic n="puzzle" size={52} />
               <h2>Unscramble the runes</h2>
               <p className="muted" style={{ maxWidth: 470 }}>
-                Each cipher is a real word with its letters shuffled. Type the <strong>true word</strong> —
+                Each cipher is a real word with its letters shuffled. Type the <strong>true word</strong>: 
                 only letters the word contains will land. Wrong full guesses bounce. Hints cost 15, skips cost 8.
               </p>
               {data.gameBests['cipher'] && <Chip tone="gold">Personal best: {data.gameBests['cipher'].score}</Chip>}

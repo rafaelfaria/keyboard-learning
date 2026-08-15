@@ -41,12 +41,26 @@ function keyLabel(k: string): string {
   return k;
 }
 
+/** A 0–100 meter under a percentage stat. Nothing to read; it is the shape. */
+function Meter({ pct, tone }: { pct: number; tone?: 'warn' }) {
+  return (
+    <span className={`tt-meter${tone ? ` is-${tone}` : ''}`} aria-hidden>
+      <i style={{ width: `${Math.max(0, Math.min(100, pct))}%` }} />
+    </span>
+  );
+}
+
 function Verdict({ r }: { r: SessionResult }) {
   const worst = Object.entries(r.keyAgg)
     .filter(([k, s]) => k.trim() && s.a >= 3)
     .map(([k, s]) => ({ key: k, errRate: s.e / s.a, ms: s.n ? s.ms / s.n : 0 }))
     .sort((a, b) => b.errRate - a.errRate || b.ms - a.ms)
     .slice(0, 5);
+
+  /* Bars are only comparable against a shared scale, so each chart is scaled to
+     its own slowest/worst row rather than to an absolute maximum nobody has. */
+  const worstPeak = Math.max(0.01, ...worst.map((k) => k.errRate));
+  const pairPeak = Math.max(1, ...r.slowPairs.map(([, ms]) => ms));
 
   const gap = Math.max(0, Math.round((r.raw - r.wpm) * 10) / 10);
 
@@ -75,23 +89,32 @@ function Verdict({ r }: { r: SessionResult }) {
     <section className="tt-results" aria-live="polite">
       <h2>Your result</h2>
 
-      <div className="tt-headline">
-        <b>{r.wpm}</b>
-        <span>words per minute</span>
+      {/* The headline number and the sentence that qualifies it, side by side.
+          Stacked, the number left a screen-wide void beside it and the sentence
+          then wrapped at a measure far narrower than the space it sat in. */}
+      <div className="tt-score">
+        <b className="tt-score-n">{r.wpm}</b>
+        <div className="tt-score-side">
+          <span className="tt-score-unit">words per minute</span>
+          <p className="tt-summary">
+            {r.correct} correct characters in {r.seconds} seconds, with {r.uncorrected}{' '}
+            {r.uncorrected === 1 ? 'error' : 'errors'} left uncorrected and {r.backspaces}{' '}
+            {r.backspaces === 1 ? 'backspace' : 'backspaces'}.
+          </p>
+        </div>
       </div>
 
-      <p className="tt-summary">
-        {r.correct} correct characters in {r.seconds} seconds, with {r.uncorrected}{' '}
-        {r.uncorrected === 1 ? 'error' : 'errors'} left uncorrected and {r.backspaces}{' '}
-        {r.backspaces === 1 ? 'backspace' : 'backspaces'}.
-      </p>
-
       {/* Units on everything, and a plain-English gloss under each: "30" told
-          the reader nothing, and consistency is the one number nobody guesses. */}
+          the reader nothing, and consistency is the one number nobody guesses.
+          The two percentages also carry a meter, so where they fall on their
+          own scale is legible before the digits are read. */}
       <dl className="tt-stats">
         <div>
           <dt>{r.acc}<i>%</i></dt>
-          <dd>Accuracy<span>share of keystrokes that landed</span></dd>
+          <dd>
+            Accuracy<span>share of keystrokes that landed</span>
+            <Meter pct={r.acc} tone={r.acc < 95 ? 'warn' : undefined} />
+          </dd>
         </div>
         <div>
           <dt>{r.raw}</dt>
@@ -99,7 +122,10 @@ function Verdict({ r }: { r: SessionResult }) {
         </div>
         <div>
           <dt>{r.consistency}<i>%</i></dt>
-          <dd>Consistency<span>how even your rhythm was</span></dd>
+          <dd>
+            Consistency<span>how even your rhythm was</span>
+            <Meter pct={r.consistency} tone={r.consistency < 60 ? 'warn' : undefined} />
+          </dd>
         </div>
         <div>
           <dt>{r.hesitations}</dt>
@@ -107,49 +133,73 @@ function Verdict({ r }: { r: SessionResult }) {
         </div>
       </dl>
 
-      {notes.length > 0 && (
-        <div className="tt-notes">
-          <h3>What that means</h3>
-          <ul>{notes.map((n) => <li key={n.slice(0, 24)}>{n}</li>)}</ul>
-        </div>
-      )}
-
-      {worst.length > 0 && (
-        <div className="tt-keys">
-          <h3>Keys that cost you the most</h3>
-          <ul>
-            {worst.map((k) => (
-              <li key={k.key}>
-                <kbd>{keyLabel(k.key)}</kbd>
-                <span><b>{Math.round(k.errRate * 100)}%</b> missed, {Math.round(k.ms)}ms average</span>
-              </li>
-            ))}
-          </ul>
-          <p className="pub-meta">
+      {/* Prose on one side, the per-key evidence on the other. Both used to run
+          down the full width of a 68rem card, which is why every paragraph
+          broke line long before it reached the edge. */}
+      <div className="tt-diagnosis">
+        <div className="tt-diagnosis-col">
+          {notes.length > 0 && (
+            <div className="tt-notes">
+              <h3>What that means</h3>
+              <ul>{notes.map((n) => <li key={n.slice(0, 24)}>{n}</li>)}</ul>
+            </div>
+          )}
+          <p className="tt-handoff">
             A test measures; it does not teach. <Link to="/onboarding">Start a session</Link> and
             these exact keys become the practice text.
           </p>
         </div>
-      )}
 
-      {r.slowPairs.length > 0 && (
-        <div className="tt-keys">
-          <h3>Slowest transitions</h3>
-          <ul>
-            {/* Both keys, always. These are pairs, and the slowest are usually
-                letter-then-space, so rendering the raw string showed a lone
-                letter and a caption claiming there were two. */}
-            {r.slowPairs.map(([pair, ms]) => (
-              <li key={pair}>
-                <kbd>{keyLabel(pair[0])}</kbd>
-                <i className="tt-arrow" aria-hidden>→</i>
-                <kbd>{keyLabel(pair[1])}</kbd>
-                <span>{Math.round(ms)}ms to move between them</span>
-              </li>
-            ))}
-          </ul>
+        <div className="tt-diagnosis-col">
+          {worst.length > 0 && (
+            <div className="tt-panel">
+              <h3>Keys that cost you the most</h3>
+              <ol className="tt-bars">
+                <li className="tt-bars-head" aria-hidden>
+                  <span />
+                  <span />
+                  <span>missed</span>
+                  <span>per key</span>
+                </li>
+                {worst.map((k) => (
+                  <li key={k.key}>
+                    <kbd>{keyLabel(k.key)}</kbd>
+                    <span className="tt-bar" aria-hidden>
+                      <i className="is-warn" style={{ width: `${(k.errRate / worstPeak) * 100}%` }} />
+                    </span>
+                    <span className="tt-bar-v">{Math.round(k.errRate * 100)}%</span>
+                    <span className="tt-bar-v is-soft">{Math.round(k.ms)}ms</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+
+          {r.slowPairs.length > 0 && (
+            <div className="tt-panel">
+              <h3>Slowest transitions</h3>
+              <ol className="tt-bars tt-bars-pairs">
+                {/* Both keys, always. These are pairs, and the slowest are usually
+                    letter-then-space, so rendering the raw string showed a lone
+                    letter and a caption claiming there were two. */}
+                {r.slowPairs.map(([pair, ms]) => (
+                  <li key={pair}>
+                    <span className="tt-pair">
+                      <kbd>{keyLabel(pair[0])}</kbd>
+                      <i className="tt-arrow" aria-hidden>→</i>
+                      <kbd>{keyLabel(pair[1])}</kbd>
+                    </span>
+                    <span className="tt-bar" aria-hidden>
+                      <i style={{ width: `${(ms / pairPeak) * 100}%` }} />
+                    </span>
+                    <span className="tt-bar-v">{Math.round(ms)}ms</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </section>
   );
 }
@@ -193,7 +243,7 @@ export function TypingTestPage() {
   return (
     <PublicPage
       page={page}
-      lede="Type the passage below. You get WPM, raw speed, accuracy, consistency and a per-key breakdown — free, no sign-up, and the result never leaves your browser."
+      lede="Type the passage below. You get WPM, raw speed, accuracy, consistency and a per-key breakdown. Free, no sign-up, and the result never leaves your browser."
       wide
     >
       <section className="tt-test" aria-label="Typing test">
@@ -218,7 +268,7 @@ export function TypingTestPage() {
             <div className="tt-field" onClick={session.focus}>
               <TypingText engine={session.engine} caret="bar" focused={session.focused} big onClick={session.focus} />
               <GhostInput bind={session.bindInput} />
-              {!session.focused && <p className="tt-hint">Click the text, then start typing — the clock starts on your first keystroke.</p>}
+              {!session.focused && <p className="tt-hint">Click the text, then start typing. The clock starts on your first keystroke.</p>}
             </div>
           </>
         )}
@@ -237,14 +287,14 @@ export function TypingTestPage() {
       <section className="pub-section">
         <h2>How this test is calculated</h2>
         <p>
-          <strong>WPM</strong> is correctly typed characters divided by five — the conventional
-          definition of a word — scaled to one minute. <strong>Raw WPM</strong> applies the same
+          <strong>WPM</strong> is correctly typed characters divided by five, the conventional
+          definition of a word, scaled to one minute. <strong>Raw WPM</strong> applies the same
           formula to every keystroke including errors, so the gap between the two is a direct
           measure of what your mistakes cost. <strong>Accuracy</strong> is the share of keystrokes
           correct on the first attempt. <strong>Consistency</strong> is derived from the variation
           in the interval between successive keystrokes: a high score means a steady rhythm rather
           than bursts separated by stalls. A <strong>hesitation</strong> is any interval far longer
-          than your own typical pace — the moment you stopped to find a key.
+          than your own typical pace: the moment you stopped to find a key.
         </p>
         <p>
           Every one of these terms is defined in the <Link to="/typing-glossary">typing glossary</Link>.
@@ -260,7 +310,7 @@ export function TypingTestPage() {
         <h2>Why a test alone will not make you faster</h2>
         <p>
           Retaking a typing test measures the same skill repeatedly without changing it. Improvement
-          comes from practising the specific keys and transitions that are slow — which is exactly
+          comes from practising the specific keys and transitions that are slow, which is exactly
           what the per-key breakdown above identifies, and what the{' '}
           <Link to="/learn-to-type">adaptive method</Link> turns into practice text. Two weeks of
           fifteen focused minutes will move this number far more than two weeks of retaking the test.

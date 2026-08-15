@@ -68,11 +68,11 @@ const KID_SKINS: Record<string, IslandSkin> = {
 };
 
 const ADULT_SKINS: Record<string, LegSkin> = {
-  w1: { adultName: 'The Valley', blurb: 'Trailhead by the river — anchors and the home row' },
-  w2: { adultName: 'The Forest', blurb: 'Switchbacks under tall trees — the full alphabet' },
-  w3: { adultName: 'The Ridgeline', blurb: 'Open views — capitals, punctuation, real sentences' },
-  w4: { adultName: 'The Glacier', blurb: 'Technical terrain — numbers, symbols and code' },
-  w5: { adultName: 'The Summit Push', blurb: 'Thin air — rhythm, endurance and mastery' },
+  w1: { adultName: 'The Valley', blurb: 'Trailhead by the river. Anchors and the home row' },
+  w2: { adultName: 'The Forest', blurb: 'Switchbacks under tall trees. The full alphabet' },
+  w3: { adultName: 'The Ridgeline', blurb: 'Open views. Capitals, punctuation, real sentences' },
+  w4: { adultName: 'The Glacier', blurb: 'Technical terrain. Numbers, symbols and code' },
+  w5: { adultName: 'The Summit Push', blurb: 'Thin air. Rhythm, endurance and mastery' },
 };
 
 export const WORLDS: WorldDef[] = WORLD_SPINE.map((w) => ({

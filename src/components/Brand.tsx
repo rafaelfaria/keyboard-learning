@@ -53,7 +53,7 @@ export function LogoMark({ size = 32, idPrefix = 'kt', flat = false }: { size?: 
         )}
       </defs>
 
-      {/* orbit ring — back half */}
+      {/* orbit ring: back half */}
       <g transform="rotate(-32 256 256)">
         <ellipse
           cx="256" cy="256" rx="228" ry="132"
@@ -70,7 +70,7 @@ export function LogoMark({ size = 32, idPrefix = 'kt', flat = false }: { size?: 
         </g>
       </g>
 
-      {/* orbit ring — front sweep, drawn over the cap to weave the ring through */}
+      {/* orbit ring: front sweep, drawn over the cap to weave the ring through */}
       <g transform="rotate(-32 256 256)">
         <path
           d="M 28 256 A 228 132 0 0 0 256 388 A 228 132 0 0 0 420 330"

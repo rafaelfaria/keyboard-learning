@@ -142,7 +142,7 @@ export default function WordfallGame() {
     if (s.cleared % 10 === 0) {
       s.wave++;
       s.shield = Math.min(100, s.shield + 8);
-      setWaveBanner(`Wave ${s.wave} — faster!`);
+      setWaveBanner(`Wave ${s.wave}: faster!`);
       window.setTimeout(() => setWaveBanner(''), 1400);
       if (data?.settings.soundOn) snd.step();
     }
@@ -216,7 +216,7 @@ export default function WordfallGame() {
               <h2>{kid ? 'Pop the word balloons!' : 'Defend the Lantern City'}</h2>
               <p className="muted" style={{ maxWidth: 470 }}>
                 {kid
-                  ? 'Word balloons are floating down to the garden. Type a word to aim your pop-cannon — finish it and BOOM, confetti! Every 10 pops the balloons drift faster.'
+                  ? 'Word balloons are floating down to the garden. Type a word to aim your pop-cannon: finish it and BOOM, confetti! Every 10 pops the balloons drift faster.'
                   : 'Words drift toward the wall. Type one to lock your cannon on, finish it and the cannon blasts it out of the sky. Wrong keys drain the shield a little; a word landing drains it a lot. Every wave falls faster.'}
                 <strong> Calm accuracy beats frantic speed.</strong>
               </p>
@@ -255,7 +255,7 @@ export default function WordfallGame() {
               </div>
               <RewardsBanner rewards={overInfo.rewards} />
               <p className="small muted" style={{ maxWidth: 420 }}>
-                {overInfo.acc >= 95 ? 'Beautiful defence — your calm under pressure is real.' : 'Tip: it is faster to type each word once, correctly, than twice in a panic.'}
+                {overInfo.acc >= 95 ? 'Beautiful defence: your calm under pressure is real.' : 'Tip: it is faster to type each word once, correctly, than twice in a panic.'}
               </p>
               <div className="row gap">
                 <Btn onClick={start}>↻ {kid ? 'Pop again' : 'Defend again'}</Btn>
@@ -266,7 +266,7 @@ export default function WordfallGame() {
         </div>
         {phase === 'run' && (
           <div className="game-typebar">
-            <span className="muted small">type a word to lock on — finish it to fire · every 10 pops the fall speeds up</span>
+            <span className="muted small">type a word to lock on. Finish it to fire · every 10 pops the fall speeds up</span>
           </div>
         )}
       </div>

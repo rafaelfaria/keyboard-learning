@@ -94,7 +94,7 @@ function readable(message: string, provider?: string): string {
     return `${provider ? provider[0].toUpperCase() + provider.slice(1) : 'That'} sign-in isn't switched on for this project yet.`;
   }
   if (m.includes('redirect')) return 'This address is not in the allowed redirect list for the project.';
-  if (m.includes('rate') || m.includes('too many')) return 'Too many attempts just now — give it a minute.';
+  if (m.includes('rate') || m.includes('too many')) return 'Too many attempts just now. Give it a minute.';
   if (m.includes('failed to fetch') || m.includes('network')) return 'No connection right now. Your progress is saved on this device either way.';
   return message;
 }

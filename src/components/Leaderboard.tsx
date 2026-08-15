@@ -98,7 +98,7 @@ export function Leaderboard({ data, spec }: { data: ProfileData; spec: DailySpec
       <div className="row spread lb-head">
         <h3 id="lb-title">
           <Ic n="medal" size={17} />{' '}
-          {scope.kind === 'global' ? `${DIVISIONS[data.profile.ageGroup]} — global` : scope.name}
+          {scope.kind === 'global' ? `${DIVISIONS[data.profile.ageGroup]}: global` : scope.name}
         </h3>
         <Btn kind="ghost" onClick={load} ariaLabel="Refresh the leaderboard"><Ic n="refresh" size={15} /></Btn>
       </div>

@@ -21,7 +21,7 @@ export function LineChart({ points, height = 180, color = 'var(--accent)', unit 
     return { path, area, sx, sy, yLo, yHi };
   }, [points, H, yMin]);
 
-  if (!d) return <div className="chart-empty">Not enough data yet — complete a few sessions.</div>;
+  if (!d) return <div className="chart-empty">Not enough data yet. Complete a few sessions.</div>;
   const hp = hover !== null ? points[hover] : null;
 
   return (
@@ -82,7 +82,7 @@ export function CalendarHeat({ days, weeks = 16, goalMin }: { days: Record<strin
   }, [days, weeks]);
 
   return (
-    <div className="cal-heat" role="img" aria-label="Practice calendar — darker squares are longer practice days">
+    <div className="cal-heat" role="img" aria-label="Practice calendar. Darker squares are longer practice days">
       <svg viewBox={`0 0 ${weeks * 16} ${7 * 16}`}>
         {cells.map((c) => {
           const lvl = c.v <= 0 ? 0 : c.v < goalMin * 0.5 ? 1 : c.v < goalMin ? 2 : c.v < goalMin * 2 ? 3 : 4;
@@ -108,7 +108,7 @@ export function RhythmStrip({ ikis, height = 90 }: { ikis: number[]; height?: nu
   const W = 600;
   const bw = W / slice.length;
   return (
-    <svg viewBox={`0 0 ${W} ${height}`} className="rhythm-strip" role="img" aria-label="Keystroke rhythm — each bar is the gap before one keystroke">
+    <svg viewBox={`0 0 ${W} ${height}`} className="rhythm-strip" role="img" aria-label="Keystroke rhythm. Each bar is the gap before one keystroke">
       <line x1="0" x2={W} y1={height - (med / (med * 3)) * height} y2={height - (med / (med * 3)) * height} className="rhythm-med" />
       {slice.map((v, i) => {
         const h = Math.min(1, v / (med * 3)) * (height - 6);
@@ -139,7 +139,7 @@ export function RhythmFingerprint({ ikis, size = 170 }: { ikis: number[]; size?:
   const R = size / 2;
   const inner = R * 0.35;
   return (
-    <svg viewBox={`0 0 ${size} ${size}`} className="fingerprint" role="img" aria-label="Rhythm fingerprint — a smooth even ring means consistent timing">
+    <svg viewBox={`0 0 ${size} ${size}`} className="fingerprint" role="img" aria-label="Rhythm fingerprint. A smooth even ring means consistent timing">
       <circle cx={R} cy={R} r={inner - 4} className="fp-core" />
       {bins.map((v, i) => {
         const a0 = (i / bins.length) * Math.PI * 2 - Math.PI / 2;
@@ -168,7 +168,7 @@ export function HBarList({ rows, unit = '', max }: { rows: { label: string; v: n
 }
 
 export function Spark({ values, width = 120, height = 36, color = 'var(--accent)' }: { values: number[]; width?: number; height?: number; color?: string }) {
-  if (values.length < 2) return <span className="spark-empty">—</span>;
+  if (values.length < 2) return <span className="spark-empty">·</span>;
   const lo = Math.min(...values), hi = Math.max(...values);
   const path = values.map((v, i) => {
     const x = (i / (values.length - 1)) * (width - 4) + 2;

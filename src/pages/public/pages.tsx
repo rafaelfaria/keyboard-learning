@@ -117,8 +117,8 @@ export function CurriculumPage() {
       wide
     >
       <p className="pub-intro">
-        The curriculum rebuilds itself around your keyboard layout — QWERTY, QWERTZ, AZERTY,
-        Dvorak or Colemak — so the lesson order always reflects the keys your fingers actually
+        The curriculum rebuilds itself around your keyboard layout (QWERTY, QWERTZ, AZERTY,
+        Dvorak or Colemak), so the lesson order always reflects the keys your fingers actually
         reach for. Each world has a target speed and accuracy; the check lesson at the end of a
         region has to be cleared before the next region opens.
       </p>
@@ -183,8 +183,8 @@ export function TypingGamesPage() {
       <section className="pub-section">
         <h2>Racing</h2>
         <p>
-          Beyond the games, races put you against CPU rivals with believable habits — slow starters,
-          streaky sprinters — across five difficulties plus an adaptive one. You can race the ghost
+          Beyond the games, races put you against CPU rivals with believable habits: slow starters,
+          streaky sprinters, across five difficulties plus an adaptive one. You can race the ghost
           of your own best run, and private rooms with join codes let friends or a classroom race
           together. There is no public matchmaking, no strangers and no chat, ever.
         </p>
@@ -207,7 +207,7 @@ export function KidsPage() {
   return (
     <PublicPage
       page={def('/typing-for-kids')}
-      lede="An island world where children learn to type properly — and where the rewards are for careful typing, not for time spent staring at a screen."
+      lede="An island world where children learn to type properly, and where the rewards are for careful typing, not for time spent staring at a screen."
     >
       <p className="pub-intro">
         Children do not need a different typing method from adults; they need a different pace, a
@@ -266,7 +266,7 @@ export function SchoolsPage() {
         <h2>How a lesson typically runs</h2>
         <ol className="pub-steps">
           <li><strong>Baseline.</strong> Each student takes the 60-second placement so the curriculum opens at their real level rather than at lesson one for everybody.</li>
-          <li><strong>Assign.</strong> Point the class at a region — home row, top row, capitals — and let the adaptive engine vary the practice text per student from there.</li>
+          <li><strong>Assign.</strong> Point the class at a region (home row, top row, capitals) and let the adaptive engine vary the practice text per student from there.</li>
           <li><strong>Race.</strong> Finish with a private race room; the join code keeps it to your class, and the ghost-run option lets slower typists compete against themselves.</li>
           <li><strong>Review.</strong> The progress view shows per-key mastery and accuracy trends, which is far more useful for intervention than a WPM league table.</li>
         </ol>
@@ -323,7 +323,7 @@ export function GlossaryPage() {
   return (
     <PublicPage
       page={def('/typing-glossary')}
-      lede="Plain-English definitions of the terms typing tools throw at you — including the ones they rarely explain."
+      lede="Plain-English definitions of the terms typing tools throw at you, including the ones they rarely explain."
     >
       <nav className="pub-toc pub-toc-inline" aria-label="Terms">
         <strong>Jump to</strong>
@@ -719,12 +719,12 @@ export function HomeOutline() {
 
       <h2>Training modes</h2>
       <ul>
-        {TRAINING_MODES.map((m) => <li key={m.name}><strong>{m.name}</strong> — {m.description}</li>)}
+        {TRAINING_MODES.map((m) => <li key={m.name}><strong>{m.name}</strong>. {m.description}</li>)}
       </ul>
 
       <h2>Games that train, honestly</h2>
       <ul>
-        {GAMES.map((g) => <li key={g.slug}><strong>{g.name}</strong> — trains {g.skill.toLowerCase()}. {g.description}</li>)}
+        {GAMES.map((g) => <li key={g.slug}><strong>{g.name}</strong>. Trains {g.skill.toLowerCase()}. {g.description}</li>)}
       </ul>
 
       <h2>One world, every typist</h2>

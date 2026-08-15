@@ -47,7 +47,7 @@ function QuestBook({ data }: { data: ProfileData }) {
       <div className="page-head">
         <div>
           <h1>My Quest Book</h1>
-          <p>Every spot on every island — what it teaches, and what your next star needs.</p>
+          <p>Every spot on every island: what it teaches, and what your next star needs.</p>
         </div>
       </div>
 
@@ -62,7 +62,7 @@ function QuestBook({ data }: { data: ProfileData }) {
                 <span className="qb-fog-ic"><Ic n="lock" size={20} /></span>
                 <div>
                   <h3>{w.kid.kidName}</h3>
-                  <p className="small muted">{w.tagline} — still hidden in the fog. Finish the island before it to reveal the way!</p>
+                  <p className="small muted">{w.tagline}: still hidden in the fog. Finish the island before it to reveal the way!</p>
                 </div>
               </div>
             </Card>
@@ -93,7 +93,7 @@ function QuestBook({ data }: { data: ProfileData }) {
                 const need = !open ? 'Finish the spot before it first'
                   : stars === 0 ? `Get a star: type carefully (85% right)`
                   : stars < 3 && t ? `Next star: ${stars === 1 ? `${t.acc}% right and a bit quicker` : `${t.wpm} wpm at ${t.acc}%`}`
-                  : 'All three stars — shiny!';
+                  : 'All three stars: shiny!';
                 return (
                   <div key={l.id} className={`qb-row ${open ? '' : 'locked'} ${isNext ? 'qb-next' : ''}`}>
                     <span className="jn-guide-num">{i + 1}</span>

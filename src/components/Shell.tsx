@@ -117,7 +117,7 @@ export function AppShell() {
           ))}
         </nav>
         <div className="side-me">
-          <NavLink to="/app/profile" className="side-me-btn" aria-label={`${data.profile.name} — open profile`}>
+          <NavLink to="/app/profile" className="side-me-btn" aria-label={`${data.profile.name}. Open profile`}>
             <Avatar v={data.profile.avatar} size={34} className="side-avatar" />
             <div className="side-me-txt">
               <strong>{data.profile.name}</strong>

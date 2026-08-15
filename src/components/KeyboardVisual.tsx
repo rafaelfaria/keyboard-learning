@@ -54,7 +54,7 @@ export const KeyboardVisual = memo(function KeyboardVisual(p: KeyboardVisualProp
                   k.code === 'space' ? 'kbd-space' : '',
                 ].join(' ')}
                 style={style}
-                title={heat ? heat.label : k.control ? k.label : k.base ? `${k.label} — ${FINGER_NAMES[k.finger]}` : undefined}
+                title={heat ? heat.label : k.control ? k.label : k.base ? `${k.label}: ${FINGER_NAMES[k.finger]}` : undefined}
                 onClick={p.onKeyClick ? () => p.onKeyClick?.(k) : undefined}
                 role={p.onKeyClick ? 'button' : undefined}
               >

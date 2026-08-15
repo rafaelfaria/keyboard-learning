@@ -57,7 +57,7 @@ function EchoReplay({ result, soundOn }: { result: SessionResult; soundOn: boole
   if (!tl.length) return <p className="muted">No replay was recorded for this session.</p>;
   return (
     <div className="echo">
-      <p className="muted small">Your typing, played back with its real timing. Long gaps glow — that's hesitation you can hear.</p>
+      <p className="muted small">Your typing, played back with its real timing. Long gaps glow: that's hesitation you can hear.</p>
       <div className="echo-strip" aria-hidden>
         {tl.slice(0, idx).slice(-90).map((s, i, arr) => {
           const realIdx = idx - arr.length + i;

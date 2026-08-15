@@ -60,14 +60,14 @@ export function buildHead(page: PublicPage): HeadDoc {
     meta({ property: 'og:image:type', content: 'image/png' }),
     meta({ property: 'og:image:width', content: '1200' }),
     meta({ property: 'og:image:height', content: '630' }),
-    meta({ property: 'og:image:alt', content: `${SITE_NAME} — ${page.label}` }),
+    meta({ property: 'og:image:alt', content: `${SITE_NAME}. ${page.label}` }),
 
     // Twitter / X
     meta({ name: 'twitter:card', content: 'summary_large_image' }),
     meta({ name: 'twitter:title', content: title }),
     meta({ name: 'twitter:description', content: page.description }),
     meta({ name: 'twitter:image', content: image }),
-    meta({ name: 'twitter:image:alt', content: `${SITE_NAME} — ${page.label}` }),
+    meta({ name: 'twitter:image:alt', content: `${SITE_NAME}. ${page.label}` }),
 
     // Pinterest rich pins read og:*, but this stops the "save" overlay lying.
     meta({ name: 'author', content: SITE_NAME }),

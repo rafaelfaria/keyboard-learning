@@ -93,7 +93,7 @@ function TapTest({ layout, count, onDone, onSkip }: { layout: LayoutId; count: n
 
   return (
     <div onClick={() => inputRef.current?.focus()}>
-      <p className="center muted">Press the key you see — as quickly and accurately as you can. Keep your eyes up here.</p>
+      <p className="center muted">Press the key you see. As quickly and accurately as you can. Keep your eyes up here.</p>
       <div className={`assess-big-key ${flash === 'ok' ? 'assess-flash-ok' : flash === 'bad' ? 'assess-flash-bad' : ''}`} aria-live="polite">
         {seq[i]?.toUpperCase()}
       </div>
@@ -212,7 +212,7 @@ export default function Onboarding() {
       reactionMs: base.reaction, backspaceRate: 4, hesitationRate: 4,
       weakKeys: [], slowKeys: [], weakPairs: [], likelyLooking: a.looks === 'always',
       level: base.stage, rank: rankOf(base.wpm, base.acc),
-      insight: 'You chose a starter plan — a balanced beginning matched to your experience. Take the real placement anytime from Practise to sharpen it around your actual keys.',
+      insight: 'You chose a starter plan: a balanced beginning matched to your experience. Take the real placement anytime from Practise to sharpen it around your actual keys.',
       t: Date.now(),
     };
   };
@@ -254,7 +254,7 @@ export default function Onboarding() {
     const bits: string[] = [];
     if (acc >= 95) bits.push(`Your accuracy is already strong at ${acc}%`);
     else if (acc >= 90) bits.push(`Your accuracy is solid at ${acc}%`);
-    else bits.push(`Accuracy is your first opportunity — ${acc}% today`);
+    else bits.push(`Accuracy is your first opportunity. ${acc}% today`);
     if (weakKeys.length) bits.push(`your next breakthrough will come from steadier ${weakKeys.slice(0, 3).map((k) => k.toUpperCase()).join(', ')}`);
     else if (slowKeys.length) bits.push(`your next breakthrough is speed on ${slowKeys.slice(0, 2).map((k) => k.toUpperCase()).join(' and ')}`);
     if (errPairs.length) bits.push(`and smoothing the ${errPairs[0].toUpperCase()} transition`);
@@ -347,10 +347,10 @@ export default function Onboarding() {
       {step === 'welcome' && (
         <div className="ob-card">
           <h1>Welcome, traveller.</h1>
-          <p>KeyTopia turns your keyboard into a world you learn to cross without looking down. Two minutes of questions, one tiny test — or skip straight in with smart defaults.</p>
+          <p>KeyTopia turns your keyboard into a world you learn to cross without looking down. Two minutes of questions, one tiny test, or skip straight in with smart defaults.</p>
           <div className="opt-grid">
             <Opt on={a.path === 'new'} onClick={() => upd({ path: 'new', exp: 'new' })} icon="sprout" title="I'm new to typing" sub="Start from the very beginning" />
-            <Opt on={a.path === 'place'} onClick={() => upd({ path: 'place' })} icon="compass" title="I can type — place me" sub="A short test finds your level" />
+            <Opt on={a.path === 'place'} onClick={() => upd({ path: 'place' })} icon="compass" title="I can type. Place me" sub="A short test finds your level" />
           </div>
           {hasProfile && !retest && <p className="small muted">Already have a profile on this device? <Link to="/app" style={{ color: 'var(--accent)' }}>Continue where you left off →</Link></p>}
           <div className="ob-nav"><Btn kind="ghost" onClick={skipAll}>Skip setup</Btn><Btn onClick={next}>Continue →</Btn></div>
@@ -374,13 +374,13 @@ export default function Onboarding() {
       {step === 'identity' && (
         <div className="ob-card">
           <h1>Choose your explorer</h1>
-          <p>{a.age === 'kid' ? 'Pick a fun name — not your real one! — and build your block explorer.' : 'A display name and a block character. You can change both later.'}</p>
+          <p>{a.age === 'kid' ? 'Pick a fun name, not your real one, and build your block explorer.' : 'A display name and a block character. You can change both later.'}</p>
           <label className="small muted" htmlFor="ob-name">Display name</label>
           <div className="row gap" style={{ margin: '6px 0 16px' }}>
             <input id="ob-name" className="ob-input" value={a.name} maxLength={18} placeholder={a.age === 'kid' ? 'e.g. SwiftFalcon12' : 'e.g. Rafael'} onChange={(e) => upd({ name: e.target.value })} />
             <Btn kind="soft" onClick={() => upd({ name: randomKidName() })}><Ic n="dice" size={16} /> Suggest</Btn>
           </div>
-          <label className="small muted">Your block explorer — more unlock as you level up</label>
+          <label className="small muted">Your block explorer, more unlock as you level up</label>
           <div className="avatar-grid" style={{ marginTop: 6 }}>
             {AVATAR_PRESETS.map((p, i) => {
               const locked = p.level > 0;
@@ -400,7 +400,7 @@ export default function Onboarding() {
               );
             })}
           </div>
-          <p className="small muted" style={{ marginTop: 14 }}>Everything stays on this device — no account or email needed. You can hit <strong>Skip setup</strong> at any point to jump straight in with sensible defaults.</p>
+          <p className="small muted" style={{ marginTop: 14 }}>Everything stays on this device. No account or email needed. You can hit <strong>Skip setup</strong> at any point to jump straight in with sensible defaults.</p>
           <div className="ob-nav"><Btn kind="ghost" onClick={back}>← Back</Btn><span className="row gap"><Btn kind="ghost" onClick={skipAll}>Skip setup</Btn><Btn onClick={next}>Continue →</Btn></span></div>
         </div>
       )}
@@ -425,7 +425,7 @@ export default function Onboarding() {
       {step === 'habits' && (
         <div className="ob-card">
           <h1>Honest check-in</h1>
-          <p>No judgement — this only tunes your training.</p>
+          <p>No judgement: this only tunes your training.</p>
           <h3 style={{ margin: '10px 0 6px' }}>Do you look at the keyboard while typing?</h3>
           <div className="opt-grid">
             <Opt on={a.looks === 'always'} onClick={() => upd({ looks: 'always' })} icon="eye" title="Almost always" />
@@ -486,16 +486,16 @@ export default function Onboarding() {
           <h1>{retest ? 'Retake your placement' : a.path === 'new' ? 'A tiny key quest' : 'The 60-second placement'}</h1>
           <p>
             {retest
-              ? 'A fresh read of your speed, accuracy, rhythm and weak keys. Your progress and badges stay — only the plan updates.'
+              ? 'A fresh read of your speed, accuracy, rhythm and weak keys. Your progress and badges stay: only the plan updates.'
               : a.path === 'new'
-                ? 'Press the keys as they appear. This teaches us your starting point — there is no way to fail.'
-                : `Quick reactions, then ${a.age === 'kid' ? 'a short word run' : 'a word run and one sentence'}. We measure speed, accuracy, rhythm and hesitation — then build your personal path.`}
+                ? 'Press the keys as they appear. This teaches us your starting point: there is no way to fail.'
+                : `Quick reactions, then ${a.age === 'kid' ? 'a short word run' : 'a word run and one sentence'}. We measure speed, accuracy, rhythm and hesitation, then build your personal path.`}
           </p>
           <p className="small muted">Sit comfortably. Rest your index fingers on the two bump keys (F and J on most keyboards). You can skip the test anytime with Esc.</p>
           <div className="ob-nav">
             {retest ? <Btn kind="ghost" onClick={() => nav('/app/practice')}>← Back to Practise</Btn> : <Btn kind="ghost" onClick={back}>← Back</Btn>}
             <span className="row gap wrap" style={{ justifyContent: 'flex-end' }}>
-              {!retest && <Btn kind="soft" onClick={skipToStarterPlan}>Skip test — starter plan</Btn>}
+              {!retest && <Btn kind="soft" onClick={skipToStarterPlan}>Skip test, use starter plan</Btn>}
               <Btn big onClick={next}>Start →</Btn>
             </span>
           </div>

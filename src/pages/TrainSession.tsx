@@ -24,15 +24,15 @@ interface ModeMeta {
 }
 
 export const MODES: ModeMeta[] = [
-  { id: 'adaptive', name: 'Adaptive practice', icon: 'brain', desc: 'Every set is generated from your Mastery Map — weak keys and slow transitions get extra reps without feeling repetitive.', skill: 'Personal weak spots' },
+  { id: 'adaptive', name: 'Adaptive practice', icon: 'brain', desc: 'Every set is generated from your Mastery Map. Weak keys and slow transitions get extra reps without feeling repetitive.', skill: 'Personal weak spots' },
   { id: 'weakkeys', name: 'Weak-key workout', icon: 'dumbbell', desc: 'A short, concentrated session on your single weakest key and its neighbourhood.', skill: 'Targeted repair' },
   { id: 'speed', name: 'Speed sprint', icon: 'zap', desc: 'A classic timed test on common words. Choose your distance and fly.', skill: 'Raw speed', pre: 'duration' },
   { id: 'accuracy', name: 'Accuracy Lab', icon: 'target', desc: 'Precision-first scoring: errors cost everything, speed counts for little. Slow down and paint clean lines.', skill: 'Error-free control', precisionFirst: true, untimedOk: true },
-  { id: 'rhythm', name: 'Rhythm studio', icon: 'waves', desc: 'A gentle pulse marks your target pace. Try to land every keystroke on the beat — smooth beats fast.', skill: 'Consistent timing' },
+  { id: 'rhythm', name: 'Rhythm studio', icon: 'waves', desc: 'A gentle pulse marks your target pace. Try to land every keystroke on the beat: smooth beats fast.', skill: 'Consistent timing' },
   { id: 'zen', name: 'Zen typing', icon: 'flower', desc: 'Ambient sound, soft words, no rankings, statistics hidden until the end. Just you and the keys.', skill: 'Calm & flow', untimedOk: true },
   { id: 'endurance', name: 'The long walk', icon: 'route', desc: 'A long passage that rewards a sustainable pace from first line to last.', skill: 'Stamina & focus' },
-  { id: 'realworld', name: 'Real-world desk', icon: 'clipboard', desc: 'Emails, meeting notes and updates — the typing you actually do at school and work.', skill: 'Practical writing' },
-  { id: 'code', name: 'Code forge', icon: 'braces', desc: 'JavaScript, Python, HTML, CSS, SQL and shell — brackets, symbols and indentation included.', skill: 'Symbols & syntax' },
+  { id: 'realworld', name: 'Real-world desk', icon: 'clipboard', desc: 'Emails, meeting notes and updates. The typing you actually do at school and work.', skill: 'Practical writing' },
+  { id: 'code', name: 'Code forge', icon: 'braces', desc: 'JavaScript, Python, HTML, CSS, SQL and shell. Brackets, symbols and indentation included.', skill: 'Symbols & syntax' },
   { id: 'numbers', name: 'Numeral Peaks', icon: 'peaks', desc: 'Quantities, times and decimals. Long reaches, steady returns.', skill: 'Number row' },
   { id: 'dictation', name: 'Dictation booth', icon: 'headphones', desc: 'Listen and type what you hear. Replay as often as you like.', skill: 'Ear-to-finger recall', pre: 'dictation' },
   { id: 'copy', name: 'Copy desk', icon: 'file', desc: 'Paste any text of your own and practise typing it. It never leaves this device.', skill: 'Your own material', pre: 'copy' },
@@ -165,10 +165,10 @@ export default function TrainSession() {
             </div>
           )}
           {meta.pre === 'dictation' && (
-            <p className="small muted">{'speechSynthesis' in window ? 'Your browser can speak the text aloud. Use the Replay button anytime.' : 'Your browser does not support speech — the text will be shown instead.'}</p>
+            <p className="small muted">{'speechSynthesis' in window ? 'Your browser can speak the text aloud. Use the Replay button anytime.' : 'Your browser does not support speech. The text will be shown instead.'}</p>
           )}
           {meta.id === 'accuracy' && <p className="small muted">Scoring: accuracy × 10 + a small speed bonus. A 100% run beats any fast messy one.</p>}
-          {meta.id === 'rhythm' && <p className="small muted">Your pulse is set near your recent pace ({Math.round(60000 / targetIki / 5)} wpm). Land keystrokes evenly — the bar flashes on each beat.</p>}
+          {meta.id === 'rhythm' && <p className="small muted">Your pulse is set near your recent pace ({Math.round(60000 / targetIki / 5)} wpm). Land keystrokes evenly: the bar flashes on each beat.</p>}
           <div className="row gap">
             <Btn big onClick={start} disabled={meta.pre === 'copy' && customText.trim().length < 12}>Start →</Btn>
             <Btn kind="ghost" to="/app/practice">← All modes</Btn>
@@ -181,7 +181,7 @@ export default function TrainSession() {
   if (phase === 'done' && finished) {
     return (
       <div className="train-page">
-        <div className="train-top"><h1><Ic n={meta.icon} size={20} /> {meta.name} — result</h1></div>
+        <div className="train-top"><h1><Ic n={meta.icon} size={20} /> {meta.name}: result</h1></div>
         {meta.id === 'accuracy' && (
           <p className="center" style={{ fontSize: '1.1rem' }}>
             Lab score: <strong style={{ color: 'var(--accent)' }}>{Math.round(finished.result.acc * 10 + Math.min(finished.result.wpm, 40))}</strong>
@@ -244,7 +244,7 @@ export default function TrainSession() {
               hiddenLabels={blindHide ? 'all' : undefined}
               compact={meta.id === 'blind'}
             />
-            {meta.id === 'blind' && blindHide && <p className="center muted small" style={{ marginTop: 6 }}>Labels off — your fingers remember.</p>}
+            {meta.id === 'blind' && blindHide && <p className="center muted small" style={{ marginTop: 6 }}>Labels off. Your fingers remember.</p>}
           </div>
         )}
       </div>

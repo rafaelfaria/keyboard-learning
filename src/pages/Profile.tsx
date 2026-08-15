@@ -90,7 +90,7 @@ export default function Profile() {
             value={data.profile.name}
             onChange={(e) => patch((d) => { d.profile.name = e.target.value; })}
           />
-          <label className="small muted">Block explorer — more unlock as you level</label>
+          <label className="small muted">Block explorer, more unlock as you level</label>
           <div className="avatar-grid" style={{ marginTop: 6 }}>
             {AVATAR_PRESETS.map((p, i) => {
               const locked = lvl.level < p.level;

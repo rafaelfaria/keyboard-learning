@@ -62,7 +62,7 @@ export function MasteryMap({ data, compact }: { data: ProfileData; compact?: boo
               <Btn kind="soft" onClick={() => nav('/app/train/weakkeys')}>Drill this area</Btn>
             </>
           ) : (
-            <span className="muted small">You haven't met this key yet — it will light up as your journey continues.</span>
+            <span className="muted small">You haven't met this key yet. It will light up as your journey continues.</span>
           )}
         </div>
       )}

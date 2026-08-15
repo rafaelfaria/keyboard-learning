@@ -35,7 +35,7 @@ export function TrailMap({ stops, currentIdx, complete, onStop, onCamp }: {
     <div
       className="trail-map"
       role="img"
-      aria-label={`Trail map: ${doneCount} of ${stops.length} waypoints cleared${complete ? ' — leg complete' : `. You are at waypoint ${currentIdx + 1}`}`}
+      aria-label={`Trail map: ${doneCount} of ${stops.length} waypoints cleared${complete ? ': leg complete' : `. You are at waypoint ${currentIdx + 1}`}`}
     >
       <svg viewBox="0 0 1000 420">
         {/* faint contours + the mountain massif */}
@@ -64,7 +64,7 @@ export function TrailMap({ stops, currentIdx, complete, onStop, onCamp }: {
               key={`camp-${i}`} transform={`translate(${mx} ${my})`} className="trail-camp"
               onClick={onCamp} role="button" tabIndex={0}
               onKeyDown={(e) => { if (e.key === 'Enter') onCamp(); }}
-              aria-label="Camp — optional checkpoint review"
+              aria-label="Camp: optional checkpoint review"
             >
               <circle r="15" className="trail-camp-bg" />
               <foreignObject x="-9" y="-9" width="18" height="18">
@@ -94,7 +94,7 @@ export function TrailMap({ stops, currentIdx, complete, onStop, onCamp }: {
               role="button"
               tabIndex={s.unlocked ? 0 : -1}
               onKeyDown={(e) => { if (e.key === 'Enter') onStop(s.id, s.unlocked); }}
-              aria-label={`Waypoint ${i + 1}: ${s.label}${done ? ` — ${s.stars} star${s.stars > 1 ? 's' : ''}` : cur ? ' — you are here' : s.unlocked ? '' : ' — locked'}`}
+              aria-label={`Waypoint ${i + 1}: ${s.label}${done ? `: ${s.stars} star${s.stars > 1 ? 's' : ''}` : cur ? ': you are here' : s.unlocked ? '' : ': locked'}`}
             >
               {cur && <circle r="24" className="trail-pulse" />}
               <circle r={cur ? 17 : 14} className="trail-wp-bg" />
@@ -105,7 +105,7 @@ export function TrailMap({ stops, currentIdx, complete, onStop, onCamp }: {
               )}
               {(cur || (complete && i === n - 1)) && (
                 <foreignObject x="-110" y="26" width="220" height="40">
-                  <div className="trail-sign"><span>{complete ? 'Leg complete — flag planted' : s.label}</span></div>
+                  <div className="trail-sign"><span>{complete ? 'Leg complete: flag planted' : s.label}</span></div>
                 </foreignObject>
               )}
             </g>

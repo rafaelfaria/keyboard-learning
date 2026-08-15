@@ -34,13 +34,13 @@ export interface StageDef {
 
 export const REGION_META = [
   { region: 'Base Camp', icon: 'tent', desc: 'Posture, hand position and your two anchor keys.', skill: 'Setup & anchors' },
-  { region: 'The Heartlands', icon: 'wheat', desc: 'The home row — where every journey starts and ends.', skill: 'Home row' },
+  { region: 'The Heartlands', icon: 'wheat', desc: 'The home row, where every journey starts and ends.', skill: 'Home row' },
   { region: 'Skyreach Ridge', icon: 'mountain', desc: 'Reach up to the top row without losing your anchors.', skill: 'Top row' },
   { region: 'Deeproot Vale', icon: 'tree', desc: 'Curl down to the bottom row with control.', skill: 'Bottom row' },
   { region: 'The Twin Gates', icon: 'landmark', desc: 'Shift keys, capital letters and first punctuation.', skill: 'Capitals & . , ?' },
-  { region: 'Numeral Peaks', icon: 'peaks', desc: 'The number row — high reaches, steady returns.', skill: 'Numbers' },
-  { region: 'Punctuation Straits', icon: 'anchor', desc: 'Colons, quotes and brackets — navigate the narrow water.', skill: 'Punctuation' },
-  { region: 'The Glyph Foundry', icon: 'hammer', desc: 'Symbols and code — the toolmaker\'s district.', skill: 'Symbols & code' },
+  { region: 'Numeral Peaks', icon: 'peaks', desc: 'The number row. High reaches, steady returns.', skill: 'Numbers' },
+  { region: 'Punctuation Straits', icon: 'anchor', desc: 'Colons, quotes and brackets. Navigate the narrow water.', skill: 'Punctuation' },
+  { region: 'The Glyph Foundry', icon: 'hammer', desc: 'Symbols and code. The toolmaker\'s district.', skill: 'Symbols & code' },
   { region: 'The Long Roads', icon: 'route', desc: 'Paragraphs, rhythm, speed and endurance mastery.', skill: 'Flow & mastery' },
 ];
 
@@ -63,7 +63,7 @@ export interface WorldSpine {
 
 export const WORLD_SPINE: WorldSpine[] = [
   { id: 'w1', name: 'First Steps', stages: [0, 1], icon: 'tent', tagline: 'Posture, anchors and the home row', wpm: [8, 14], targetAcc: 92 },
-  { id: 'w2', name: 'The High & Low Roads', stages: [2, 3], icon: 'mountain', tagline: 'Top and bottom rows — the full alphabet', wpm: [14, 20], targetAcc: 93 },
+  { id: 'w2', name: 'The High & Low Roads', stages: [2, 3], icon: 'mountain', tagline: 'Top and bottom rows, the full alphabet', wpm: [14, 20], targetAcc: 93 },
   { id: 'w3', name: 'The Written Word', stages: [4, 6], icon: 'landmark', tagline: 'Capitals, punctuation, real sentences', wpm: [20, 26], targetAcc: 94 },
   { id: 'w4', name: 'Numbers & Glyphs', stages: [5, 7], icon: 'peaks', tagline: 'The number row, symbols and code', wpm: [26, 32], targetAcc: 95 },
   { id: 'w5', name: 'The Flow', stages: [8], icon: 'route', tagline: 'Rhythm, endurance and real-world mastery', wpm: [30, 42], targetAcc: 96 },
@@ -83,12 +83,12 @@ export function buildStages(layout: LayoutId): StageDef[] {
   }));
 
   stages[0].lessons = [
-    L(0, 'b1', 'Anchors away', 'Rest your index fingers on the two bump keys. They are your compass — you can always find them without looking.', [core[3], core[4]], 'keys'),
+    L(0, 'b1', 'Anchors away', 'Rest your index fingers on the two bump keys. They are your compass: you can always find them without looking.', [core[3], core[4]], 'keys'),
     L(0, 'b2', 'The space between', 'Tap the space bar with your thumb, then float straight back. Wrists stay light, shoulders stay low.', [core[3], core[4], ' '], 'keys'),
   ];
   stages[1].lessons = [
     L(1, 'h1', 'Middle neighbours', 'Middle fingers reach their home keys without the hand moving. Only the finger travels.', [core[2], core[5]], 'keys'),
-    L(1, 'h2', 'Ring roads', 'Ring fingers are slower for everyone. Give them time — precision now, speed later.', [core[1], core[6]], 'keys'),
+    L(1, 'h2', 'Ring roads', 'Ring fingers are slower for everyone. Give them time: precision now, speed later.', [core[1], core[6]], 'keys'),
     L(1, 'h3', 'Pinky posts', 'Pinkies guard the edges of the Heartlands. Small keys, big responsibility.', [core[0], core[7]], 'keys'),
     L(1, 'h4', 'Inner reaches', 'Index fingers stretch inward one key, then return home immediately.', inner, 'keys'),
     L(1, 'h5', 'Heartlands crossing', 'Your first real words using only the home row. Look at the screen, not your hands.', [], 'check'),
@@ -97,10 +97,10 @@ export function buildStages(layout: LayoutId): StageDef[] {
   stages[2].lessons = [
     L(2, 't1', `Up to ${tPairs[0].join(' & ').toUpperCase()}`, 'Reach up with the finger that owns the key, then come straight back to home.', tPairs[0], 'keys'),
     L(2, 't2', `The ${tPairs[1].join(' & ').toUpperCase()} pass`, 'Keep the other hand resting on its home keys while one hand reaches.', tPairs[1], 'keys'),
-    L(2, 't3', `Climbing ${tPairs[2].join(' & ').toUpperCase()}`, 'Watch for drifting — after each reach, feel for the bump keys again.', tPairs[2], 'keys'),
+    L(2, 't3', `Climbing ${tPairs[2].join(' & ').toUpperCase()}`, 'Watch for drifting. After each reach, feel for the bump keys again.', tPairs[2], 'keys'),
     L(2, 't4', `The ${tPairs[3].join(' & ').toUpperCase()} traverse`, 'Outer fingers now. Slow is fine. Wrong fingers are not.', tPairs[3], 'keys'),
     L(2, 't5', `Summit: ${tPairs[4].join(' & ').toUpperCase()}`, 'The far corners of the ridge. Pinkies and ring fingers, steady on.', tPairs[4], 'keys'),
-    L(2, 't6', 'Ridge run', 'Top and home rows together — real words, real sentences.', [], 'check'),
+    L(2, 't6', 'Ridge run', 'Top and home rows together. Real words, real sentences.', [], 'check'),
   ];
   const bPairs = [[bottom[0], bottom[1]], [bottom[2], bottom[3]], bottom.slice(4)];
   stages[3].lessons = [
@@ -110,7 +110,7 @@ export function buildStages(layout: LayoutId): StageDef[] {
     L(3, 'd4', 'Full alphabet trail', 'Every letter unlocked. This crossing uses the whole map.', [], 'check'),
   ];
   stages[4].lessons = [
-    L(4, 'c1', 'The opposite gate', 'Capital letter rule: press Shift with the opposite hand\'s pinky. Right-hand letter, left Shift — and back.', ['A'], 'capitals'),
+    L(4, 'c1', 'The opposite gate', 'Capital letter rule: press Shift with the opposite hand\'s pinky. Right-hand letter, left Shift, and back.', ['A'], 'capitals'),
     L(4, 'c2', 'Full stops & commas', 'Punctuation belongs to the right hand\'s strongest travellers. Period, comma, new thought.', ['.', ','], 'punct'),
     L(4, 'c3', 'Questions & wonder', 'Question marks and exclamations both need Shift. Apostrophes are a gentle pinky reach.', ['?', '!', "'"], 'punct'),
     L(4, 'c4', 'Through the gates', 'Real sentences with capitals and punctuation. Breathe at the full stops.', [], 'check'),
@@ -118,28 +118,28 @@ export function buildStages(layout: LayoutId): StageDef[] {
   stages[5].lessons = [
     L(5, 'n1', 'Left peaks 1–5', 'Number reaches are long. Anchor the right hand while the left climbs.', ['1', '2', '3', '4', '5'], 'numbers'),
     L(5, 'n2', 'Right peaks 6–0', 'Same climb, other side. Return to home between every number.', ['6', '7', '8', '9', '0'], 'numbers'),
-    L(5, 'n3', 'Mixed altitude', 'Numbers inside real text — dates, times, quantities.', DIGITS, 'numbers'),
+    L(5, 'n3', 'Mixed altitude', 'Numbers inside real text. Dates, times, quantities.', DIGITS, 'numbers'),
     L(5, 'n4', 'Peak crossing', 'A full passage with numbers woven in.', [], 'check'),
   ];
   stages[6].lessons = [
     L(6, 'p1', 'Colons & semicolons', 'The pinky\'s precision tools. Light touches, no wrist twist.', [';', ':'], 'punct'),
-    L(6, 'p2', 'Quotes & speech', 'Opening and closing quotes — Shift plus the apostrophe key.', ['"'], 'punct'),
-    L(6, 'p3', 'Brackets & dashes', 'Parentheses come in pairs (like this). Dashes join — and separate.', ['(', ')', '-'], 'punct'),
+    L(6, 'p2', 'Quotes & speech', 'Opening and closing quotes. Shift plus the apostrophe key.', ['"'], 'punct'),
+    L(6, 'p3', 'Brackets & dashes', 'Parentheses come in pairs (like this). Dashes join, and separate.', ['(', ')', '-'], 'punct'),
     L(6, 'p4', 'The narrow channel', 'Dense punctuation in real prose. Take it slow and clean.', [], 'check'),
   ];
   stages[7].lessons = [
     L(7, 's1', 'Signs & signals', 'Email addresses, tags and prices: the everyday symbols.', ['@', '#', '$', '%', '&'], 'symbols'),
-    L(7, 's2', 'Operators', 'Plus, equals, star, slash — the arithmetic of the keyboard.', ['+', '=', '*', '/', '_'], 'symbols'),
-    L(7, 's3', 'The bracket forge', 'Square and curly brackets, angle pairs — the shapes of code.', ['[', ']', '{', '}', '<', '>'], 'symbols'),
+    L(7, 's2', 'Operators', 'Plus, equals, star, slash. The arithmetic of the keyboard.', ['+', '=', '*', '/', '_'], 'symbols'),
+    L(7, 's3', 'The bracket forge', 'Square and curly brackets, angle pairs. The shapes of code.', ['[', ']', '{', '}', '<', '>'], 'symbols'),
     L(7, 's4', 'Foundry trial', 'Code-flavoured lines with the full symbol set.', [], 'check'),
   ];
   stages[8].lessons = [
     L(8, 'l1', 'Paragraph flow', 'Longer passages reward rhythm over bursts. Find a pace you could hold all day.', [], 'paragraph'),
     L(8, 'l2', 'The confidence ladder', 'Type the same passage three times: relaxed, steady, then at full stride.', [], 'ladder'),
     L(8, 'l3', 'The long walk', 'An endurance passage. Consistency matters more than any single fast burst.', [], 'paragraph'),
-    L(8, 'l4', 'Master of the roads', 'The final crossing — everything, everywhere, all at once.', [], 'check'),
+    L(8, 'l4', 'Master of the roads', 'The final crossing. Everything, everywhere, all at once.', [], 'check'),
     L(8, 'f1', 'The rhythm river', 'Even-sized words, even keystrokes. Imagine a metronome and land every letter on the beat.', [], 'rhythm'),
-    L(8, 'f2', 'The working desk', 'Emails, notes and updates — the typing real days are made of.', [], 'work'),
+    L(8, 'f2', 'The working desk', 'Emails, notes and updates. The typing real days are made of.', [], 'work'),
     L(8, 'f3', 'Eyes on the horizon', 'Type this without looking down once. Your fingers already know the way home.', [], 'blind'),
     L(8, 'f4', 'The longer walk', 'Two full passages back to back. Hold one steady pace from first line to last.', [], 'longwalk'),
     L(8, 'f5', 'The recovery road', 'Tricky words are planted on purpose. Miss one? Exhale, fix it, and find your rhythm within three words.', [], 'recovery'),

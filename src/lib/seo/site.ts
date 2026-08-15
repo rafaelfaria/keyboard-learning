@@ -22,7 +22,7 @@ export const SITE_URL = RAW_SITE_URL.replace(/\/+$/, '');
 
 export const SITE_NAME = 'KeyTopia';
 export const SITE_TAGLINE = 'every keyboard is a world';
-export const SITE_TITLE = `${SITE_NAME} — ${SITE_TAGLINE}`;
+export const SITE_TITLE = `${SITE_NAME}: ${SITE_TAGLINE}`;
 export const SITE_LOCALE = 'en';
 export const SITE_OG_LOCALE = 'en_US';
 export const SITE_THEME_COLOR = '#0b1020';
@@ -30,7 +30,7 @@ export const SITE_THEME_COLOR = '#0b1020';
 export const SITE_DESCRIPTION =
   'KeyTopia is a free typing tutor that teaches touch typing properly: a 60-second placement test, ' +
   'adaptive lessons built from your own weak keys, seven original typing games, races and deep ' +
-  'analytics — for kids, teens, adults, schools and competitive typists.';
+  'analytics: for kids, teens, adults, schools and competitive typists.';
 
 /** Default social preview image (1200×630). */
 export const SITE_OG_IMAGE = '/og.png';
@@ -90,10 +90,10 @@ export const PUBLIC_PAGES: PublicPage[] = [
   {
     path: '/typing-test',
     label: 'Typing test',
-    title: 'Free Typing Test — measure WPM, accuracy, rhythm and per-key speed',
+    title: 'Free Typing Test: measure WPM, accuracy, rhythm and per-key speed',
     description:
       'Take a free typing test in your browser: 15, 30, 60 or 120 seconds. Get your WPM, raw speed, ' +
-      'accuracy, consistency and a per-key breakdown — no sign-up, no download, results stay on your device.',
+      'accuracy, consistency and a per-key breakdown. No sign-up, no download, results stay on your device.',
     llmsNote: 'Free in-browser typing speed test (15s–120s) reporting WPM, raw WPM, accuracy, consistency and per-key timing.',
     priority: 0.9,
     changeFrequency: 'monthly',
@@ -103,11 +103,11 @@ export const PUBLIC_PAGES: PublicPage[] = [
   {
     path: '/learn-to-type',
     label: 'Learn to type',
-    title: 'How to Learn Touch Typing — a complete, honest guide',
+    title: 'How to Learn Touch Typing: a complete, honest guide',
     description:
       'A step-by-step guide to learning touch typing: home-row anchors, correct finger assignment, ' +
       'why accuracy must come before speed, how long it really takes, and the plateaus everyone hits.',
-    llmsNote: 'Pillar guide to learning touch typing — posture, home row, finger assignment, accuracy-before-speed, realistic timelines and plateau fixes.',
+    llmsNote: 'Pillar guide to learning touch typing. Posture, home row, finger assignment, accuracy-before-speed, realistic timelines and plateau fixes.',
     priority: 0.9,
     changeFrequency: 'monthly',
     lastModified: TODAY,
@@ -116,7 +116,7 @@ export const PUBLIC_PAGES: PublicPage[] = [
   {
     path: '/curriculum',
     label: 'Curriculum',
-    title: 'The KeyTopia Curriculum — 9 regions, 5 worlds, 41 typing lessons',
+    title: 'The KeyTopia Curriculum: 9 regions, 5 worlds, 41 typing lessons',
     description:
       'Every lesson in KeyTopia, in order: from the two home-row anchor keys to symbols, code, rhythm ' +
       'and endurance. Layout-aware for QWERTY, QWERTZ, AZERTY, Dvorak and Colemak.',
@@ -131,7 +131,7 @@ export const PUBLIC_PAGES: PublicPage[] = [
     label: 'Typing games',
     title: 'Seven Typing Games That Actually Train You',
     description:
-      'Wordfall Defence, Keyforge, Wordflight, Quill Duel, Survivor Sprint, Cipher Run and Block Stack — ' +
+      'Wordfall Defence, Keyforge, Wordflight, Quill Duel, Survivor Sprint, Cipher Run and Block Stack. ' +
       'each typing game is built around one named skill, and tells you which one it is training.',
     llmsNote: 'The seven original typing games and the specific skill each one trains.',
     priority: 0.8,
@@ -146,7 +146,7 @@ export const PUBLIC_PAGES: PublicPage[] = [
     description:
       'How the KeyTopia engine works: a per-key mastery map updated on every keystroke, practice sets ' +
       'generated from your slowest keys and letter transitions, and a coach that names the exact fix.',
-    llmsNote: 'The adaptive practice engine — the per-key mastery map, how practice sets are generated from weak keys and slow bigrams, and how the coach reports.',
+    llmsNote: 'The adaptive practice engine: the per-key mastery map, how practice sets are generated from weak keys and slow bigrams, and how the coach reports.',
     priority: 0.9,
     changeFrequency: 'monthly',
     lastModified: TODAY,
@@ -172,7 +172,7 @@ export const PUBLIC_PAGES: PublicPage[] = [
     description:
       'Race CPU rivals across five difficulties plus adaptive, chase the ghost of your own best run, or ' +
       'open a private room with a join code for friends or a classroom. No strangers, no chat, ever.',
-    llmsNote: 'The racing system — CPU rival difficulties and habits, ghost racing against your own records, and private join-code rooms.',
+    llmsNote: 'The racing system: CPU rival difficulties and habits, ghost racing against your own records, and private join-code rooms.',
     priority: 0.8,
     changeFrequency: 'monthly',
     lastModified: TODAY,
@@ -185,7 +185,7 @@ export const PUBLIC_PAGES: PublicPage[] = [
     description:
       'See exactly what is holding your typing back: per-key mastery heatmaps, finger and hand balance, ' +
       'rhythm fingerprints, consistency scoring and a keystroke-level replay of any session.',
-    llmsNote: 'The analytics surface — per-key heatmaps, finger balance, rhythm fingerprint, consistency, session echo replay, records and the practice calendar.',
+    llmsNote: 'The analytics surface: per-key heatmaps, finger balance, rhythm fingerprint, consistency, session echo replay, records and the practice calendar.',
     priority: 0.8,
     changeFrequency: 'monthly',
     lastModified: TODAY,
@@ -194,11 +194,11 @@ export const PUBLIC_PAGES: PublicPage[] = [
   {
     path: '/typing-for-kids',
     label: 'For kids',
-    title: 'Typing for Kids — an island world that rewards care, not screen time',
+    title: 'Typing for Kids: an island world that rewards care, not screen time',
     description:
       'A typing game world for children: short quests, friendly words, a guardian companion, big visual ' +
       'feedback and safe generated names. Children never sign in, never give an email address, and never meet a stranger.',
-    llmsNote: 'The kids experience — island map, quests, stickers, guardian companion, and the safety and privacy model for children.',
+    llmsNote: 'The kids experience: island map, quests, stickers, guardian companion, and the safety and privacy model for children.',
     priority: 0.8,
     changeFrequency: 'monthly',
     lastModified: TODAY,
@@ -207,11 +207,11 @@ export const PUBLIC_PAGES: PublicPage[] = [
   {
     path: '/typing-for-schools',
     label: 'For schools',
-    title: 'Typing for Schools — classroom typing practice without accounts',
+    title: 'Typing for Schools: classroom typing practice without accounts',
     description:
       'Assignable lessons, classroom race rooms with join codes, per-student accessibility profiles and ' +
       'printable progress. Pupils join with a class code instead of an email address, and only finished results leave the device.',
-    llmsNote: 'The schools and classroom use case — assignable lessons, private race rooms, accessibility profiles, teacher dashboard and the data model.',
+    llmsNote: 'The schools and classroom use case. Assignable lessons, private race rooms, accessibility profiles, teacher dashboard and the data model.',
     priority: 0.8,
     changeFrequency: 'monthly',
     lastModified: TODAY,
@@ -233,11 +233,11 @@ export const PUBLIC_PAGES: PublicPage[] = [
   {
     path: '/typing-glossary',
     label: 'Glossary',
-    title: 'Typing Glossary — WPM, CPM, raw speed, IKI, home row and more',
+    title: 'Typing Glossary: WPM, CPM, raw speed, IKI, home row and more',
     description:
       'Plain-English definitions of the terms typing tools throw at you: WPM, raw WPM, CPM, accuracy, ' +
       'consistency, inter-key interval, rollover, touch typing, home row, bigrams and burst speed.',
-    llmsNote: 'Definitions of typing terminology — WPM, raw WPM, CPM, accuracy, consistency, IKI, bigram, home row, touch typing, rollover, burst speed.',
+    llmsNote: 'Definitions of typing terminology. WPM, raw WPM, CPM, accuracy, consistency, IKI, bigram, home row, touch typing, rollover, burst speed.',
     priority: 0.7,
     changeFrequency: 'monthly',
     lastModified: TODAY,
@@ -250,7 +250,7 @@ export const PUBLIC_PAGES: PublicPage[] = [
     description:
       'What KeyTopia collects, what it deliberately never collects, who processes it, how children and ' +
       'classrooms are handled, and how to export or erase everything in one click.',
-    llmsNote: 'Privacy policy — data collected, sub-processors, legal bases, retention, children and schools, and your rights.',
+    llmsNote: 'Privacy policy: data collected, sub-processors, legal bases, retention, children and schools, and your rights.',
     priority: 0.3,
     changeFrequency: 'yearly',
     lastModified: TODAY,
@@ -261,7 +261,7 @@ export const PUBLIC_PAGES: PublicPage[] = [
     label: 'Terms',
     title: 'Terms of Use',
     description: 'The terms under which KeyTopia is provided: who may use it, acceptable use, content and intellectual property, warranties, liability and how to end your use.',
-    llmsNote: 'Terms of use — eligibility, accounts and profiles, acceptable use, content ownership, disclaimers and liability.',
+    llmsNote: 'Terms of use: eligibility, accounts and profiles, acceptable use, content ownership, disclaimers and liability.',
     priority: 0.3,
     changeFrequency: 'yearly',
     lastModified: TODAY,

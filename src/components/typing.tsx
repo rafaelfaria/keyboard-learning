@@ -468,7 +468,7 @@ export function GhostInput({ bind, disabled }: { bind: UseSession['bindInput']; 
       autoCorrect="off"
       autoComplete="off"
       spellCheck={false}
-      aria-label="Typing input — type the shown text"
+      aria-label="Typing input: type the shown text"
       disabled={disabled}
       inputMode="text"
     />

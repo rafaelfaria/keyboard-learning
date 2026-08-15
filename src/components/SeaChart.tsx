@@ -71,7 +71,7 @@ export function SeaChart({ worlds, onOpen }: {
               role="button"
               tabIndex={w.unlocked ? 0 : -1}
               onKeyDown={(e) => { if (e.key === 'Enter' && w.unlocked) onOpen(w.id); }}
-              aria-label={`${def.kid.kidName}: ${w.unlocked ? (w.complete ? 'explored!' : w.active ? `you are here — ${w.done} of ${w.total} spots done` : 'open') : 'still hidden in the fog'}`}
+              aria-label={`${def.kid.kidName}: ${w.unlocked ? (w.complete ? 'explored!' : w.active ? `you are here: ${w.done} of ${w.total} spots done` : 'open') : 'still hidden in the fog'}`}
             >
               <ellipse cy="34" rx="66" ry="12" fill="rgba(20, 60, 90, 0.18)" />
               <g transform="scale(0.155) translate(-506 -300)">

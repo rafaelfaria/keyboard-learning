@@ -64,7 +64,7 @@ const CRAWLERS = [
 export function buildRobotsTxt(): string {
   const allow = PUBLIC_PAGES.map((p) => p.path);
   const lines: string[] = [
-    `# robots.txt for ${SITE_NAME} — ${SITE_URL}`,
+    `# robots.txt for ${SITE_NAME}: ${SITE_URL}`,
     '# Generated at build time from src/lib/seo/site.ts. Do not edit by hand.',
     '#',
     '# Public marketing and reference pages are open to every crawler, including',
@@ -116,7 +116,7 @@ export function buildSitemapXml(): string {
       `    <xhtml:link rel="alternate" hreflang="x-default" href="${xmlEscape(loc)}"/>`,
       '    <image:image>',
       `      <image:loc>${xmlEscape(image)}</image:loc>`,
-      `      <image:title>${xmlEscape(`${SITE_NAME} — ${p.label}`)}</image:title>`,
+      `      <image:title>${xmlEscape(`${SITE_NAME}. ${p.label}`)}</image:title>`,
       '    </image:image>',
       '  </url>',
     ].join('\n');
@@ -178,7 +178,7 @@ export function buildLlmsTxt(): string {
     out.push(`### ${group}`);
     out.push('');
     for (const p of pages) {
-      out.push(`- [${p.label} — ${p.title.replace(/ \| .*$/, '')}](${absUrl(p.path)}): ${p.llmsNote}`);
+      out.push(`- [${p.label}: ${p.title.replace(/ \| .*$/, '')}](${absUrl(p.path)}): ${p.llmsNote}`);
     }
     out.push('');
   }

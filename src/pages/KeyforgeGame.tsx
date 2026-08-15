@@ -152,7 +152,7 @@ export default function KeyforgeGame() {
     if (rarity >= 3) pushToast({ kind: 'badge', icon: item.icon, title: `${RARITY_NAMES[rarity]} forge!`, body: item.name });
     if (data?.settings.soundOn) (rarity >= 3 ? snd.badge() : snd.done());
     const lvl = forgedRef.current.length;
-    setLevelBanner(`Forge level ${lvl + 1} — the fire burns hungrier`);
+    setLevelBanner(`Forge level ${lvl + 1}: the fire burns hungrier`);
     window.setTimeout(() => setLevelBanner(''), 1500);
     window.setTimeout(() => popIn(sceneRef.current?.querySelector<HTMLElement>('.forge-item-card') ?? null), 30);
   };
@@ -263,7 +263,7 @@ export default function KeyforgeGame() {
               <Ic n="flame" size={50} />
               <h2>Keep the forge alive</h2>
               <p className="muted" style={{ maxWidth: 480 }}>
-                The fire only burns while you type. <strong>Heat drains constantly</strong> — every correct strike feeds it,
+                The fire only burns while you type. <strong>Heat drains constantly</strong>: every correct strike feeds it,
                 every miss vents it. Three runes forge a treasure, and each treasure makes the fire <strong>hungrier and the
                 runes longer</strong>. Finish a treasure with the forge blazing (≥{HOT_BONUS_AT}%) for bonus rarity.
                 How much can you forge before it goes cold?
@@ -300,7 +300,7 @@ export default function KeyforgeGame() {
                       </span>
                     ))}
                   </div>
-                  <p className="forge-say muted small">{missed ? 'cracked — finish strong, misses vent heat' : 'strike fast and true'}</p>
+                  <p className="forge-say muted small">{missed ? 'cracked: finish strong, misses vent heat' : 'strike fast and true'}</p>
                   <div className="forge-word">
                     <span className="done">{word.slice(0, hit)}</span>
                     <span className="cur">{word[hit] ?? ''}</span>
@@ -339,7 +339,7 @@ export default function KeyforgeGame() {
           {phase === 'over' && overInfo && (
             <div className="game-over">
               <Ic n={overInfo.quenched ? 'lamp' : 'snowflake'} size={44} />
-              <h2>{overInfo.quenched ? 'Quenched — treasures banked' : 'The forge went cold'}</h2>
+              <h2>{overInfo.quenched ? 'Quenched: treasures banked' : 'The forge went cold'}</h2>
               <div className="row gap wrap" style={{ justifyContent: 'center' }}>
                 <Stat v={overInfo.score} l="score" tone="accent" />
                 <Stat v={overInfo.level} l="treasures" />
@@ -358,7 +358,7 @@ export default function KeyforgeGame() {
               )}
               <RewardsBanner rewards={overInfo.rewards} />
               <p className="small muted" style={{ maxWidth: 440 }}>
-                {overInfo.quenched ? 'Banked in time. Push one level deeper next run?' : `The fire ate ${Math.round(drainPerSec())}%/s by the end — speed feeds it, misses starve it.`}
+                {overInfo.quenched ? 'Banked in time. Push one level deeper next run?' : `The fire ate ${Math.round(drainPerSec())}%/s by the end. Speed feeds it, misses starve it.`}
               </p>
               <div className="row gap">
                 <Btn onClick={start}>↻ Relight the forge</Btn>

@@ -112,7 +112,7 @@ export default function Settings() {
         <div className="row gap wrap" style={{ margin: '8px 0' }}>
           <span className="small muted">Mistakes</span>
           <Seg
-            options={[{ v: 'standard', label: 'Flow on — fix if you wish' }, { v: 'strict', label: 'Stop until corrected' }]}
+            options={[{ v: 'standard', label: 'Flow on: fix if you wish' }, { v: 'strict', label: 'Stop until corrected' }]}
             value={s.correction as Correction} onChange={(v) => set('correction', v)} ariaLabel="Correction policy"
           />
         </div>
@@ -123,7 +123,7 @@ export default function Settings() {
 
       <Card className="settings-section">
         <h3><Ic n="grad" size={17} /> Learning</h3>
-        <Toggle on={s.unlockAll} onChange={(v) => set('unlockAll', v)} label="Unlock all regions" desc="Free exploration of the whole Atlas — mastery checks still apply" />
+        <Toggle on={s.unlockAll} onChange={(v) => set('unlockAll', v)} label="Unlock all regions" desc="Free exploration of the whole Atlas. Mastery checks still apply" />
         {data.profile.ageGroup === 'kid' && (
           <Toggle on={s.kidWorld !== false} onChange={(v) => set('kidWorld', v)} label="Kid World home" desc="The friendly island-map home. Turn off to use the full explorer dashboard" />
         )}

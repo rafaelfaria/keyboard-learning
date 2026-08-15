@@ -226,7 +226,7 @@ export default function DuelGame() {
             <div className="game-over duel-intro">
               <h2><Ic n="swords" size={22} /> First to four phrases wins</h2>
               <p className="muted small" style={{ maxWidth: 470 }}>
-                One phrase per round, first to finish takes it — only correct letters move you.
+                One phrase per round, first to finish takes it. Only correct letters move you.
                 Today's rival is <strong>{rival.name}</strong>.
               </p>
               <div className="duel-diffs" role="radiogroup" aria-label="Rival difficulty">
@@ -297,7 +297,7 @@ export default function DuelGame() {
               </div>
               <RewardsBanner rewards={overInfo.rewards} />
               <p className="small muted" style={{ maxWidth: 430 }}>
-                {overInfo.won ? 'Sharp quill! Step up to a fiercer rival when that feels comfortable.' : 'Duels reward a clean first strike — try the Friendly pace, then work up.'}
+                {overInfo.won ? 'Sharp quill! Step up to a fiercer rival when that feels comfortable.' : 'Duels reward a clean first strike. Try the Friendly pace, then work up.'}
               </p>
               <div className="row gap wrap" style={{ justifyContent: 'center' }}>
                 <Btn onClick={startMatch}>↻ Rematch</Btn>

@@ -104,7 +104,7 @@ export default function Journey() {
               className={`jn-leg ${on ? 'on' : ''} ${p.complete ? 'done' : ''} ${unlocked ? '' : 'locked'}`}
               onClick={() => { if (unlocked) openLeg(w.id); }}
               disabled={!unlocked}
-              title={`${w.adult.adultName} — ${w.tagline}`}
+              title={`${w.adult.adultName}: ${w.tagline}`}
             >
               <span className="jn-leg-name">
                 {p.complete ? <Ic n="check" size={13} /> : unlocked ? null : <Ic n="lock" size={12} />}
@@ -147,7 +147,7 @@ export default function Journey() {
                   <div key={l.id} className={`jn-guide-row ${st.unlocked ? '' : 'locked'}`}>
                     {st.campBefore && (
                       <div className="jn-guide-camp">
-                        <Ic n="tent" size={14} /> Camp — <button className="jn-camp-link" onClick={() => nav('/app/train/checkpoint')}>optional checkpoint review</button>
+                        <Ic n="tent" size={14} /> Camp: <button className="jn-camp-link" onClick={() => nav('/app/train/checkpoint')}>optional checkpoint review</button>
                       </div>
                     )}
                     <div className="jn-guide-main">
@@ -189,7 +189,7 @@ export default function Journey() {
             ) : (
               <>
                 <h2>Polish the stars</h2>
-                <p className="small muted">Every waypoint cleared — three-star runs remain.</p>
+                <p className="small muted">Every waypoint cleared. Three-star runs remain.</p>
                 <Btn big onClick={() => setView('guide')}><Ic n="star" size={17} /> Open the Trail Guide</Btn>
               </>
             )}

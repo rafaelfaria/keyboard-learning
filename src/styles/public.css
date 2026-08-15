@@ -388,22 +388,30 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
 .tt-hint { font-size: 0.88rem; color: var(--muted); margin-top: 0.9rem; }
 
 /* The headline number, given the weight it deserves. Five equal-sized figures
-   in a row made the reader hunt for the one they came for. */
-.tt-headline {
+   in a row made the reader hunt for the one they came for. The unit and the
+   qualifying sentence sit beside it rather than under it: this card is 68rem
+   wide, and a 56ch paragraph stacked below the number wrapped twice while
+   two thirds of the row stayed empty. */
+.tt-score {
   display: flex;
   align-items: baseline;
-  gap: 0.7rem;
-  margin: 1.25rem 0 0.6rem;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  margin: 1.25rem 0 1.9rem;
 }
 
-.tt-headline b {
+.tt-score-n {
   font-size: clamp(3.2rem, 2rem + 5vw, 5rem);
   line-height: 0.9;
   letter-spacing: -0.04em;
   color: var(--accent);
+  font-variant-numeric: tabular-nums;
 }
 
-.tt-headline span {
+.tt-score-side { min-width: 0; flex: 1 1 22rem; }
+
+.tt-score-unit {
+  display: block;
   font-size: 0.86rem;
   text-transform: uppercase;
   letter-spacing: 0.11em;
@@ -413,8 +421,8 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
 .tt-summary {
   color: var(--muted);
   line-height: 1.6;
-  margin: 0 0 1.75rem;
-  max-width: 56ch;
+  margin: 0.5rem 0 0;
+  max-width: 68ch;
 }
 
 .tt-stats {
@@ -431,6 +439,8 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
 .tt-stats > div {
   background: var(--bg);
   padding: 1rem 1.1rem 1.05rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .tt-stats dt {
@@ -446,11 +456,14 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
   margin: 0;
   font-size: 0.85rem;
   font-weight: 650;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 /* The gloss is the point of this block: "30" on its own taught nobody what
    consistency is. */
-.tt-stats dd span {
+.tt-stats dd > span:not(.tt-meter) {
   display: block;
   margin-top: 0.2rem;
   font-size: 0.78rem;
@@ -459,7 +472,44 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
   color: var(--muted);
 }
 
-.tt-notes { margin: 0 0 2rem; }
+/* The meter under a percentage stat: the shape is the message, the digits
+   above it are the detail. */
+.tt-stats dd .tt-meter {
+  display: block;
+  margin-top: auto;      /* every tile's meter lands on the same baseline */
+  padding-top: 0.9rem;   /* clear of the gloss even in the shortest tile */
+  height: 3px;
+  box-sizing: content-box;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text) 12%, transparent);
+  background-clip: content-box;
+  overflow: hidden;
+}
+
+.tt-meter i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+}
+
+.tt-meter i.is-warn, .tt-bar i.is-warn { background: var(--warn); }
+
+/* Prose one side, evidence the other. Below 62rem it stacks, which is the only
+   width at which a single full-bleed column was ever the right answer. */
+.tt-diagnosis {
+  display: grid;
+  gap: 2.25rem;
+  align-items: start;
+}
+
+@media (min-width: 62rem) {
+  .tt-diagnosis { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 3rem; }
+}
+
+.tt-diagnosis-col { display: flex; flex-direction: column; gap: 1.75rem; min-width: 0; }
+
+.tt-notes { margin: 0; }
 .tt-notes h3 { font-size: 1rem; margin: 0 0 0.75rem; }
 .tt-notes ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.7rem; }
 
@@ -467,7 +517,6 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
   position: relative;
   padding-left: 1.6rem;
   line-height: 1.65;
-  max-width: 64ch;
   color: color-mix(in srgb, var(--text) 88%, var(--muted));
 }
 
@@ -482,23 +531,80 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
   background: var(--accent);
 }
 
-.tt-arrow { color: var(--muted); font-style: normal; margin: 0 -0.15rem; }
+.tt-arrow { color: var(--muted); font-style: normal; }
 
-.tt-read { line-height: 1.72; max-width: 68ch; color: var(--muted); }
+.tt-handoff { margin: 0; font-size: 0.9rem; line-height: 1.6; color: var(--muted); }
+.tt-handoff a { color: var(--accent); }
 
-.tt-keys { margin-top: 1.75rem; }
-.tt-keys h3 { font-size: 1rem; margin: 0 0 0.7rem; }
-.tt-keys ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; }
-.tt-keys li { display: flex; align-items: center; gap: 0.75rem; font-size: 0.92rem; color: var(--muted); }
-.tt-keys kbd {
+/* ── Per-key charts ─────────────────────────────────────────────────────────
+   The numbers used to be read as sentences ("33% missed, 34ms average"), five
+   in a row, which asks the reader to rank five figures in their head. A bar
+   does that ranking for them; the figure stays for the detail. */
+
+.tt-panel {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.1rem 1.2rem 1.2rem;
+  background: color-mix(in srgb, var(--text) 2.5%, transparent);
+}
+
+.tt-panel h3 { font-size: 0.95rem; margin: 0 0 0.9rem; }
+
+.tt-bars {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto minmax(3rem, 1fr) auto auto;
+  align-items: center;
+  gap: 0.55rem 0.75rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.tt-bars li { display: contents; }
+
+.tt-bars-head span {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--muted) 75%, transparent);
+  text-align: right;
+}
+
+.tt-bars kbd {
   font-family: var(--mono, ui-monospace, monospace);
+  font-size: 0.85rem;
   border: 1px solid var(--border);
   border-radius: 6px;
-  padding: 0.15rem 0.5rem;
-  min-width: 2.2rem;
+  padding: 0.15rem 0.45rem;
+  min-width: 2rem;
   text-align: center;
   color: var(--text);
 }
+
+/* The pair sits in the first column as one unit, so the bars still line up. */
+.tt-bars-pairs { grid-template-columns: auto minmax(3rem, 1fr) auto; }
+.tt-pair { display: inline-flex; align-items: center; gap: 0.35rem; }
+
+.tt-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text) 10%, transparent);
+  overflow: hidden;
+}
+
+.tt-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  min-width: 0;
+}
+
+.tt-bar-v { text-align: right; color: var(--text); font-size: 0.85rem; }
+.tt-bar-v.is-soft { color: var(--muted); min-width: 3.4rem; }
 
 .tt-again { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 2rem; }
 

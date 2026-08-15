@@ -236,7 +236,7 @@ export default function RaceHub() {
         <dl className="ls-career">
           <div><dt>Races</dt><dd>{data.race.races}</dd></div>
           <div><dt>Wins</dt><dd className="good">{data.race.wins}</dd></div>
-          <div><dt>Best wpm</dt><dd className="accent">{data.race.bestWpm || '—'}</dd></div>
+          <div><dt>Best wpm</dt><dd className="accent">{data.race.bestWpm || '·'}</dd></div>
         </dl>
       </header>
 

@@ -228,7 +228,7 @@ export default function SurvivorGame() {
               <Ic n="crown" size={50} />
               <h2>Eight racers. One crown.</h2>
               <p className="muted" style={{ maxWidth: 480 }}>
-                Four heats, each faster than the last (15s, 13s, 11s, 10s) — every correct letter pushes your runner down the track. Reach the flag before the clock and the heat is instantly yours.
+                Four heats, each faster than the last (15s, 13s, 11s, 10s). Every correct letter pushes your runner down the track. Reach the flag before the clock and the heat is instantly yours.
                 After each heat the slowest move to the <strong>cheer bench</strong> (no shame, instant rematch).
                 Outrun every cut and the final duel to take the crown.
               </p>
@@ -292,7 +292,7 @@ export default function SurvivorGame() {
               </div>
               <RewardsBanner rewards={overInfo.rewards} />
               <p className="small muted" style={{ maxWidth: 430 }}>
-                {overInfo.champion ? 'Consistency wins crowns. Take that steadiness into a speed sprint!' : 'The bench cheers loudest for rematches — every heat you survive raises your floor.'}
+                {overInfo.champion ? 'Consistency wins crowns. Take that steadiness into a speed sprint!' : 'The bench cheers loudest for rematches. Every heat you survive raises your floor.'}
               </p>
               <div className="row gap">
                 <Btn onClick={startMatch}>↻ New tournament</Btn>

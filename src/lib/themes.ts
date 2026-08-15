@@ -10,9 +10,9 @@ export interface ThemeMeta {
 }
 
 export const THEMES: ThemeMeta[] = [
-  { id: 'midnight',  name: 'Midnight Focus',   desc: 'Deep space calm — the classic KeyTopia night.', level: 0, dark: true,  preview: ['#0b1020', '#14d8c4', '#eef1fb'] },
+  { id: 'midnight',  name: 'Midnight Focus',   desc: 'Deep space calm. The classic KeyTopia night.', level: 0, dark: true,  preview: ['#0b1020', '#14d8c4', '#eef1fb'] },
   { id: 'porcelain', name: 'Clean Light',      desc: 'Bright, airy and distraction-free.',           level: 0, dark: false, preview: ['#f6f7fc', '#0ea5a0', '#171b2e'] },
-  { id: 'meadow',    name: 'Sunny Meadow',     desc: 'Warm and playful — a favourite with young explorers.', level: 0, dark: false, preview: ['#fdf6e9', '#2fa96b', '#2d2a26'] },
+  { id: 'meadow',    name: 'Sunny Meadow',     desc: 'Warm and playful. A favourite with young explorers.', level: 0, dark: false, preview: ['#fdf6e9', '#2fa96b', '#2d2a26'] },
   { id: 'contrast',  name: 'High Contrast',    desc: 'Maximum legibility, WCAG-strong contrast.',    level: 0, dark: true,  preview: ['#000000', '#ffd400', '#ffffff'] },
   { id: 'paper',     name: 'Paper & Ink',      desc: 'A quiet writing desk, warm paper tones.',      level: 3, dark: false, preview: ['#f3ecdf', '#8a5a2b', '#2b2620'] },
   { id: 'neon',      name: 'Neon Circuit',     desc: 'Electric city lights for night sprinters.',    level: 4, dark: true,  preview: ['#0a0714', '#e34fd8', '#f2ecff'] },

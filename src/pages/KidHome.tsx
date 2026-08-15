@@ -147,10 +147,10 @@ export default function KidHome() {
               <h2>{allDone ? 'Free practice in your world' : nextL ? nextL.title : nextWorld ? `Sail to ${worldDef(nextWorld.id).kid.kidName}!` : 'Free practice'}</h2>
               <p className="muted small">
                 {allDone
-                  ? 'Every island explored — amazing! Keep your stars shiny.'
+                  ? 'Every island explored: amazing! Keep your stars shiny.'
                   : nextL
                     ? `${activePal.name} the ${activePal.kind} is waiting at ${activeDef.kid.kidName}!`
-                    : `${activeDef.kid.kidName} is explored — a new island is on the horizon!`}
+                    : `${activeDef.kid.kidName} is explored: a new island is on the horizon!`}
               </p>
             </div>
           </div>
@@ -175,7 +175,7 @@ export default function KidHome() {
             <h3><Ic n={daily.icon} size={17} /> Daily challenge</h3>
             {dailyDone && <Chip tone="good">Done!</Chip>}
           </div>
-          <p className="small muted" style={{ margin: '6px 0 10px' }}>{daily.title} — a fresh little quest every day.</p>
+          <p className="small muted" style={{ margin: '6px 0 10px' }}>{daily.title}. A fresh little quest every day.</p>
           <Btn kind={dailyDone ? 'soft' : 'primary'} to="/app/challenge">{dailyDone ? 'See today\'s board' : 'Try it →'}</Btn>
         </Card>
       </div>
@@ -209,7 +209,7 @@ export default function KidHome() {
               kind="gold"
               onClick={() => {
                 patch((d) => { d.settings.kidWorld = false; });
-                celebrate({ kind: 'level', icon: 'grad', title: 'Graduation day!', body: 'Welcome to The Ascent — same journey, bigger mountains. Your islands are always in Settings if you miss them.' });
+                celebrate({ kind: 'level', icon: 'grad', title: 'Graduation day!', body: 'Welcome to The Ascent. Same journey, bigger mountains. Your islands are always in Settings if you miss them.' });
               }}
             >Graduate →</Btn>
           </div>

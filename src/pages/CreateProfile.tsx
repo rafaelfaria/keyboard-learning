@@ -109,7 +109,7 @@ export default function CreateProfile() {
             <h2 className="cp-label">What should we call them?</h2>
             <p className="small muted cp-hint">
               {age === 'kid'
-                ? 'A nickname is perfect — never a real full name. Leave it blank and we’ll invent one.'
+                ? 'A nickname is perfect: never a real full name. Leave it blank and we’ll invent one.'
                 : 'A first name or nickname is plenty.'}
             </p>
             <input

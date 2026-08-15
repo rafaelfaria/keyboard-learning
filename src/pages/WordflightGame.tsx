@@ -250,7 +250,7 @@ export default function WordflightGame() {
               </div>
               <RewardsBanner rewards={overInfo.rewards} />
               <p className="small muted" style={{ maxWidth: 430 }}>
-                {overInfo.smooth >= 65 ? 'That rhythm was silk. Take it into a speed sprint!' : 'Altitude follows evenness, not haste — lock into a beat you can hold.'}
+                {overInfo.smooth >= 65 ? 'That rhythm was silk. Take it into a speed sprint!' : 'Altitude follows evenness, not haste. Lock into a beat you can hold.'}
               </p>
               <div className="row gap">
                 <Btn onClick={start}>↻ Fly again</Btn>
