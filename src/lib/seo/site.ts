@@ -129,7 +129,7 @@ export const PUBLIC_PAGES: PublicPage[] = [
   {
     path: '/typing-games',
     label: 'Typing games',
-    title: 'Seven Typing Games That Actually Train You',
+    title: 'Typing Games That Actually Train You',
     description:
       'Wordfall Defence, Keyforge, Wordflight, Quill Duel, Survivor Sprint, Cipher Run and Block Stack. ' +
       'each typing game is built around one named skill, and tells you which one it is training.',

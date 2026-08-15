@@ -114,6 +114,70 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
   .site-head-nav { display: none; }
 }
 
+/* ── Hero band (src/components/public/PublicHero.tsx) ───────────────────
+   A WebGL keycap field behind the page title, giving the content pages the
+   same world the landing page opens in. The canvas is decoration: the title
+   and lede sit above it in normal flow and are readable with it absent. */
+
+.pub-hero {
+  position: relative;
+  isolation: isolate;
+  padding: clamp(2.25rem, 5vw, 4rem) 0 clamp(2rem, 4vw, 3.25rem);
+  margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+  overflow: hidden;
+}
+
+.pub-hero-canvas {
+  position: absolute;
+  inset: -1px 0 auto;
+  width: 100%;
+  height: 132%;
+  z-index: -2;
+  display: block;
+  /* Deliberately NOT faded in on `data-ready`. An opacity transition needs
+     animation frames to finish, and a tab loading in the background never gets
+     them, which left the canvas permanently invisible. There is nothing to
+     hide anyway: the element is transparent until Three.js attaches, and the
+     scene draws its first frame synchronously on creation. */
+}
+
+/* The field is bright enough to fight the headline, exactly as the landing's
+   terrain was. The first attempt at this laid an even veil over the whole band
+   and hid the render completely, which is the failure mode to avoid: a scrim
+   is a ground under the text, not fog over the picture.
+   So it is directional. Heavy on the left where the copy sits, clearing to
+   nothing on the right where the field is allowed to be seen, and fading to
+   the page colour at the bottom so the band joins the article. */
+.pub-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, transparent 62%, var(--bg) 100%),
+    linear-gradient(100deg, rgba(11, 16, 32, 0.93) 0%, rgba(11, 16, 32, 0.8) 34%, rgba(11, 16, 32, 0.24) 66%, transparent 88%);
+}
+
+/* On a phone the copy runs the full width, so there is no clear side for the
+   field to occupy. The scrim stops being directional and simply becomes a
+   ground, with the field reading as texture behind it. */
+@media (max-width: 46rem) {
+  .pub-hero::after {
+    background:
+      linear-gradient(180deg, rgba(11, 16, 32, 0.72) 0%, rgba(11, 16, 32, 0.86) 55%, var(--bg) 100%);
+  }
+  .pub-hero { padding-top: 1.75rem; }
+}
+
+.pub-hero-body { position: relative; }
+.pub-hero-body .pub-h1 { text-shadow: 0 2px 30px rgba(4, 7, 20, 0.95), 0 1px 4px rgba(4, 7, 20, 0.8); }
+.pub-hero-body .pub-lede { margin-bottom: 0; text-shadow: 0 1px 20px rgba(4, 7, 20, 0.95); }
+
+/* The copy sits in the page's own container, so the hero and the article below
+   share one left edge. Styling the children directly lost to .pub-h1's own
+   margin rule and left the title flush against the viewport. */
+
 /* ── Page body ──────────────────────────────────────────────────────────── */
 
 .pub-main {

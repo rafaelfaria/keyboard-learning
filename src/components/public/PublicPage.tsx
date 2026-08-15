@@ -15,6 +15,8 @@ import { Link } from 'react-router-dom';
 import { LogoMark } from '../Brand';
 import { SiteFooter } from './SiteFooter';
 import { SiteHeader } from './SiteHeader';
+import { PublicHero } from './PublicHero';
+import { usePublicMotion } from './usePublicMotion';
 import { SITE_NAME, type PublicPage as PageDef } from '../../lib/seo/site';
 import { Seo } from '../../lib/seo/Seo';
 
@@ -40,15 +42,21 @@ export function PublicPage({
   children: ReactNode;
   wide?: boolean;
 }) {
+  // Both hooks are no-ops during prerender: effects do not run under
+  // renderToStaticMarkup, so the static HTML is the finished page.
+  usePublicMotion(page.path);
+
   return (
     <div className="pub-root" data-page={page.path}>
       <Seo path={page.path} />
       <SiteHeader />
       <main className={`pub-main${wide ? ' pub-main-wide' : ''}`} id="main">
-        <div className="pub-wrap">
+        <PublicHero path={page.path}>
           <Breadcrumbs page={page} />
           <h1 className="pub-h1">{page.title.replace(/ \| .*$/, '')}</h1>
           <p className="pub-lede">{lede}</p>
+        </PublicHero>
+        <div className="pub-wrap">
           {children}
         </div>
       </main>
