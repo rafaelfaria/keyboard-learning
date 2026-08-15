@@ -27,77 +27,91 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
   margin-inline: auto;
 }
 
-/* ── Header ─────────────────────────────────────────────────────────────── */
+/* ── Site header (src/components/public/SiteHeader.tsx) ────────────────
+   Self-contained colours, like the footer: this markup renders inside .landing
+   and inside .pub-root, and hard values are what make it identical in both
+   rather than subtly different. */
 
-.pub-header {
+.site-head {
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 40;
+  background: rgba(11, 16, 32, 0.82);
   backdrop-filter: blur(14px);
-  background: color-mix(in srgb, var(--bg) 82%, transparent);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
-.pub-header-inner {
+.site-head-inner {
+  max-width: 1180px;
+  margin-inline: auto;
+  min-height: 4rem;
+  padding: 0.55rem clamp(16px, 4vw, 32px);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-  min-height: 4rem;
-  flex-wrap: wrap;
+  gap: clamp(12px, 3vw, 28px);
 }
 
-.pub-brand {
+.site-head-brand {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
-  font-weight: 700;
+  gap: 9px;
+  font-weight: 800;
   font-size: 1.05rem;
-  letter-spacing: -0.01em;
-  color: var(--text);
+  letter-spacing: -0.02em;
+  color: #eef1fb;
   text-decoration: none;
+  flex: none;
 }
 
-.pub-nav {
+/* Pushed right, on every page. One of the two old headers centred its links
+   and the other did not, which was the most visible half of the mismatch. */
+.site-head-nav {
+  margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-  flex-wrap: wrap;
+  gap: clamp(12px, 2vw, 26px);
 }
 
-.pub-nav a {
-  color: var(--muted);
+.site-head-nav a {
+  position: relative;
+  color: #b9c1e2;
   text-decoration: none;
   font-size: 0.92rem;
-  padding: 0.35rem 0;
-  border-bottom: 2px solid transparent;
-}
-
-.pub-nav a:hover,
-.pub-nav a:focus-visible {
-  color: var(--text);
-  border-bottom-color: var(--accent);
-}
-
-.pub-nav .pub-cta {
-  color: var(--bg);
-  background: var(--accent);
-  border-radius: 999px;
-  padding: 0.45rem 1.05rem;
   font-weight: 600;
-  border-bottom: none;
+  padding: 0.35rem 0;
+  transition: color 0.15s ease;
 }
 
-.pub-nav .pub-cta:hover {
-  filter: brightness(1.1);
-  border-bottom-color: transparent;
+.site-head-nav a:hover { color: #eef1fb; }
+
+/* One active treatment, and it only ever marks a real current page. */
+.site-head-nav a.is-on { color: #eef1fb; }
+
+.site-head-nav a.is-on::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 2px;
+  border-radius: 2px;
+  background: #14d8c4;
 }
 
-@media (max-width: 46rem) {
-  .pub-header-inner { gap: 0.5rem; padding-block: 0.6rem; }
-  .pub-nav { gap: 0.5rem 0.9rem; font-size: 0.86rem; }
-  .pub-nav a { font-size: 0.86rem; padding: 0.2rem 0; }
-  .pub-nav .pub-cta { padding: 0.35rem 0.85rem; }
+.site-head-nav a:focus-visible { outline: 2px solid #14d8c4; outline-offset: 4px; border-radius: 4px; }
+
+.site-head-cta { flex: none; margin-left: clamp(8px, 2vw, 20px); }
+
+/* The header button is a pill everywhere. base.css gives .btn a 12px radius,
+   which read as a different component next to the old rounded one. */
+.site-head-cta .btn {
+  border-radius: 999px;
+  padding: 0.55rem 1.2rem;
+  font-size: 0.93rem;
+}
+
+@media (max-width: 60rem) {
+  .site-head-nav { display: none; }
 }
 
 /* ── Page body ──────────────────────────────────────────────────────────── */

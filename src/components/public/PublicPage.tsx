@@ -14,29 +14,9 @@ import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { LogoMark } from '../Brand';
 import { SiteFooter } from './SiteFooter';
+import { SiteHeader } from './SiteHeader';
 import { SITE_NAME, type PublicPage as PageDef } from '../../lib/seo/site';
 import { Seo } from '../../lib/seo/Seo';
-
-function Nav() {
-  return (
-    <header className="pub-header">
-      <div className="pub-wrap pub-header-inner">
-        <Link to="/" className="pub-brand" aria-label={`${SITE_NAME} home`}>
-          <LogoMark size={30} idPrefix="pubnav" flat />
-          <span>{SITE_NAME}</span>
-        </Link>
-        <nav className="pub-nav" aria-label="Main">
-          <Link to="/typing-test">Typing test</Link>
-          <Link to="/learn-to-type">Learn to type</Link>
-          <Link to="/curriculum">Curriculum</Link>
-          <Link to="/typing-games">Games</Link>
-          <Link to="/faq">FAQ</Link>
-          <Link className="pub-cta" to="/onboarding">Start free</Link>
-        </nav>
-      </div>
-    </header>
-  );
-}
 
 /** Breadcrumb trail, mirroring the BreadcrumbList JSON-LD on the same page. */
 function Breadcrumbs({ page }: { page: PageDef }) {
@@ -63,7 +43,7 @@ export function PublicPage({
   return (
     <div className="pub-root" data-page={page.path}>
       <Seo path={page.path} />
-      <Nav />
+      <SiteHeader />
       <main className={`pub-main${wide ? ' pub-main-wide' : ''}`} id="main">
         <div className="pub-wrap">
           <Breadcrumbs page={page} />

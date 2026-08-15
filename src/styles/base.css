@@ -37,8 +37,14 @@ html[data-dys='1'] {
    global `p { color: var(--text-dim) }` below then painted intro paragraphs in
    a light theme's near-black onto the dark page. Sharing the ruleset means the
    set can never be partial again. Custom properties set on the element beat
-   ones inherited from a themed <html>, so this wins without !important. */
-:root, [data-theme='midnight'], .pub-root {
+   ones inherited from a themed <html>, so this wins without !important.
+
+   `.landing` is here for the same reason and was the subtler half of the bug:
+   it pinned its own background and text but never --accent, so .btn-primary in
+   its header rendered in whatever accent the learner's theme carried. The
+   landing CTA came out green while the identical button on a public page was
+   teal. */
+:root, [data-theme='midnight'], .pub-root, .landing {
   color-scheme: dark;
   --bg: #0b1020; --bg2: #101731; --surface: #151d38; --surface2: #1c2547;
   --border: #2a3560; --text: #eef1fb; --text-dim: #c1c8e4; --muted: #8b93b8;

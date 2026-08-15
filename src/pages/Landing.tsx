@@ -14,6 +14,7 @@ import { THEMES } from '../lib/themes';
 import { EXPLORER_QUOTES } from '../lib/words';
 import { Ic } from '../components/icons';
 import { SiteFooter } from '../components/public/SiteFooter';
+import { SiteHeader } from '../components/public/SiteHeader';
 import { BlockAvatar } from '../components/avatars';
 import { MODE_CLUSTERS, SESSION_LOOP } from '../lib/seo/content';
 
@@ -445,26 +446,13 @@ export default function Landing() {
         <div className="land-vignette" />
       </div>
 
-      <header className="land-nav">
-        <Logo size={30} />
-        <nav className="land-nav-links" aria-label="Landing sections">
-          <a href="#how">Method</a>
-          <a href="#modes">Modes</a>
-          <a href="#play">Play</a>
-          <a href="#stats">Analytics</a>
-          <a href="#everyone">For everyone</a>
-          {/* The only nav item that leaves the page, so it is marked as such
-              rather than sitting in the anchor list pretending to scroll. */}
-          <Link className="land-nav-out" to="/typing-test">Typing test</Link>
-        </nav>
-        <div className="row gap">
-          {hasProfile
-            ? <Link className="btn btn-primary" to="/app">Continue training →</Link>
-            : hasAnyProfile
-              ? <Link className="btn btn-primary" to="/who">Choose profile →</Link>
-              : <Link className="btn btn-primary" to="/onboarding">Start free</Link>}
-        </div>
-      </header>
+      <SiteHeader
+        cta={hasProfile
+          ? <Link className="btn btn-primary" to="/app">Continue training</Link>
+          : hasAnyProfile
+            ? <Link className="btn btn-primary" to="/who">Choose profile</Link>
+            : <Link className="btn btn-primary" to="/onboarding">Start free</Link>}
+      />
 
       <div className="land-zone" ref={zoneRef}>
         <section className="hero">
