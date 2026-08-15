@@ -148,6 +148,79 @@ export default function Landing() {
     [],
   );
 
+  // The specimen sheet types itself as you scroll.
+  //
+  // On a typing product the scroll gesture may as well be the keystroke: each
+  // sample fills in left to right as its row reaches the reading line, with a
+  // caret at the frontier, so a caret runs down the sheet ahead of the reader.
+  // Same left-to-right family as the trail wipe two sections up, which is what
+  // keeps it feeling like one page rather than a third unrelated trick.
+  //
+  // Reveal is a clip-path measured in `ch`. The samples are set in a monospace
+  // face, so N characters is exactly N ch: that buys character granularity with
+  // one custom property per row instead of SplitText's one DOM node per
+  // character (490 of them here, plus a paid licence).
+  //
+  // Unlike the trail and the accessibility stepper, this one IS gated on `rm`:
+  // there the scroll drove *content*, and hiding it would have cost reduced-
+  // motion readers information. Here the text is identical either way and only
+  // its arrival is animated, so honouring the preference costs them nothing.
+  useEffect(() => {
+    const sheet = document.querySelector('.spec-sheet');
+    if (!sheet) return;
+    const rows = Array.from(sheet.querySelectorAll<HTMLElement>('.spec-sample'));
+    if (!rows.length) return;
+
+    const lens = rows.map((el) => Number(el.dataset.len ?? 0));
+    const paint = (el: HTMLElement, n: number, len: number) => {
+      el.style.setProperty('--n', String(n));
+      // A finished row drops the clip rather than clipping at exactly len ch:
+      // `ch` is the font's nominal advance and can sit a fraction under the
+      // real one, which over a long sample is enough to shave the last glyph.
+      el.classList.toggle('is-done', n >= len);
+    };
+
+    // `is-scripted` is what switches the clip on. Without it — no JavaScript,
+    // or this effect skipped — every sample renders complete.
+    sheet.classList.add('is-scripted');
+
+    if (rm) {
+      rows.forEach((el, i) => paint(el, lens[i], lens[i]));
+      return;
+    }
+
+    let raf = 0;
+    const measure = () => {
+      raf = 0;
+      const vh = window.innerHeight;
+      // A tight band on purpose. Rows sit ~32px apart, so a generous one puts
+      // eight of them mid-type at once and the cascade turns into noise.
+      const from = vh * 0.80;
+      const to = vh * 0.68;
+      let frontier = -1;
+      rows.forEach((el, i) => {
+        const top = el.getBoundingClientRect().top;
+        const p = Math.min(1, Math.max(0, (from - top) / (from - to)));
+        const n = Math.ceil(p * lens[i]);
+        paint(el, n, lens[i]);
+        if (n > 0 && n < lens[i]) frontier = i;
+      });
+      // Exactly one caret, on the lowest row still being written, so it reads
+      // as a single cursor running down the sheet rather than a row of them.
+      rows.forEach((el, i) => el.classList.toggle('is-typing', i === frontier));
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(measure); };
+
+    measure();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, [rm]);
+
   // The audience trail draws itself along the scroll.
   //
   // Same reasoning as the accessibility stepper below, and the same fix: this
@@ -511,14 +584,16 @@ export default function Landing() {
                   {c.modes.map((m) => (
                     <div className="spec-row" key={m.name}>
                       <dt>{m.name}</dt>
-                      <dd className="spec-sample">
-                        {m.hi
-                          ? [...m.sample].map((ch, k) => (
-                            m.hi!.includes(ch.toLowerCase())
-                              ? <b key={k}>{ch}</b>
-                              : <span key={k}>{ch}</span>
-                          ))
-                          : m.sample}
+                      <dd className="spec-sample" data-len={m.sample.length}>
+                        <span className="spec-text">
+                          {m.hi
+                            ? [...m.sample].map((ch, k) => (
+                              m.hi!.includes(ch.toLowerCase())
+                                ? <b key={k}>{ch}</b>
+                                : <span key={k}>{ch}</span>
+                            ))
+                            : m.sample}
+                        </span>
                         <i className="spec-caret" aria-hidden />
                       </dd>
                       <dd className="spec-skill">{m.skill}</dd>
