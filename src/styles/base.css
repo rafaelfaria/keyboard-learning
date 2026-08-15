@@ -28,7 +28,17 @@ html[data-dys='1'] {
 }
 
 /* ---------- Themes ---------- */
-:root, [data-theme='midnight'] {
+
+/* `.pub-root` rides along with midnight on purpose.
+   The public pages are the brand, seen by strangers who have no account and no
+   theme, so they must not follow whatever the learner picked in Settings. It is
+   listed here rather than redeclaring a palette in public.css because a partial
+   copy is worse than none: the first attempt at this missed --text-dim, and the
+   global `p { color: var(--text-dim) }` below then painted intro paragraphs in
+   a light theme's near-black onto the dark page. Sharing the ruleset means the
+   set can never be partial again. Custom properties set on the element beat
+   ones inherited from a themed <html>, so this wins without !important. */
+:root, [data-theme='midnight'], .pub-root {
   color-scheme: dark;
   --bg: #0b1020; --bg2: #101731; --surface: #151d38; --surface2: #1c2547;
   --border: #2a3560; --text: #eef1fb; --text-dim: #c1c8e4; --muted: #8b93b8;

@@ -13,6 +13,7 @@ import { isSupabaseConfigured } from '../lib/supabase';
 import { THEMES } from '../lib/themes';
 import { EXPLORER_QUOTES } from '../lib/words';
 import { Ic } from '../components/icons';
+import { SiteFooter } from '../components/public/SiteFooter';
 import { BlockAvatar } from '../components/avatars';
 import { MODE_CLUSTERS, SESSION_LOOP } from '../lib/seo/content';
 
@@ -918,40 +919,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <footer className="land-footer">
-        <div className="land-inner land-footer-inner">
-          <div>
-            <Logo size={26} />
-            <p className="small muted" style={{ marginTop: 8, maxWidth: 300 }}>
-              Every keyboard is a world. KeyTopia is free, carries no advertising, and writes every
-              keystroke to your own browser first, so practice never waits on the network.
-            </p>
-          </div>
-          <div className="foot-col">
-            <strong>Product</strong>
-            <Link to="/adaptive-practice">Adaptive practice</Link>
-            <Link to="/typing-practice-modes">Practice modes</Link>
-            <Link to="/typing-games">Typing games</Link>
-            <Link to="/typing-races">Typing races</Link>
-            <Link to="/typing-analytics">Analytics</Link>
-          </div>
-          <div className="foot-col">
-            <strong>Learn</strong>
-            <Link to="/learn-to-type">How to learn typing</Link>
-            <Link to="/curriculum">The curriculum</Link>
-            <Link to="/typing-test">Free typing test</Link>
-            <Link to="/typing-glossary">Glossary</Link>
-            <Link to="/faq">FAQ</Link>
-          </div>
-          <div className="foot-col">
-            <strong>Who it is for</strong>
-            <Link to="/typing-for-kids">Kids</Link>
-            <Link to="/typing-for-schools">Schools</Link>
-            <Link to="/privacy">Privacy</Link>
-            <Link to="/terms">Terms</Link>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

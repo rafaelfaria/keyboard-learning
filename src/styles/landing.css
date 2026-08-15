@@ -871,15 +871,6 @@
 
 /* Final + footer */
 .land-final { padding-bottom: 70px; }
-.land-footer { background: #080c1a; border-top: 1px solid #1b2445; position: relative; z-index: 2; }
-.land-footer-inner { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 22px; padding: 44px 0 30px; }
-@media (max-width: 760px) { .land-footer-inner { grid-template-columns: 1fr 1fr; } }
-.land-footer .logo { color: var(--ltext); }
-.foot-col { display: flex; flex-direction: column; gap: 8px; font-size: 0.92rem; }
-.foot-col strong { margin-bottom: 4px; }
-.foot-col a { color: #b9c1e2; }
-.foot-col a:hover { color: #14d8c4; }
-
 /* Landing keyboard sample tweaks */
 .landing .kbd { --key-bg: #1b2445; --key-border: #303b6b; --key-text: #d8ddf5; }
 .landing .mm-legend { color: #8b93b8; }

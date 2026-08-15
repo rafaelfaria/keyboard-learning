@@ -13,7 +13,8 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { LogoMark } from '../Brand';
-import { PUBLIC_PAGES, SITE_NAME, type PublicPage as PageDef } from '../../lib/seo/site';
+import { SiteFooter } from './SiteFooter';
+import { SITE_NAME, type PublicPage as PageDef } from '../../lib/seo/site';
 import { Seo } from '../../lib/seo/Seo';
 
 function Nav() {
@@ -34,47 +35,6 @@ function Nav() {
         </nav>
       </div>
     </header>
-  );
-}
-
-const GROUP_ORDER: PageDef['group'][] = ['Core', 'Product', 'Tools', 'Learn', 'Audiences', 'Reference', 'Legal'];
-
-function Footer() {
-  const groups = GROUP_ORDER.map((g) => ({
-    group: g,
-    pages: PUBLIC_PAGES.filter((p) => p.group === g),
-  })).filter((g) => g.pages.length > 0);
-
-  return (
-    <footer className="pub-footer">
-      <div className="pub-wrap pub-footer-inner">
-        <div className="pub-footer-brand">
-          <LogoMark size={34} idPrefix="pubfoot" flat />
-          <p>
-            {SITE_NAME}. Every keyboard is a world. A free, local-first typing tutor: every keystroke
-            is written to your own browser first, so practice never waits on the network. No adverts,
-            no trackers, nothing sold to anyone.
-          </p>
-        </div>
-        {groups.map(({ group, pages }) => (
-          <div className="pub-foot-col" key={group}>
-            <strong>{group}</strong>
-            {pages.map((p) => (
-              <Link key={p.path} to={p.path}>{p.label}</Link>
-            ))}
-          </div>
-        ))}
-        <div className="pub-foot-col">
-          <strong>Start</strong>
-          <Link to="/onboarding">Start learning</Link>
-          <Link to="/onboarding?quick=1">60-second assessment</Link>
-          <Link to="/app">Open the app</Link>
-        </div>
-      </div>
-      <p className="pub-foot-legal">
-        {SITE_NAME} · an original typing-learning world · accuracy before speed
-      </p>
-    </footer>
   );
 }
 
@@ -112,7 +72,7 @@ export function PublicPage({
           {children}
         </div>
       </main>
-      <Footer />
+      <SiteFooter />
     </div>
   );
 }
