@@ -60,14 +60,58 @@
 /* World morph zone */
 .world { height: 230vh; position: relative; }
 .world-sticky { position: sticky; top: 0; height: 100vh; display: flex; align-items: flex-start; justify-content: center; pointer-events: none; }
-.world-head { text-align: center; padding-top: 12vh; max-width: 640px; }
-.world-head h2 { font-size: clamp(1.8rem, 4.4vw, 3rem); letter-spacing: -0.02em; margin-bottom: 12px; }
-.world-label {
-  position: absolute; background: rgba(13, 19, 40, 0.78); border: 1px solid #2a3560; border-radius: 16px;
-  padding: 12px 18px; backdrop-filter: blur(8px); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+/* The 3D terrain behind this text is bright and in motion. A gradient ground
+   under the headline is what makes it readable; a full-section overlay would
+   read as fog and kill the render. */
+.world-scrim {
+  position: absolute; inset: 0 0 auto; height: 62vh; pointer-events: none;
+  background: linear-gradient(180deg, rgba(7, 11, 26, 0.9) 0%, rgba(7, 11, 26, 0.72) 38%, rgba(7, 11, 26, 0) 100%);
 }
-.world-label strong { display: block; font-size: 1.02rem; }
-.world-label span { color: #8b93b8; font-size: 0.8rem; }
+
+.world-head { text-align: center; padding-top: 12vh; max-width: 660px; position: relative; }
+.world-head .land-eyebrow { color: #7ffcf0; }
+.world-head h2 {
+  font-size: clamp(1.8rem, 4.4vw, 3rem); letter-spacing: -0.02em; margin-bottom: 12px;
+  text-shadow: 0 2px 26px rgba(4, 7, 20, 0.95), 0 1px 3px rgba(4, 7, 20, 0.8);
+}
+.world-head p { text-shadow: 0 1px 16px rgba(4, 7, 20, 0.95); color: #cdd4ee; }
+
+/* Region markers. Each carries its own hue via --wc, set inline from
+   WORLD_REGIONS, so four labels read as four places rather than four copies. */
+.world-label {
+  position: absolute;
+  display: flex; align-items: center; gap: 14px;
+  padding: 13px 20px 13px 16px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--wc) 34%, #2a3560);
+  border-left: 3px solid var(--wc);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0)),
+    color-mix(in srgb, var(--wc) 9%, rgba(10, 15, 34, 0.86));
+  backdrop-filter: blur(14px) saturate(1.2);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    0 18px 44px -18px rgba(0, 0, 0, 0.9),
+    0 0 30px -12px color-mix(in srgb, var(--wc) 55%, transparent);
+}
+
+.wl-idx {
+  font-family: var(--font-type, ui-monospace, monospace);
+  font-size: 0.78rem; font-weight: 600; letter-spacing: 0.04em;
+  color: var(--wc);
+  padding-right: 14px;
+  border-right: 1px solid color-mix(in srgb, var(--wc) 26%, transparent);
+  align-self: stretch; display: flex; align-items: center;
+}
+
+.wl-body { display: flex; flex-direction: column; gap: 2px; }
+.world-label strong { font-size: 1.04rem; letter-spacing: -0.012em; line-height: 1.2; }
+.wl-meta { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; color: #969dc0; }
+.wl-meta b {
+  font-weight: 650; font-size: 0.68rem; letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--wc);
+}
+.wl-meta b::after { content: ''; display: inline-block; width: 3px; height: 3px; border-radius: 50%; background: currentColor; margin-left: 8px; vertical-align: middle; }
 .wl-1 { bottom: 24vh; left: clamp(6px, 12vw, 220px); }
 .wl-2 { top: 34vh; left: clamp(6px, 7vw, 140px); }
 .wl-3 { bottom: 18vh; right: clamp(6px, 10vw, 200px); }
@@ -83,6 +127,30 @@
 .land-section h2 { font-size: clamp(1.7rem, 4vw, 2.6rem); letter-spacing: -0.02em; margin-bottom: 12px; }
 .land-section h2 em { font-style: normal; color: #14d8c4; }
 .land-lede { max-width: 640px; font-size: 1.05rem; margin-bottom: 40px; }
+
+/* Editorial section head: micro-label, headline, one lede. Borrowed rhythm
+   rather than borrowed chrome — the label does the work a card border used to,
+   at a fraction of the visual cost. */
+.land-head { margin-bottom: clamp(32px, 5vw, 56px); max-width: 700px; }
+.land-head h2 { margin-bottom: 14px; }
+.land-head .land-lede { margin-bottom: 0; }
+
+.land-eyebrow {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #14d8c4;
+  margin-bottom: 12px;
+}
+
+.land-more { margin-top: 26px; font-size: 0.95rem; }
+.land-more a { color: #14d8c4; font-weight: 650; }
+.land-more a:hover { text-decoration: underline; }
+
+/* A product screenshot, given room to be the hero of its section. */
+.land-shot { margin: 0 0 clamp(38px, 5vw, 60px); }
 
 /* How */
 .land-how { border-top: 1px solid #1b2445; }
@@ -103,16 +171,78 @@
 .how-quote cite { display: block; margin-top: 12px; color: #8b93b8; font-size: 0.84rem; font-style: normal; }
 .how-quote-k { font-size: 1.6rem; display: block; margin-bottom: 8px; }
 
-/* Modes */
-.mode-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(215px, 100%), 1fr)); gap: 12px; }
-.mode-chip { background: #121936; border: 1px solid #232d55; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 3px; transition: border-color 0.15s, transform 0.15s; }
-.mode-chip:hover { border-color: #14d8c4; transform: translateY(-3px); }
-.mode-chip-ic { font-size: 1.5rem; margin-bottom: 4px; }
-.mode-chip small { color: #8b93b8; }
+/* Modes — four clusters of prose, not fourteen equal boxes. A grid of identical
+   tiles asks the reader to compare everything with everything, which is exactly
+   the work a landing page should be doing for them. */
+.mode-clusters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(400px, 100%), 1fr));
+  gap: clamp(30px, 4vw, 54px);
+}
+
+.mode-cluster-head { margin-bottom: 6px; }
+.mode-cluster-head .land-eyebrow { color: #6a7cb8; margin-bottom: 8px; }
+.mode-cluster-head h3 { font-size: 1.28rem; letter-spacing: -0.018em; margin-bottom: 6px; }
+.mode-cluster-head p { font-size: 0.94rem; max-width: 44ch; }
+
+.mode-list { margin: 0; }
+.mode-list > div {
+  display: grid;
+  grid-template-columns: minmax(8.5rem, 10.5rem) 1fr;
+  gap: 2px 20px;
+  padding: 14px 0;
+  border-top: 1px solid #1e2748;
+}
+.mode-list > div:last-child { border-bottom: 1px solid #1e2748; }
+.mode-list dt { font-weight: 650; font-size: 0.95rem; letter-spacing: -0.01em; }
+.mode-list dd { margin: 0; font-size: 0.9rem; line-height: 1.6; color: #98a0c4; }
+
+@media (max-width: 600px) {
+  .mode-list > div { grid-template-columns: 1fr; gap: 4px; }
+}
 
 /* Play */
 .play-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(270px, 100%), 1fr)); gap: 18px; }
 .play-card { background: #121936; border: 1px solid #232d55; border-radius: 22px; padding: 20px; }
+
+/* The race is the main event, so it gets the width the other seven share.
+   grid-column: 1 / -1 keeps it whole at every breakpoint. */
+.play-card-lead {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) 1.15fr;
+  gap: 26px;
+  align-items: center;
+  padding: 24px;
+  border-color: rgba(20, 216, 196, 0.32);
+  background:
+    radial-gradient(80% 120% at 12% 0%, rgba(20, 216, 196, 0.13), transparent 62%),
+    #121936;
+}
+@media (max-width: 780px) { .play-card-lead { grid-template-columns: 1fr; } }
+
+.play-lead-body h3 { display: flex; align-items: center; gap: 9px; font-size: 1.35rem; letter-spacing: -0.018em; margin: 0 0 10px; }
+.play-lead-body > p { min-height: 0; font-size: 0.97rem; line-height: 1.65; margin-bottom: 16px; max-width: 52ch; }
+.play-lead-body .land-more { margin-top: 16px; font-size: 0.9rem; }
+
+.pa-race { height: 100%; min-height: 178px; flex-direction: column; gap: 12px; padding: 20px 16px; background: linear-gradient(180deg, #101740, #0a1029); }
+.pr-lane { position: relative; width: 100%; height: 26px; border-radius: 999px; background: rgba(35, 45, 85, 0.55); border: 1px solid #232d55; }
+.pr-trail { position: absolute; left: 10px; top: 50%; height: 3px; width: 42%; transform: translateY(-50%); border-radius: 999px; background: linear-gradient(90deg, transparent, rgba(20, 216, 196, 0.5)); }
+.pr-comet {
+  position: absolute; top: 50%; left: 4%; transform: translateY(-50%);
+  filter: drop-shadow(0 0 9px rgba(20, 216, 196, 0.75));
+  animation: prrace 4.2s ease-in-out infinite;
+}
+@keyframes prrace {
+  0% { left: 3%; } 46% { left: 74%; } 54% { left: 74%; } 100% { left: 3%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pr-comet { animation: none; }
+  .pr-lane:nth-child(1) .pr-comet { left: 70%; }
+  .pr-lane:nth-child(2) .pr-comet { left: 56%; }
+  .pr-lane:nth-child(3) .pr-comet { left: 41%; }
+  .pr-lane:nth-child(4) .pr-comet { left: 24%; }
+}
 .play-card h3 { margin: 14px 0 8px; }
 .play-card p { font-size: 0.93rem; margin-bottom: 12px; min-height: 4.2em; }
 .play-art { height: 120px; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 2rem; position: relative; overflow: hidden; }
@@ -174,13 +304,6 @@
   .ps-dot:nth-child(5) { left: 18%; }
 }
 
-/* Race demo */
-.land-race { text-align: center; }
-.race-demo { max-width: 720px; margin: 0 auto 26px; display: flex; flex-direction: column; gap: 16px; }
-.race-demo-lane { position: relative; height: 34px; background: #121936; border: 1px solid #232d55; border-radius: 999px; }
-.demo-comet { position: absolute; left: 2%; top: 50%; transform: translateY(-50%); font-size: 1.3rem; z-index: 2; filter: drop-shadow(0 0 10px rgba(20, 216, 196, 0.7)); }
-.demo-trail { position: absolute; left: 8px; top: 50%; height: 3px; width: 30%; background: linear-gradient(90deg, transparent, rgba(20, 216, 196, 0.55)); border-radius: 999px; }
-
 /* Analytics */
 .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr)); gap: 16px; }
 .an-card { background: #121936; border: 1px solid #232d55; border-radius: 20px; padding: 20px; text-align: center; }
@@ -201,17 +324,161 @@
 .an-echo-pause { box-shadow: 0 0 0 1.5px #ffb454; border-radius: 4px; margin-left: 7px; }
 .an-echo-bad { color: #ff6b7a; }
 
-/* Everyone */
-.who-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 14px; }
-.who-card { background: #121936; border: 1px solid #232d55; border-radius: 18px; padding: 20px; }
-.who-card span { font-size: 1.8rem; }
-.who-card h3 { margin: 8px 0 6px; }
-.who-card p { font-size: 0.92rem; }
+/* Everyone — audience cards. Named `aud-*`, NOT `who-*`: the profile picker
+   owns `who-*` in app.css, and landing.css loads after it, so sharing the name
+   silently restyled the picker (oversized cards, hardcoded colours that ignored
+   the user's theme). */
+/* ── The audience trail ──────────────────────────────────────────────────
+   Six stops on one winding road. The curve is an SVG stretched edge to edge
+   (preserveAspectRatio="none"), and the stops are a 6-track grid positioned by
+   the same fractions the path's peaks use — 25.8% down for the high stops,
+   25.8% up for the low ones. Neither side hard-codes the other's pixels, so
+   the dots sit on the line at every viewport width. */
 
-/* Access */
-.land-access-inner { text-align: center; }
-.access-list { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 26px 0 18px; }
-.access-list span { background: #121936; border: 1px solid #232d55; border-radius: 999px; padding: 8px 16px; font-size: 0.88rem; font-weight: 620; }
+.trail { position: relative; margin-top: 8px; }
+
+.trail-line {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  /* The road arrives from somewhere and carries on going. A hard stop at the
+     container edge would read as a chart axis instead. */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+
+.trail-stops {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  height: 320px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trail-stop { position: relative; }
+
+.trail-stop a {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(100%, 168px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  color: inherit;
+  padding: 4px;
+  border-radius: 14px;
+}
+
+/* 25.8% is 62/240 — the y of the curve's high peaks. The 22px offset centres
+   the 44px dot on the line rather than hanging it off. */
+.trail-stop.is-up a { top: calc(25.8% - 22px); }
+.trail-stop.is-down a { bottom: calc(25.8% - 22px); flex-direction: column-reverse; }
+
+.trail-dot {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--tc);
+  border: 2px solid var(--tc);
+  background: #0b1020;
+  box-shadow: 0 0 0 6px rgba(11, 16, 32, 0.95), 0 0 22px -4px var(--tc);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Labels overhang their grid column, so the curve can pass behind one. A soft
+   ground under the text costs nothing and keeps it readable when it does. */
+.trail-label { text-shadow: 0 0 10px #0b1020, 0 0 4px #0b1020; }
+
+.trail-label h3 {
+  font-size: 1.06rem;
+  letter-spacing: -0.015em;
+  margin: 0 0 3px;
+  color: var(--ltext);
+}
+
+.trail-label > span {
+  display: block;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #8b93b8;
+  transition: color 0.2s ease;
+}
+
+.trail-stop a:hover .trail-dot,
+.trail-stop a:focus-visible .trail-dot {
+  transform: scale(1.12);
+  box-shadow: 0 0 0 6px rgba(11, 16, 32, 0.95), 0 0 30px -2px var(--tc);
+}
+
+.trail-stop a:hover .trail-label > span,
+.trail-stop a:focus-visible .trail-label > span { color: #cdd4ee; }
+.trail-stop a:hover .trail-label h3 { color: var(--tc); }
+.trail-stop a:focus-visible { outline: 2px solid var(--tc); outline-offset: 3px; }
+
+/* Below the fold of a laptop the serpentine stops being legible — six labels
+   at 130px each is a crush. The road turns vertical instead of shrinking. */
+@media (max-width: 900px) {
+  .trail-line { display: none; }
+
+  .trail-stops {
+    grid-template-columns: 1fr;
+    height: auto;
+    padding-left: 30px;
+  }
+
+  .trail-stops::before {
+    content: '';
+    position: absolute;
+    left: 21px;
+    top: 22px;
+    bottom: 22px;
+    width: 2px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, #14d8c4, #8b7cff, #5fb3ff, #ffb454, #6fe3b6, #f2789f);
+  }
+
+  .trail-stop a,
+  .trail-stop.is-up a,
+  .trail-stop.is-down a {
+    position: static;
+    transform: none;
+    top: auto;
+    bottom: auto;
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    gap: 16px;
+    padding: 10px 0;
+    margin-left: -30px;
+  }
+
+  .trail-dot { width: 42px; height: 42px; }
+  .trail-label h3 { font-size: 1.05rem; }
+  .trail-label > span { font-size: 0.88rem; }
+}
+
+/* Access — ten pills read as decoration. Ten rows read as a specification. */
+.access-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(330px, 100%), 1fr));
+  gap: 0 40px;
+  margin: 0;
+}
+.access-list > div { padding: 15px 0; border-top: 1px solid #1e2748; }
+.access-list dt { display: flex; align-items: center; gap: 10px; font-weight: 650; font-size: 0.97rem; margin-bottom: 4px; }
+.access-list dt svg { color: #14d8c4; flex: 0 0 auto; }
+.access-list dd { margin: 0 0 0 26px; font-size: 0.88rem; line-height: 1.55; color: #8b93b8; }
 
 /* Themes marquee */
 .theme-marquee { overflow: hidden; margin: 10px 0 30px; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }

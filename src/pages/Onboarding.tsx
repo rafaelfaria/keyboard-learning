@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { Navigate, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Btn, Logo, Bar, Chip } from '../components/ui';
 import { GhostInput, TypingText, useTypingSession, combineResults } from '../components/typing';
 import { KeyboardVisual } from '../components/KeyboardVisual';
-import { useStore, useData, randomKidName } from '../lib/store';
+import { useStore, useData, randomKidName, MAX_PROFILES } from '../lib/store';
 import type { AgeGroup, AssessmentResult, CoachStyle, Goal, LayoutId, SessionResult } from '../lib/types';
 import { COACH_STYLES } from '../lib/coach';
 import { LAYOUT_NAMES, layoutGroups } from '../lib/keyboard';
@@ -149,6 +149,7 @@ export default function Onboarding() {
   const createProfile = useStore((s) => s.createProfile);
   const finishAssessment = useStore((s) => s.finishAssessment);
   const hasProfile = useStore((s) => !!s.activeId);
+  const full = useStore((s) => Object.keys(s.profiles).length >= MAX_PROFILES);
 
   const isRetest = params.get('retest') === '1' && !!existing;
   const [a, setA] = useState<Answers>(() => ({
@@ -279,10 +280,13 @@ export default function Onboarding() {
       return;
     }
     const name = a.name.trim() || (a.age === 'kid' ? randomKidName() : 'Explorer');
-    createProfile({
+    const newId = createProfile({
       name, avatar: a.avatar, ageGroup: a.age, goal: a.goal, looksAtKeyboard: a.looks,
       experience: a.path === 'new' ? 'new' : a.exp, layout: a.layout, competitive: a.competitive, coach: a.coach,
     });
+    // Device already holds MAX_PROFILES — the store refused. Send them back to
+    // the picker rather than silently writing settings onto whoever is active.
+    if (!newId) { nav('/who'); return; }
     useStore.getState().patch((d) => {
       d.settings.soundOn = a.sound;
       d.settings.fontScale = a.fontScale;
@@ -329,6 +333,11 @@ export default function Onboarding() {
 
   const pct = Math.round(((stepIdx + 1) / steps.length) * 100);
   const skippable = ['goal', 'habits', 'setup', 'access'].includes(step);
+
+  // The device is full. Bounce to the picker before the questions start rather
+  // than letting someone answer six screens and then hit the wall. Retakes are
+  // exempt — they re-test an existing profile instead of adding one.
+  if (full && !retest) return <Navigate to="/who" replace />;
 
   return (
     <div className="ob-page">

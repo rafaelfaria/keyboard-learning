@@ -7,28 +7,77 @@ import { Logo, Chip } from '../components/ui';
 import { KeyboardVisual } from '../components/KeyboardVisual';
 import { RhythmFingerprint } from '../components/charts';
 import { useStore } from '../lib/store';
+import { useAccount } from '../lib/account';
+import { useSync, visibleProfileIds } from '../lib/syncEngine';
+import { isSupabaseConfigured } from '../lib/supabase';
 import { THEMES } from '../lib/themes';
 import { EXPLORER_QUOTES } from '../lib/words';
 import { Ic } from '../components/icons';
 import { BlockAvatar } from '../components/avatars';
+import { MockModes } from '../components/public/Mock';
+import { MODE_CLUSTERS } from '../lib/seo/content';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const MODE_CHIPS = [
-  ['brain', 'Adaptive practice', 'Sets built from your weak keys'],
-  ['dumbbell', 'Weak-key workout', 'Your worst key, repaired'],
-  ['zap', 'Speed sprints', '15s to 5 minutes'],
-  ['target', 'Accuracy Lab', 'Precision-first scoring'],
-  ['waves', 'Rhythm studio', 'Type on the beat'],
-  ['flower', 'Zen typing', 'No scores, just flow'],
-  ['eye-off', 'Lights out', 'Wean off looking down'],
-  ['braces', 'Code forge', 'Brackets & symbols'],
-  ['headphones', 'Dictation', 'Type what you hear'],
-  ['peaks', 'Numeral Peaks', 'Numbers & symbols row'],
-  ['lifebuoy', 'Recovery', 'Stay calm after misses'],
-  ['route', 'Endurance', 'Long-form stamina'],
-  ['clipboard', 'Real-world desk', 'Emails & documents'],
-  ['file', 'Copy desk', 'Practise your own text'],
+/**
+ * The four regions the 3D terrain morphs through.
+ *
+ * Each carries its own colour so the labels read as places on a map rather than
+ * as four instances of the same card, which is what a single shared surface
+ * colour makes them look like.
+ */
+const WORLD_REGIONS = [
+  { name: 'The Heartlands', row: 'Home row', note: 'where every journey begins', hue: '#14d8c4' },
+  { name: 'Skyreach Ridge', row: 'Top row', note: 'reaches, and returns', hue: '#8b7cff' },
+  { name: 'Deeproot Vale', row: 'Bottom row', note: 'curl and control', hue: '#6fe3b6' },
+  { name: 'Numeral Peaks', row: 'Numbers & symbols', note: 'the high country', hue: '#ffb454' },
+] as const;
+
+/**
+ * The audience section, as stops on a trail.
+ *
+ * Six audiences described in prose is six paragraphs nobody finishes. Six stops
+ * on one winding road is a picture, and it forces the copy down to the single
+ * line that actually distinguishes each traveller.
+ *
+ * The SEO value here is not the body text it replaces: it is six descriptive
+ * internal links out of the highest-authority page on the site. `to` therefore
+ * points at the page that genuinely answers that audience's question, never at
+ * a placeholder.
+ */
+const TRAIL = [
+  { key: 'kids', icon: 'smile', name: 'Kids', line: 'An island world. They never sign in.', to: '/typing-for-kids', hue: '#14d8c4' },
+  { key: 'teens', icon: 'headphones', name: 'Teens', line: 'Duels, streaks and themes worth unlocking.', to: '/typing-games', hue: '#8b7cff' },
+  { key: 'adults', icon: 'briefcase', name: 'Adults', line: 'Ten minutes a day, on real work text.', to: '/typing-practice-modes', hue: '#5fb3ff' },
+  { key: 'competitors', icon: 'trophy', name: 'Competitors', line: 'Transition timing and ghost racing.', to: '/typing-analytics', hue: '#ffb454' },
+  { key: 'schools', icon: 'school', name: 'Schools', line: 'A class code, never a class roster.', to: '/typing-for-schools', hue: '#6fe3b6' },
+  { key: 'families', icon: 'users', name: 'Families', line: 'Four explorers, one grown-up account.', to: '/faq', hue: '#f2789f' },
+] as const;
+
+/**
+ * The serpentine the stops sit on.
+ *
+ * Peaks land on the six column centres of a 6-track grid (x = (i + 0.5) / 6),
+ * alternating between y = 62 and y = 178 of a 240-unit box. The stops are
+ * positioned by the same fractions in CSS, so the dots meet the curve at every
+ * width without either side knowing about the other's pixels.
+ */
+const TRAIL_PATH =
+  'M 0 62 L 83 62 C 166 62 166 178 250 178 C 333 178 333 62 417 62 '
+  + 'C 500 62 500 178 583 178 C 666 178 666 62 750 62 '
+  + 'C 833 62 833 178 917 178 L 1000 178';
+
+const ACCESS_ROWS = [
+  ['keyboard', 'Full keyboard navigation', 'Every screen, every control, no mouse required.'],
+  ['zoom', 'Four text sizes', 'Set per profile, so it follows the person across shared devices.'],
+  ['type', 'Atkinson Hyperlegible', 'The typeface designed for low vision, available everywhere.'],
+  ['eye', 'High-contrast theme', 'Alongside twelve others, all free.'],
+  ['leaf', 'Reduced motion', 'Honours the system setting and can be forced on.'],
+  ['hourglass', 'Untimed learning', 'Every lesson can be taken with the clock switched off.'],
+  ['chat', 'Spoken target letters', 'The next key read aloud, at your pace.'],
+  ['headphones', 'Dictation with replay', 'Repeat and slow down any passage.'],
+  ['check', 'Never colour-only', 'Every state carries a shape or a label as well as a hue.'],
+  ['eye-off', 'Hideable leaderboards', 'Competition is opt-in, not a condition of learning.'],
 ] as const;
 
 const SAMPLE_MASTERY: Record<string, string> = {};
@@ -41,14 +90,25 @@ const SAMPLE_MASTERY: Record<string, string> = {};
 const FAKE_IKIS = Array.from({ length: 160 }, (_, i) => 210 + Math.sin(i * 0.7) * 40 + (i % 17 === 0 ? 320 : 0) + (i % 5) * 8);
 
 export default function Landing() {
-  const hasProfile = useStore((s) => !!s.activeId && !!s.profiles[s.activeId!]);
-  const hasAnyProfile = useStore((s) => Object.keys(s.profiles).length > 0);
+  // The header CTA must reflect the *account*, not just what localStorage
+  // holds: cached profiles survive logout on purpose (account.signOut), so a
+  // signed-out visitor with stale local data still gets "Start free".
+  const user = useAccount((s) => s.user);
+  const owners = useSync((s) => s.owners);
+  const activeId = useStore((s) => s.activeId);
+  const profiles = useStore((s) => s.profiles);
+  const visible = isSupabaseConfigured
+    ? visibleProfileIds(Object.keys(profiles), user?.id ?? null, owners)
+    : Object.keys(profiles);
+  const hasProfile = !!activeId && visible.includes(activeId);
+  const hasAnyProfile = visible.length > 0;
   const rootRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const canvasWrapRef = useRef<HTMLDivElement>(null);
   const zoneRef = useRef<HTMLDivElement>(null);
   const afterRef = useRef<HTMLElement>(null);
   const chartPathRef = useRef<SVGPathElement>(null);
+  const trailClipRef = useRef<SVGRectElement>(null);
   const sceneRef = useRef<KeyboardScene | null>(null);
   const [typed, setTyped] = useState<string[]>([]);
 
@@ -151,6 +211,50 @@ export default function Landing() {
         });
       });
 
+      // The audience trail: one scrubbed timeline so the road and the stops can
+      // never drift apart. Six time units, one per stop, and the wipe covers
+      // column i at t = i + 0.5 (the column centre), so each stop is timed to
+      // fade in just as the road arrives at it.
+      //
+      // The trigger is the whole section, not `.trail` itself — a 320px element
+      // gives almost no scroll distance to scrub across, which made the old
+      // version snap to finished the moment it appeared.
+      const clip = trailClipRef.current;
+      if (clip) {
+        const stops = gsap.utils.toArray<HTMLElement>('.trail-stop');
+
+        // Driven from onUpdate rather than by handing the ScrollTrigger a
+        // scrubbed timeline: the timeline form sat at progress 1 no matter where
+        // the page was, so the road was always already drawn. This is the same
+        // shape the 3D terrain uses above, and it is exact — at progress p the
+        // wipe is at x = 1000p, and stop i's column centre is at (i + 0.5) / 6,
+        // so a stop finishes arriving just as the road reaches it.
+        const render = (p: number) => {
+          clip.setAttribute('width', String(1000 * p));
+          stops.forEach((el, i) => {
+            const t = gsap.utils.clamp(0, 1, (p * TRAIL.length - i) / 0.7);
+            el.style.opacity = String(t);
+            el.style.transform = `translateY(${(1 - t) * 14}px)`;
+          });
+        };
+
+        // Nothing is set from CSS: with JavaScript off, or under reduced motion
+        // where this whole effect is skipped, the road and all six links render
+        // complete. They are the section's entire SEO payload.
+        render(0);
+        if (import.meta.env.DEV) (window as unknown as { __trail?: (p: number) => void }).__trail = render;
+
+        ScrollTrigger.create({
+          trigger: '.land-everyone',
+          start: 'top 72%',
+          end: 'bottom 85%',
+          onUpdate: (self) => render(self.progress),
+          onLeave: () => render(1),
+          onLeaveBack: () => render(0),
+          onRefresh: (self) => render(self.progress),
+        });
+      }
+
       // analytics chart draws itself
       if (chartPathRef.current) {
         const len = chartPathRef.current.getTotalLength();
@@ -162,15 +266,23 @@ export default function Landing() {
           });
       }
 
-      // race comets slide across on scroll
-      gsap.utils.toArray<HTMLElement>('.demo-comet').forEach((el, i) => {
-        gsap.fromTo(el, { left: '2%' }, {
-          left: `${58 + i * 11}%`, ease: 'power1.inOut',
-          scrollTrigger: { trigger: '.land-race', start: 'top 80%', end: 'center 40%', scrub: true },
-        });
-      });
     }, rootRef);
-    return () => ctx.revert();
+
+    // Every trigger above is measured against a page that is about to change
+    // height: the Three.js canvas sizes itself, the web fonts swap in, and the
+    // 230vh world zone settles only after this effect has run. Without a
+    // refresh once that is done, start/end positions are computed against the
+    // wrong document and reveals either fire early or never fire at all.
+    const refresh = () => ScrollTrigger.refresh();
+    const raf = requestAnimationFrame(refresh);
+    window.addEventListener('load', refresh);
+    document.fonts?.ready.then(refresh).catch(() => {});
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('load', refresh);
+      ctx.revert();
+    };
   }, [rm]);
 
   return (
@@ -208,11 +320,11 @@ export default function Landing() {
               lights up your personal Mastery Map.
             </p>
             <div className="hero-ctas">
-              <Link className="btn btn-primary btn-big" to="/onboarding">Start learning — it's free</Link>
+              <Link className="btn btn-primary btn-big" to="/onboarding">Start learning, it's free</Link>
               <Link className="btn btn-soft btn-big" to="/onboarding?quick=1">Take the 60-second assessment</Link>
             </div>
             <div className="hero-try" aria-live="off">
-              <span className="hero-try-label">psst — the keyboard below is live. try typing!</span>
+              <span className="hero-try-label">psst, the keyboard below is live. try typing!</span>
               <span className="hero-try-keys">
                 {typed.length === 0 ? <span className="muted">·&nbsp;·&nbsp;·</span> : typed.map((c, i) => <kbd key={i} className="keycap">{c}</kbd>)}
               </span>
@@ -229,15 +341,30 @@ export default function Landing() {
         </section>
 
         <section className="world" aria-label="The keyboard world">
+          {/* The terrain behind this text is bright and moving, so the copy needs
+              a ground of its own. A scrim under the head plus a soft text shadow
+              keeps it legible at every point of the scroll, without dimming the
+              render the way a full-section overlay would. */}
           <div className="world-sticky">
+            <div className="world-scrim" aria-hidden />
             <div className="world-head">
+              <span className="land-eyebrow">The map</span>
               <h2>Every keyboard is a world<br />waiting to be mastered.</h2>
-              <p>Scroll on — watch your keyboard become terrain. Each region is a stage of the journey from first key to full flow.</p>
+              <p>Keep scrolling. Your keyboard becomes terrain, and every region is a stage of the journey from first key to full flow.</p>
             </div>
-            <div className="world-label wl-1"><strong>🌾 The Heartlands</strong><span>home row · where every journey begins</span></div>
-            <div className="world-label wl-2"><strong>🏔 Skyreach Ridge</strong><span>top row · reaches & returns</span></div>
-            <div className="world-label wl-3"><strong>🌲 Deeproot Vale</strong><span>bottom row · curl & control</span></div>
-            <div className="world-label wl-4"><strong>⛰ Numeral Peaks</strong><span>numbers & symbols · the high country</span></div>
+            {WORLD_REGIONS.map((r, i) => (
+              <div
+                className={`world-label wl-${i + 1}`}
+                key={r.name}
+                style={{ '--wc': r.hue } as React.CSSProperties}
+              >
+                <span className="wl-idx">{String(i + 1).padStart(2, '0')}</span>
+                <span className="wl-body">
+                  <strong>{r.name}</strong>
+                  <span className="wl-meta"><b>{r.row}</b>{r.note}</span>
+                </span>
+              </div>
+            ))}
           </div>
         </section>
       </div>
@@ -250,7 +377,7 @@ export default function Landing() {
             <article className="how-card rv">
               <span className="how-num">1</span>
               <h3>Assess</h3>
-              <p>A 60-second placement reads your speed, accuracy, rhythm, hesitation, backspace habits and per-key reflexes — then names your rank and draws your starting map.</p>
+              <p>A 60-second placement reads your speed, accuracy, rhythm, hesitation, backspace habits and per-key reflexes, then names your rank and draws your starting map.</p>
             </article>
             <article className="how-card rv">
               <span className="how-num">2</span>
@@ -260,7 +387,7 @@ export default function Landing() {
             <article className="how-card rv">
               <span className="how-num">3</span>
               <h3>Advance</h3>
-              <p>Accuracy first, speed second, rhythm always. The coach holds you back from chasing speed too early — and tells you exactly why, after every single session.</p>
+              <p>Accuracy first, speed second, rhythm always. The coach holds you back from chasing speed too early, and tells you exactly why, after every single session.</p>
             </article>
           </div>
           <div className="how-demo rv">
@@ -276,8 +403,8 @@ export default function Landing() {
             </div>
             <blockquote className="how-quote">
               <span className="how-quote-k"><Ic n="bulb" size={26} /></span>
-              “Your accuracy is already strong. Your next breakthrough will come from steadier <b>P</b> and <b>O</b>, and smoothing the <b>O→L</b> transition — here's a two-minute drill for exactly that.”
-              <cite>— Kip, your typing coach, being annoyingly specific</cite>
+              “Your accuracy is already strong. Your next breakthrough will come from steadier <b>P</b> and <b>O</b>, and smoothing the <b>O→L</b> transition. Here is a two-minute drill for exactly that.”
+              <cite>Kip, your typing coach, being annoyingly specific</cite>
             </blockquote>
           </div>
         </div>
@@ -285,25 +412,83 @@ export default function Landing() {
 
       <section className="land-section land-modes" id="modes">
         <div className="land-inner">
-          <h2 className="rv">Train your way.</h2>
-          <p className="land-lede rv">Fourteen modes, one engine. Each names the skill it builds — so practice always has a purpose.</p>
-          <div className="mode-grid">
-            {MODE_CHIPS.map(([ic, name, sub]) => (
-              <div className="mode-chip rv" key={name}>
-                <span className="mode-chip-ic"><Ic n={ic} size={24} /></span>
-                <strong>{name}</strong>
-                <small>{sub}</small>
+          <div className="land-head rv">
+            <span className="land-eyebrow">Practice</span>
+            <h2>Train your way.</h2>
+            <p className="land-lede">
+              One engine, four kinds of session. Every mode names the single skill it builds,
+              so five minutes of practice always buys something you can point at.
+            </p>
+          </div>
+
+          <div className="land-shot rv"><MockModes /></div>
+
+          <div className="mode-clusters">
+            {MODE_CLUSTERS.map((c, i) => (
+              <div className="mode-cluster rv" key={c.name}>
+                <div className="mode-cluster-head">
+                  <span className="land-eyebrow">{String(i + 1).padStart(2, '0')}</span>
+                  <h3>{c.name}</h3>
+                  <p>{c.blurb}</p>
+                </div>
+                <dl className="mode-list">
+                  {c.modes.map((m) => (
+                    <div key={m.name}>
+                      <dt>{m.name}</dt>
+                      <dd>{m.description}</dd>
+                    </div>
+                  ))}
+                </dl>
               </div>
             ))}
           </div>
+
+          <p className="land-more rv">
+            <Link to="/typing-practice-modes">Every mode, in detail →</Link>
+          </p>
         </div>
       </section>
 
       <section className="land-section land-play" id="play">
         <div className="land-inner">
-          <h2 className="rv">Seven games that train, honestly.</h2>
-          <p className="land-lede rv">Not typing glued onto someone else's arcade — every game is built around one real skill, and tells you which. Duels, tournaments, towers, ciphers and calm little forges.</p>
+          <div className="land-head rv">
+            <span className="land-eyebrow">The Arena</span>
+            <h2>Games that train, honestly.</h2>
+            <p className="land-lede">
+              Not typing glued onto someone else's arcade. Every game is built around one real skill
+              and tells you which one, so the fun and the practice are the same activity.
+            </p>
+          </div>
           <div className="play-grid">
+            <article className="play-card play-card-lead rv">
+              <div className="play-art pa-race" aria-hidden>
+                {[2, 5, 8, 11].map((p, i) => (
+                  <span className="pr-lane" key={p}>
+                    <i className="pr-trail" />
+                    <span className="pr-comet" style={{ animationDelay: `${i * 0.55}s` }}>
+                      <BlockAvatar preset={p} size={20} />
+                    </span>
+                  </span>
+                ))}
+              </div>
+              <div className="play-lead-body">
+                <span className="land-eyebrow">The main event</span>
+                <h3><Ic n="zap" size={20} /> Lightstream Race</h3>
+                <p>
+                  Rivals with believable habits: slow starters who come back at you, streaky
+                  sprinters who surge and stall. Race the ghost of your own best run, or open a
+                  private room with a join code for friends and classrooms. No strangers, no chat,
+                  ever.
+                </p>
+                <div className="row gap wrap">
+                  <Chip tone="accent">Composure at speed</Chip>
+                  <Chip><Ic n="bot" size={13} /> 5 difficulties + adaptive</Chip>
+                  <Chip><Ic n="ghost" size={13} /> Ghost of your best run</Chip>
+                  <Chip><Ic n="ticket" size={13} /> Private join-code rooms</Chip>
+                </div>
+                <p className="land-more"><Link to="/typing-races">How racing works →</Link></p>
+              </div>
+            </article>
             <article className="play-card rv" data-speed={-0.6}>
               <div className="play-art pa-wordfall" aria-hidden><span>w</span><span>o</span><span>r</span><span>d</span><span>s</span></div>
               <h3><Ic n="shield" size={18} /> Wordfall Defence</h3>
@@ -313,7 +498,7 @@ export default function Landing() {
             <article className="play-card rv" data-speed={0.4}>
               <div className="play-art pa-forge" aria-hidden><Ic n="hammer" size={40} /><i>✦</i><i>✦</i><i>✦</i></div>
               <h3><Ic n="hammer" size={18} /> Keyforge</h3>
-              <p>The fire only burns while you type — misses vent heat, treasures make it hungrier. Forge before it goes cold.</p>
+              <p>The fire only burns while you type. Misses vent heat, treasures make it hungrier. Forge before it goes cold.</p>
               <Chip tone="accent">Fast, flawless words</Chip>
             </article>
             <article className="play-card rv" data-speed={-0.2}>
@@ -329,7 +514,7 @@ export default function Landing() {
                 <span className="pd-lane"><i className="pd-fill pd-foe" /></span>
               </div>
               <h3><Ic n="swords" size={18} /> Quill Duel</h3>
-              <p>Best-of-seven phrase duel against a rival matched to your pace — you watch them typing, cursor and all.</p>
+              <p>Best-of-seven phrase duel against a rival matched to your pace, and you watch them typing, cursor and all.</p>
               <Chip tone="accent">Burst speed under pressure</Chip>
             </article>
             <article className="play-card rv" data-speed={-0.3}>
@@ -338,7 +523,7 @@ export default function Landing() {
                 <i className="ps-dot" /><i className="ps-dot" /><i className="ps-dot" /><i className="ps-dot" />
               </div>
               <h3><Ic n="crown" size={18} /> Survivor Sprint</h3>
-              <p>Eight typists, four rapid heats — the slowest head to the cheer bench each round. Outlast them all.</p>
+              <p>Eight typists, four rapid heats. The slowest head to the cheer bench each round. Outlast them all.</p>
               <Chip tone="accent">Consistency under pressure</Chip>
             </article>
             <article className="play-card rv" data-speed={0.3}>
@@ -361,38 +546,23 @@ export default function Landing() {
                 </span>
               </div>
               <h3><Ic n="blocks" size={18} /> Block Stack</h3>
-              <p>Every word becomes a block — clean words build wide and steady, sloppy ones crumble the tower.</p>
+              <p>Every word becomes a block. Clean words build wide and steady, sloppy ones crumble the tower.</p>
               <Chip tone="accent">Word-perfect precision</Chip>
             </article>
           </div>
         </div>
       </section>
 
-      <section className="land-section land-race">
-        <div className="land-inner">
-          <h2 className="rv">Race the Lightstream.</h2>
-          <p className="land-lede rv">CPU rivals with believable habits — slow starters, streaky sprinters. Ghosts of your best runs. Private rooms with safe names for friends and classrooms. No strangers, no chat, ever.</p>
-          <div className="race-demo rv" aria-hidden>
-            {[2, 5, 8, 11].map((p, i) => (
-              <div className="race-demo-lane" key={p}>
-                <span className="demo-comet" style={{ animationDelay: `${i * 0.3}s` }}><BlockAvatar preset={p} size={22} /></span>
-                <i className="demo-trail" />
-              </div>
-            ))}
-          </div>
-          <div className="row gap wrap rv" style={{ justifyContent: 'center' }}>
-            <Chip><Ic n="bot" size={13} /> 5 CPU difficulties + adaptive</Chip>
-            <Chip><Ic n="ghost" size={13} /> Ghost of your best run</Chip>
-            <Chip><Ic n="ticket" size={13} /> Private rooms with join codes</Chip>
-            <Chip><Ic n="trophy" size={13} /> Ranked seasons (coming online)</Chip>
-          </div>
-        </div>
-      </section>
-
       <section className="land-section land-analytics" id="stats">
         <div className="land-inner">
-          <h2 className="rv">See yourself getting better.</h2>
-          <p className="land-lede rv">Beginner-friendly on the surface, expert-deep underneath: per-key heatmaps, finger balance, rhythm fingerprints, session echoes, records and a practice calendar.</p>
+          <div className="land-head rv">
+            <span className="land-eyebrow">Analytics</span>
+            <h2>See yourself getting better.</h2>
+            <p className="land-lede">
+              Readable by a nine-year-old on the surface, deep enough underneath that competitive
+              typists use it to find their last few words per minute.
+            </p>
+          </div>
           <div className="analytics-grid">
             <div className="an-card rv">
               <h4>Speed over 6 weeks</h4>
@@ -413,7 +583,7 @@ export default function Landing() {
               <div className="an-echo" aria-hidden>
                 <span>t</span><span>h</span><span>e</span><span> </span><span>q</span><span>u</span><span>i</span><span className="an-echo-pause">e</span><span>t</span><span> </span><span className="an-echo-bad">l</span><span>i</span><span>b</span><span>r</span><span>a</span><span>r</span><span>y</span>
               </div>
-              <small>replay any run — hesitations glow, misses ring</small>
+              <small>replay any run. hesitations glow, misses ring</small>
             </div>
           </div>
         </div>
@@ -421,41 +591,89 @@ export default function Landing() {
 
       <section className="land-section land-everyone" id="everyone">
         <div className="land-inner">
-          <h2 className="rv">One world. Every typist.</h2>
-          <div className="who-grid">
-            <article className="who-card rv"><Ic n="smile" size={28} /><h3>Kids</h3><p>Short quests, friendly words, big visual feedback, a glowing companion — and rewards for care, never for screen time. Safe generated names only.</p></article>
-            <article className="who-card rv"><Ic n="headphones" size={28} /><h3>Teens</h3><p>Streaks, missions, ranked divisions, themes worth unlocking — practice that respects your time and your aesthetic.</p></article>
-            <article className="who-card rv"><Ic n="briefcase" size={28} /><h3>Adults</h3><p>Ten focused minutes a day. Workplace texts, email drills, a minimal focus mode, and analytics that treat you like a grown-up.</p></article>
-            <article className="who-card rv"><Ic n="trophy" size={28} /><h3>Competitors</h3><p>Consistency scoring, rhythm training, ghost racing, endurance tests and per-transition timing data to find your last few WPM.</p></article>
-            <article className="who-card rv"><Ic n="school" size={28} /><h3>Schools</h3><p>Classroom rooms, assignable lessons, printable progress, per-student accessibility profiles. Teacher dashboard in preview today.</p></article>
-            <article className="who-card rv"><Ic n="users" size={28} /><h3>Families</h3><p>Multiple explorers per device, a guardian summary view, and a local-first design: children's data never leaves the browser.</p></article>
+          <div className="land-head rv">
+            <span className="land-eyebrow">Who it is for</span>
+            <h2>One world. Every typist.</h2>
+            <p className="land-lede">One road, six very different travellers. Find yours.</p>
+          </div>
+
+          <div className="trail">
+            <svg className="trail-line" viewBox="0 0 1000 240" preserveAspectRatio="none" aria-hidden>
+              <defs>
+                <linearGradient id="trailGrad" x1="0" y1="0" x2="1" y2="0">
+                  {TRAIL.map((t, i) => (
+                    <stop key={t.key} offset={`${(i / (TRAIL.length - 1)) * 100}%`} stopColor={t.hue} />
+                  ))}
+                </linearGradient>
+                {/* The road is revealed by a rect sweeping left to right rather
+                    than by a stroke-dash offset. Dashes advance along arc
+                    length, which on a serpentine runs fast through the flats
+                    and slow through the bends, so the line drifts out of step
+                    with the evenly spaced stops. A wipe advances linearly in x,
+                    so stop N is reached at exactly N/6 of the scroll. It also
+                    sidesteps getTotalLength() reporting viewBox units while a
+                    non-scaling stroke dashes in screen pixels. */}
+                <clipPath id="trailClip" clipPathUnits="userSpaceOnUse">
+                  <rect ref={trailClipRef} x="0" y="-40" width="1000" height="320" />
+                </clipPath>
+              </defs>
+              <path
+                d={TRAIL_PATH}
+                clipPath="url(#trailClip)"
+                fill="none"
+                stroke="url(#trailGrad)"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                vectorEffect="non-scaling-stroke"
+              />
+            </svg>
+            <ol className="trail-stops">
+              {TRAIL.map((t, i) => (
+                <li
+                  className={`trail-stop ${i % 2 === 0 ? 'is-up' : 'is-down'}`}
+                  key={t.key}
+                  style={{ '--tc': t.hue } as React.CSSProperties}
+                >
+                  <Link to={t.to}>
+                    <span className="trail-dot"><Ic n={t.icon} size={19} /></span>
+                    <span className="trail-label">
+                      <h3>{t.name}</h3>
+                      <span>{t.line}</span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ol>
           </div>
         </div>
       </section>
 
       <section className="land-section land-access">
-        <div className="land-inner land-access-inner rv">
-          <h2>Built for every body and brain.</h2>
-          <div className="access-list">
-            <span><Ic n="keyboard" size={14} /> Full keyboard navigation</span>
-            <span><Ic n="zoom" size={14} /> Four text sizes</span>
-            <span><Ic n="type" size={14} /> Atkinson Hyperlegible font option</span>
-            <span><Ic n="eye" size={14} /> High-contrast theme</span>
-            <span><Ic n="leaf" size={14} /> Reduced-motion mode</span>
-            <span><Ic n="hourglass" size={14} /> Untimed learning</span>
-            <span><Ic n="chat" size={14} /> Spoken target letters</span>
-            <span><Ic n="headphones" size={14} /> Dictation with replay & speed control</span>
-            <span><Ic n="check" size={14} /> Never colour-only feedback</span>
-            <span><Ic n="eye-off" size={14} /> Hideable leaderboards</span>
+        <div className="land-inner">
+          <div className="land-head rv">
+            <span className="land-eyebrow">Accessibility</span>
+            <h2>Built for every body and brain.</h2>
+            <p className="land-lede">
+              None of this sits behind a paid tier, and none of it was added later. Every setting
+              below belongs to the profile rather than the device, so an accommodation follows the
+              person onto a shared classroom machine.
+            </p>
           </div>
-          <p className="muted">Accessibility is a core requirement in KeyTopia — not a settings page we added later.</p>
+          <dl className="access-list rv">
+            {ACCESS_ROWS.map(([ic, name, note]) => (
+              <div key={name}>
+                <dt><Ic n={ic} size={16} /> {name}</dt>
+                <dd>{note}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </section>
 
       <section className="land-section land-themes">
         <div className="land-inner">
           <h2 className="rv">Twelve worlds to type in.</h2>
-          <p className="land-lede rv">Themes change illustration, keyboard, sound and celebration — you unlock them by learning, not paying.</p>
+          <p className="land-lede rv">Themes change illustration, keyboard, sound and celebration. You unlock them by learning, not paying.</p>
         </div>
         <div className="theme-marquee" aria-hidden>
           <div className="theme-track">
@@ -469,7 +687,7 @@ export default function Landing() {
         <div className="land-inner">
           <div className="quote-row">
             {EXPLORER_QUOTES.slice(0, 3).map((q) => (
-              <blockquote className="tiny-quote rv" key={q.by}>“{q.text}”<cite>— {q.by}</cite></blockquote>
+              <blockquote className="tiny-quote rv" key={q.by}>“{q.text}”<cite>{q.by}</cite></blockquote>
             ))}
           </div>
         </div>
@@ -491,30 +709,34 @@ export default function Landing() {
           <div>
             <Logo size={26} />
             <p className="small muted" style={{ marginTop: 8, maxWidth: 300 }}>
-              Every keyboard is a world. KeyTopia is a local-first prototype — all progress lives in your browser. No accounts, no tracking, no uploads.
+              Every keyboard is a world. KeyTopia is free, carries no advertising, and writes every
+              keystroke to your own browser first, so practice never waits on the network.
             </p>
           </div>
           <div className="foot-col">
             <strong>Product</strong>
-            <Link to="/onboarding">Start learning</Link>
-            <Link to="/onboarding?quick=1">60-second assessment</Link>
-            <Link to="/app">Open the app</Link>
+            <Link to="/adaptive-practice">Adaptive practice</Link>
+            <Link to="/typing-practice-modes">Practice modes</Link>
+            <Link to="/typing-games">Typing games</Link>
+            <Link to="/typing-races">Typing races</Link>
+            <Link to="/typing-analytics">Analytics</Link>
           </div>
           <div className="foot-col">
-            <strong>Inside</strong>
-            <a href="#how">The method</a>
-            <a href="#modes">Training modes</a>
-            <a href="#play">Games & races</a>
-            <a href="#stats">Analytics</a>
+            <strong>Learn</strong>
+            <Link to="/learn-to-type">How to learn typing</Link>
+            <Link to="/curriculum">The curriculum</Link>
+            <Link to="/typing-test">Free typing test</Link>
+            <Link to="/typing-glossary">Glossary</Link>
+            <Link to="/faq">FAQ</Link>
           </div>
           <div className="foot-col">
-            <strong>Promise</strong>
-            <span className="small muted">Accuracy before speed.</span>
-            <span className="small muted">Safety before rankings.</span>
-            <span className="small muted">Joy before streak-guilt.</span>
+            <strong>Who it is for</strong>
+            <Link to="/typing-for-kids">Kids</Link>
+            <Link to="/typing-for-schools">Schools</Link>
+            <Link to="/privacy">Privacy</Link>
+            <Link to="/terms">Terms</Link>
           </div>
         </div>
-        <p className="center small muted" style={{ paddingBottom: 26 }}>KeyTopia · an original typing-learning world · {new Date().getFullYear()}</p>
       </footer>
     </div>
   );

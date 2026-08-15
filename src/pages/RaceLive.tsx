@@ -10,13 +10,30 @@ import { Ic } from '../components/icons';
 import { Avatar } from '../components/avatars';
 import { PixelCar } from '../components/gamekit';
 import { mulberry32 } from '../lib/rng';
+import { currentRoom } from '../lib/room';
 import type { Rewards, SessionResult } from '../lib/types';
 
 const CAR_COLORS = ['#8b7cff', '#ffb454', '#f2789f', '#6fd695', '#5fc9e0'];
 
 interface Lane {
-  id: string; name: string; avatar: string; you?: boolean; ghost?: boolean;
+  id: string; name: string; avatar: string; you?: boolean; ghost?: boolean; remote?: boolean;
   progress: number; wpm: number; finishedAt: number | null;
+}
+
+/**
+ * A saved ghost holds one progress sample per second of the run, so replaying it
+ * means walking that curve rather than assuming an even pace. It matters: the
+ * interesting part of racing yourself is watching where past-you sped up.
+ */
+function ghostProgress(curve: number[] | undefined, elapsed: number, fallbackWpm: number, textLen: number): number {
+  if (!curve || curve.length < 2) {
+    const totalSec = (textLen / 5 / Math.max(1, fallbackWpm)) * 60;
+    return Math.min(1, elapsed / totalSec);
+  }
+  if (elapsed >= curve.length - 1) return 1;
+  const i = Math.floor(elapsed);
+  const f = elapsed - i;
+  return Math.min(1, curve[i] + (curve[i + 1] - curve[i]) * f);
 }
 
 export default function RaceLive() {
@@ -70,11 +87,48 @@ export default function RaceLive() {
       ls.push({ id: r.name, name: r.name, avatar: r.avatar, progress: 0, wpm: Math.round(r.baseWpm), finishedAt: null });
       botState.current[r.name] = { stumbleUntil: 0, noise: 1 };
     }
+    // Real people. Their lanes are moved by their own browsers, never guessed.
+    for (const r of setup.remotes ?? []) {
+      ls.push({ id: r.id, name: r.name, avatar: r.avatar, remote: true, progress: 0, wpm: 0, finishedAt: null });
+    }
     if (setup.withGhost && data.ghost) {
       ls.push({ id: 'ghost', name: `Ghost (${data.ghost.wpm} wpm)`, avatar: 'ghost-ic', ghost: true, progress: 0, wpm: data.ghost.wpm, finishedAt: null });
     }
     lanes.current = ls;
   }, [setup, data?.profile.id, count === 3]);
+
+  /** Re-arm for another race on this setup, optionally with fresh text. */
+  const resetRace = useCallback((text?: string) => {
+    if (!setup) return;
+    setRaceSetup({ ...setup, ...(text ? { text } : {}) });
+    window.clearInterval(timer.current);
+    progressSamples.current = [];
+    lanes.current = [];
+    botState.current = {};
+    setDone(null);
+    setRunning(false);
+    setCount(3);
+    session.restart();
+  }, [setup, session]);
+
+  // Live room: remote lanes move only when their own browser says so, and the
+  // host can re-arm everybody from the results screen.
+  useEffect(() => {
+    if (!setup?.live) return;
+    currentRoom()?.on({
+      onProgress: (id, p, wpm) => {
+        const lane = lanes.current.find((l) => l.id === id);
+        if (!lane || lane.finishedAt) return;
+        lane.progress = Math.max(lane.progress, p);
+        lane.wpm = Math.round(wpm);
+      },
+      onFinish: (id) => {
+        const lane = lanes.current.find((l) => l.id === id);
+        if (lane && !lane.finishedAt) { lane.progress = 1; lane.finishedAt = performance.now(); }
+      },
+      onStart: ({ text }) => resetRace(text),
+    });
+  }, [setup, resetRace]);
 
   // Countdown
   useEffect(() => {
@@ -106,6 +160,7 @@ export default function RaceLive() {
     you.progress = session.engine.pos / textLen;
     you.wpm = session.engine.liveStats(t).wpm;
     if (Math.floor(elapsed) > progressSamples.current.length - 1) progressSamples.current.push(you.progress);
+    if (setup.live) currentRoom()?.sendProgress(you.progress, you.wpm);
 
     // bots
     for (const spec of setup.racers) {
@@ -130,8 +185,7 @@ export default function RaceLive() {
     if (setup.withGhost && data.ghost) {
       const lane = lanes.current.find((l) => l.ghost);
       if (lane && !lane.finishedAt) {
-        const totalSec = (textLen / 5 / data.ghost.wpm) * 60;
-        lane.progress = Math.min(1, elapsed / totalSec);
+        lane.progress = ghostProgress(data.ghost.curve, elapsed, data.ghost.wpm, textLen);
         if (lane.progress >= 1) lane.finishedAt = t;
       }
     }
@@ -147,6 +201,7 @@ export default function RaceLive() {
     const you = lanes.current.find((l) => l.you)!;
     you.progress = 1;
     you.finishedAt = performance.now();
+    if (setup.live) currentRoom()?.sendFinish(r.wpm, r.acc);
     const finishedBefore = lanes.current.filter((l) => !l.you && l.finishedAt !== null && l.finishedAt < you.finishedAt!).length;
     const place = finishedBefore + 1;
     r.extra = { ...r.extra, place, race: setup.kind };
@@ -175,10 +230,10 @@ export default function RaceLive() {
     const top3 = done.lanes.slice(0, 3);
     return (
       <div className="train-page">
-        <div className="train-top"><h1><Ic n="flag" size={20} /> {setup.label} — finished</h1></div>
+        <div className="train-top"><h1><Ic n="flag" size={20} /> {setup.label}, finished</h1></div>
         <div className="card">
           <h2 className="center" style={{ marginBottom: 4 }}>
-            {done.place === 1 ? 'Victory! Your comet crossed first.' : done.place === 2 ? 'So close — second across the sky.' : done.place === 3 ? 'On the podium!' : `You finished ${done.place}${done.place === 4 ? 'th' : 'th'}.`}
+            {done.place === 1 ? 'Victory! Your comet crossed first.' : done.place === 2 ? 'So close. Second across the sky.' : done.place === 3 ? 'On the podium!' : `You finished ${done.place}th.`}
           </h2>
           <p className="center muted small">{done.result.wpm} wpm at {done.result.acc}% accuracy</p>
           <div className="podium">
@@ -202,8 +257,14 @@ export default function RaceLive() {
           </div>
           <RewardsBanner rewards={done.rewards} />
           <div className="results-actions" style={{ marginTop: 16 }}>
-            <Btn onClick={() => { setRaceSetup({ ...setup }); setDone(null); setCount(3); setRunning(false); progressSamples.current = []; lanes.current = []; botState.current = {}; session.restart(); }}>↻ Rematch</Btn>
-            <Btn kind="soft" to="/app/race">Race hub</Btn>
+            {setup.live ? (
+              currentRoom()?.isHost
+                ? <Btn onClick={() => currentRoom()?.start(setup.text)}><Ic n="refresh" size={15} /> Rematch the room</Btn>
+                : <span className="small muted">Waiting for the host to call a rematch.</span>
+            ) : (
+              <Btn onClick={() => resetRace()}><Ic n="refresh" size={15} /> Rematch</Btn>
+            )}
+            <Btn kind="soft" to="/app/race">{setup.live ? 'Back to room' : 'Race hub'}</Btn>
             <Btn kind="ghost" to="/app">Home</Btn>
           </div>
         </div>

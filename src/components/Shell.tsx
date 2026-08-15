@@ -8,6 +8,9 @@ import { CelebrationHost, Logo, ToastHost } from './ui';
 import { nextLesson } from '../lib/curriculum';
 import { Ic } from './icons';
 import { Avatar } from './avatars';
+import { useNoIndex } from '../lib/seo/Seo';
+import { account, useAccount } from '../lib/account';
+import { useSync, visibleProfileIds } from '../lib/syncEngine';
 
 export function ThemeSync() {
   const data = useData();
@@ -58,9 +61,22 @@ const KID_NAV2 = [
 export function AppShell() {
   const data = useData();
   const nav = useNavigate();
-  const hasProfiles = useStore((s) => Object.keys(s.profiles).length > 0);
+  const profiles = useStore((s) => s.profiles);
+  const activeId = useStore((s) => s.activeId);
+  const user = useAccount((s) => s.user);
+  const owners = useSync((s) => s.owners);
+  const visible = visibleProfileIds(Object.keys(profiles), user?.id ?? null, owners);
+  const hasProfiles = visible.length > 0;
+  // A profile belonging to another account must not stay open just because it
+  // was active when that account signed out.
+  const foreign = Boolean(activeId && user && !visible.includes(activeId));
   const loc = useLocation();
   const [moreOpen, setMoreOpen] = useState(false);
+
+  // The app is private, per-device state — never indexable. robots.txt blocks
+  // /app/, and this makes the directive explicit for a crawler that follows a
+  // shared app link anyway.
+  useNoIndex('App');
 
   useEffect(() => { setMoreOpen(false); window.scrollTo(0, 0); }, [loc.pathname]);
 
@@ -68,7 +84,7 @@ export function AppShell() {
   const streak = useMemo(() => (data ? currentStreak(data) : 0), [data?.days]);
   const nextL = useMemo(() => (data ? nextLesson(data) : null), [data]);
 
-  if (!data) return <Navigate to={hasProfiles ? '/who' : '/onboarding'} replace />;
+  if (!data || foreign) return <Navigate to={hasProfiles ? '/who' : '/welcome'} replace />;
 
   const isTyping = /\/lesson\/|\/train\//.test(loc.pathname);
   const kid = data.profile.ageGroup === 'kid' && data.settings.kidWorld !== false;
@@ -111,9 +127,9 @@ export function AppShell() {
           <button
             type="button" className="side-logout"
             onClick={async () => { await auth.signOut(); nav('/who'); }}
-            aria-label="Log out"
-            title="Log out"
-          ><Ic n="logout" size={16} /></button>
+            aria-label="Switch explorer"
+            title="Switch explorer"
+          ><Ic n="users" size={16} /></button>
         </div>
         <div className="side-xp" title={`${lvl?.into} / ${lvl?.need} XP to next level`}>
           <div className="side-xp-fill" style={{ width: `${Math.round(((lvl?.into ?? 0) / (lvl?.need ?? 1)) * 100)}%` }} />
@@ -156,6 +172,10 @@ export function AppShell() {
             <button
               type="button" className="more-link" role="menuitem"
               onClick={async () => { await auth.signOut(); nav('/who'); }}
+            ><Ic n="users" size={18} />Switch explorer</button>
+            <button
+              type="button" className="more-link" role="menuitem"
+              onClick={() => void account.signOut()}
             ><Ic n="logout" size={18} />Log out</button>
           </div>
         </div>

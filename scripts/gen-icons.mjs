@@ -48,21 +48,33 @@ console.log('  favicon.ico                16/32/48');
 
 // web app manifest
 await writeFile(out('site.webmanifest'), `${JSON.stringify({
+  // `id` is what app stores and browsers use to identify an installed PWA
+  // across start_url changes — omitting it makes an install look like a new app.
+  id: '/',
   name: 'KeyTopia — every keyboard is a world',
   short_name: 'KeyTopia',
   description: 'Learn to type beautifully: adaptive lessons, original games, races and deep analytics for every age.',
   start_url: '/app',
   scope: '/',
   display: 'standalone',
+  display_override: ['standalone', 'minimal-ui', 'browser'],
   orientation: 'any',
+  lang: 'en',
+  dir: 'ltr',
   background_color: '#0b1020',
   theme_color: '#0b1020',
   categories: ['education', 'games', 'productivity'],
   icons: [
     { src: '/favicon.svg', type: 'image/svg+xml', sizes: 'any' },
-    { src: '/icon-192.png', type: 'image/png', sizes: '192x192' },
-    { src: '/icon-512.png', type: 'image/png', sizes: '512x512' },
+    { src: '/icon-192.png', type: 'image/png', sizes: '192x192', purpose: 'any' },
+    { src: '/icon-512.png', type: 'image/png', sizes: '512x512', purpose: 'any' },
     { src: '/icon-maskable-512.png', type: 'image/png', sizes: '512x512', purpose: 'maskable' },
+  ],
+  // Long-press / jump-list entries on the installed icon.
+  shortcuts: [
+    { name: 'Continue training', short_name: 'Train', url: '/app' },
+    { name: 'Free typing test', short_name: 'Test', url: '/typing-test' },
+    { name: 'Learn to type', short_name: 'Learn', url: '/learn-to-type' },
   ],
 }, null, 2)}\n`);
 console.log('  site.webmanifest');

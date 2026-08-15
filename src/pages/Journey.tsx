@@ -11,6 +11,7 @@ import { dashboardTip } from '../lib/coach';
 import { dayKey } from '../lib/metrics';
 import { Btn, Card, Chip } from '../components/ui';
 import { CoachCard } from '../components/ResultsPanel';
+import { ClassCard } from '../components/ClassCard';
 import { TrailMap, type TrailStopVM } from '../components/TrailMap';
 import { Ic } from '../components/icons';
 
@@ -170,6 +171,7 @@ export default function Journey() {
         </div>
 
         <div className="jn-rail">
+          <ClassCard />
           <Card className="jn-continue">
             <div className="dash-kicker">Next waypoint</div>
             {allDone ? (

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { Rewards, SessionResult } from '../lib/types';
-import { Btn, Card, Chip, Modal, Stars, Stat } from './ui';
+import { Btn, Chip, Modal, Stars } from './ui';
 import { RhythmFingerprint, RhythmStrip } from './charts';
 import { BADGES } from '../lib/badges';
 import { snd } from '../lib/sound';
@@ -95,6 +95,34 @@ export function RewardsBanner({ rewards }: { rewards: Rewards | null }) {
   );
 }
 
+/** A quieter earned-line: the record is promoted to the hero, so it is not repeated here. */
+function EarnedLine({ rewards }: { rewards: Rewards | null }) {
+  if (!rewards) return null;
+  const badgeDefs = rewards.badges.map((id) => BADGES.find((b) => b.id === id)).filter(Boolean);
+  const items = [
+    <span key="xp" className="earned-xp">+{rewards.xp} XP</span>,
+    ...(rewards.levelUp ? [<span key="lvl" className="earned-hi">Level {rewards.levelUp}</span>] : []),
+    ...badgeDefs.map((b) => (
+      <span key={b!.id} className="earned-badge"><Ic n={b!.icon} size={13} /> {b!.name}</span>
+    )),
+    ...rewards.missionsDone.map((m) => <span key={m} className="earned-hi">Mission: {m}</span>),
+  ];
+  return <p className="results-earned">{items}</p>;
+}
+
+function Fold({ title, hint, children }: { title: string; hint: string; children: ReactNode }) {
+  return (
+    <details className="detail-fold">
+      <summary>
+        <span className="fold-title">{title}</span>
+        <span className="fold-hint">{hint}</span>
+        <Ic n="chevron-right" size={16} />
+      </summary>
+      <div className="fold-body">{children}</div>
+    </details>
+  );
+}
+
 export function ResultsPanel({ result, rewards, insight, next, stars, targets, onRetry, extraActions, precisionFirst, soundOn }: {
   result: SessionResult;
   rewards: Rewards | null;
@@ -107,81 +135,91 @@ export function ResultsPanel({ result, rewards, insight, next, stars, targets, o
   precisionFirst?: boolean;
   soundOn: boolean;
 }) {
-  const [tab, setTab] = useState<'keys' | 'rhythm' | 'echo'>('keys');
   const troubleKeys = Object.entries(result.keyAgg)
     .filter(([, s]) => s.e > 0)
     .sort((a, b) => b[1].e - a[1].e)
     .slice(0, 6);
 
+  const heroV = precisionFirst ? `${result.acc}%` : String(result.wpm);
+  const heroL = precisionFirst ? 'accuracy' : 'words per minute';
+  const sideV = precisionFirst ? String(result.uncorrected) : `${result.acc}%`;
+  const sideL = precisionFirst ? (result.uncorrected === 1 ? 'error left' : 'errors left') : 'accuracy';
+  const sideTone = precisionFirst
+    ? (result.uncorrected === 0 ? 'good' : 'bad')
+    : (result.acc >= 95 ? 'good' : result.acc < 88 ? 'bad' : '');
+  const record = (rewards?.records.length ?? 0) > 0;
+
   return (
     <div className="results" aria-live="polite">
-      {stars !== undefined && (
-        <div className="results-stars"><Stars n={stars} size={34} /></div>
-      )}
-      <div className="results-stats">
-        {!precisionFirst && <Stat v={result.wpm} l="WPM" tone="accent" />}
-        <Stat v={`${result.acc}%`} l="accuracy" tone={result.acc >= 95 ? 'good' : result.acc < 88 ? 'bad' : undefined} />
-        {precisionFirst && <Stat v={result.uncorrected} l="errors left" tone={result.uncorrected === 0 ? 'good' : 'bad'} />}
-        <Stat v={result.consistency} l="consistency" />
-        <Stat v={fmtDuration(result.seconds)} l="time" />
-        {!precisionFirst && <Stat v={result.raw} l="raw wpm" />}
-      </div>
-      {targets && (
-        <p className="muted small center">Targets — accuracy {targets.acc}% · speed {targets.wpm} wpm</p>
-      )}
-      <RewardsBanner rewards={rewards} />
-      <CoachCard text={insight} />
-      <div className="results-actions">
-        <Btn to={next.to} kind="primary">{next.label} →</Btn>
-        {onRetry && <Btn kind="soft" onClick={onRetry}>↻ Try again</Btn>}
-        {extraActions}
-      </div>
-      <div className="results-detail">
-        <div className="seg" role="tablist" aria-label="Result details">
-          {(['keys', 'rhythm', 'echo'] as const).map((t) => (
-            <button key={t} role="tab" aria-selected={tab === t} className={`seg-item ${tab === t ? 'seg-on' : ''}`} onClick={() => setTab(t)}>
-              {t === 'keys' ? 'Keys & errors' : t === 'rhythm' ? 'Rhythm' : 'Typing echo'}
-            </button>
-          ))}
+      <section className="results-hero">
+        {stars !== undefined && <div className="results-stars"><Stars n={stars} size={34} /></div>}
+        {record && <p className="hero-record"><Ic n="trophy" size={14} /> New personal record</p>}
+        <div className="hero-nums">
+          <div className="hero-main">
+            <span className="hero-v">{heroV}</span>
+            <span className="hero-l">{heroL}</span>
+          </div>
+          <div className={`hero-side ${sideTone ? `hero-${sideTone}` : ''}`}>
+            <span className="hero-v2">{sideV}</span>
+            <span className="hero-l">{sideL}</span>
+          </div>
         </div>
-        {tab === 'keys' && (
-          <div className="detail-body">
+        <p className="hero-meta">
+          consistency {result.consistency} · {fmtDuration(result.seconds)}
+          {!precisionFirst && <> · {result.raw} raw wpm</>}
+          {targets && <> · target {targets.acc}% at {targets.wpm} wpm</>}
+        </p>
+        <EarnedLine rewards={rewards} />
+      </section>
+
+      <section className="results-next">
+        <CoachCard text={insight} />
+        <div className="results-actions">
+          <Btn to={next.to} kind="primary">{next.label} →</Btn>
+          {onRetry && <Btn kind="soft" onClick={onRetry}>↻ Try again</Btn>}
+          {extraActions}
+        </div>
+      </section>
+
+      <section className="results-detail">
+        <h3 className="detail-h">Where the run got messy</h3>
+        <div className="detail-body">
+          {troubleKeys.length > 0 ? (
             <div className="row wrap gap">
-              <span className="muted small">Corrected: <strong>{result.corrected}</strong></span>
-              <span className="muted small">Left wrong: <strong>{result.uncorrected}</strong></span>
-              <span className="muted small">Backspaces: <strong>{result.backspaces}</strong></span>
-              <span className="muted small">Hesitations: <strong>{result.hesitations}</strong></span>
+              {troubleKeys.map(([k, s]) => (
+                <Chip key={k} tone="warn">{k === ' ' ? 'Space' : displayChar(k)} · {s.e} miss{s.e > 1 ? 'es' : ''}</Chip>
+              ))}
             </div>
-            {troubleKeys.length > 0 ? (
-              <div className="row wrap gap" style={{ marginTop: 12 }}>
-                {troubleKeys.map(([k, s]) => (
-                  <Chip key={k} tone="warn">{k === ' ' ? 'Space' : displayChar(k)} · {s.e} miss{s.e > 1 ? 'es' : ''}</Chip>
-                ))}
-              </div>
-            ) : <p className="good" style={{ marginTop: 12 }}>✔ No missed keys — a perfectly clean run.</p>}
-            {result.slowPairs.length > 0 && (
-              <p className="muted small" style={{ marginTop: 12 }}>
-                Slowest transitions: {result.slowPairs.slice(0, 3).map(([p, ms]) => `${(p[0] === ' ' ? 'Space' : displayChar(p[0]))}→${(p[1] === ' ' ? 'Space' : displayChar(p[1]))} (${Math.round(ms)}ms)`).join(' · ')}
-              </p>
-            )}
-          </div>
-        )}
-        {tab === 'rhythm' && (
-          <div className="detail-body">
-            <div className="rhythm-cols">
-              <div>
-                <p className="muted small">Each bar is the gap before a keystroke. Even bars = smooth rhythm.</p>
-                <RhythmStrip ikis={result.ikis ?? []} />
-              </div>
-              <div className="fp-col">
-                <p className="muted small">Rhythm fingerprint</p>
-                <RhythmFingerprint ikis={result.ikis ?? []} />
-              </div>
+          ) : result.uncorrected === 0 && result.errors === 0
+            ? <p className="good">✔ No missed keys, a perfectly clean run.</p>
+            : <p className="muted small">No single key stood out as a problem.</p>}
+          <p className="muted small detail-line">
+            {result.uncorrected} left wrong · {result.corrected} corrected · {result.backspaces} backspaces · {result.hesitations} hesitations
+          </p>
+          {result.slowPairs.length > 0 && (
+            <p className="muted small detail-line">
+              Slowest transitions: {result.slowPairs.slice(0, 3).map(([p, ms]) => `${(p[0] === ' ' ? 'Space' : displayChar(p[0]))}→${(p[1] === ' ' ? 'Space' : displayChar(p[1]))} (${Math.round(ms)}ms)`).join(' · ')}
+            </p>
+          )}
+        </div>
+
+        <Fold title="Rhythm" hint="how even your keystrokes were">
+          <div className="rhythm-cols">
+            <div>
+              <p className="muted small">Each bar is the gap before a keystroke. Even bars mean a smooth rhythm.</p>
+              <RhythmStrip ikis={result.ikis ?? []} />
+            </div>
+            <div className="fp-col">
+              <p className="muted small">Rhythm fingerprint</p>
+              <RhythmFingerprint ikis={result.ikis ?? []} />
             </div>
           </div>
-        )}
-        {tab === 'echo' && <div className="detail-body"><EchoReplay result={result} soundOn={soundOn} /></div>}
-      </div>
+        </Fold>
+
+        <Fold title="Typing echo" hint="play the run back at its real speed">
+          <EchoReplay result={result} soundOn={soundOn} />
+        </Fold>
+      </section>
     </div>
   );
 }

@@ -1,0 +1,356 @@
+/* ==========================================================================
+   HTML product "screenshots" (src/components/public/Mock.tsx)
+
+   Loaded by both the landing page and the prerendered public pages. The palette
+   is fixed to the app's dark chrome rather than to --bg/--fg: a screenshot that
+   recolours itself to the surrounding theme stops reading as a screenshot.
+   ========================================================================== */
+
+.mk {
+  --mk-bg: #0a0f24;
+  --mk-panel: #131a38;
+  --mk-border: #26305c;
+  --mk-hair: rgba(255, 255, 255, 0.07);
+  --mk-fg: #eef1fb;
+  --mk-muted: #8b93b8;
+  --mk-accent: #14d8c4;
+
+  /* Mastery tiers, matching the app's --m-* ramp. */
+  --mk-mastered: #14d8c4;
+  --mk-reliable: #6fe3b6;
+  --mk-improving: #ffc954;
+  --mk-learning: #f6a06a;
+  --mk-review: #f2789f;
+
+  margin: 0;
+  container-type: inline-size;
+}
+
+.mk-violet { --mk-accent: #a99cff; }
+.mk-amber { --mk-accent: #ffb454; }
+
+.mk-frame {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--mk-bg);
+  border: 1px solid var(--mk-border);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 30px 70px -30px rgba(0, 0, 0, 0.85);
+  color: var(--mk-fg);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+/* The corner wash. Keeps a flat dark rectangle from reading as an empty box. */
+.mk-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 55% at 88% 0%, color-mix(in srgb, var(--mk-accent) 16%, transparent), transparent 70%),
+    radial-gradient(50% 50% at 0% 100%, rgba(255, 255, 255, 0.05), transparent 70%);
+}
+
+.mk-frame > * { position: relative; }
+
+/* ── Title bar ──────────────────────────────────────────────────────────── */
+
+.mk-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--mk-hair);
+  font-size: 0.76rem;
+}
+
+.mk-dots { display: flex; gap: 0.35rem; }
+.mk-dots i { width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); }
+.mk-dots i:first-child { background: rgba(255, 255, 255, 0.2); }
+
+.mk-bar-app { font-weight: 700; letter-spacing: -0.01em; }
+.mk-bar-title { color: var(--mk-muted); }
+
+@container (max-width: 26rem) { .mk-bar-title { display: none; } }
+
+/* ── App shell ──────────────────────────────────────────────────────────── */
+
+.mk-app { display: grid; grid-template-columns: 8.5rem 1fr; min-height: 19rem; }
+
+.mk-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.9rem 0.6rem;
+  border-right: 1px solid var(--mk-hair);
+  font-size: 0.78rem;
+  color: var(--mk-muted);
+}
+
+.mk-rail span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.55rem;
+  border-radius: 8px;
+}
+
+.mk-rail i { width: 12px; height: 12px; border-radius: 4px; background: currentColor; opacity: 0.35; }
+.mk-rail .is-on { background: color-mix(in srgb, var(--mk-accent) 14%, transparent); color: var(--mk-fg); font-weight: 650; }
+.mk-rail .is-on i { background: var(--mk-accent); opacity: 1; }
+
+@container (max-width: 30rem) {
+  .mk-app { grid-template-columns: 1fr; }
+  .mk-rail { flex-direction: row; overflow: hidden; border-right: 0; border-bottom: 1px solid var(--mk-hair); }
+  .mk-rail span:nth-child(n + 4) { display: none; }
+}
+
+.mk-main { padding: 1.1rem 1.25rem 1.35rem; display: flex; flex-direction: column; gap: 1rem; }
+
+.mk-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.mk-head strong { display: block; font-size: 1.05rem; letter-spacing: -0.015em; }
+
+.mk-eyebrow {
+  display: block;
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  color: var(--mk-accent);
+  margin-bottom: 0.3rem;
+}
+
+.mk-muted { color: var(--mk-muted); font-size: 0.8rem; }
+
+.mk-pill {
+  border: 1px solid var(--mk-border);
+  border-radius: 999px;
+  padding: 0.2rem 0.7rem;
+  font-size: 0.75rem;
+  color: var(--mk-muted);
+  white-space: nowrap;
+}
+
+.mk-pill-on {
+  color: var(--mk-accent);
+  border-color: color-mix(in srgb, var(--mk-accent) 45%, transparent);
+  background: color-mix(in srgb, var(--mk-accent) 10%, transparent);
+  font-family: var(--font-type, ui-monospace, monospace);
+}
+
+/* ── The typing line ────────────────────────────────────────────────────── */
+
+.mk-type {
+  font-family: var(--font-type, ui-monospace, monospace);
+  font-size: 1.15rem;
+  line-height: 1.6;
+  background: var(--mk-panel);
+  border: 1px solid var(--mk-hair);
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+}
+
+.mk-type-sm { font-size: 0.95rem; padding: 0.75rem 0.9rem; }
+.mk-type-done { color: var(--mk-fg); }
+.mk-type-todo { color: var(--mk-muted); opacity: 0.55; }
+
+.mk-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.15em;
+  vertical-align: text-bottom;
+  background: var(--mk-accent);
+  margin: 0 1px;
+  box-shadow: 0 0 8px var(--mk-accent);
+  animation: mk-blink 1.1s steps(1) infinite;
+}
+
+@keyframes mk-blink { 50% { opacity: 0; } }
+
+/* ── Stat row ───────────────────────────────────────────────────────────── */
+
+.mk-stats { display: flex; flex-wrap: wrap; gap: 1.6rem; }
+.mk-stats-wide { gap: 2rem; }
+.mk-stat { display: flex; flex-direction: column; gap: 0.15rem; }
+.mk-stat b { font-size: 1.6rem; line-height: 1; letter-spacing: -0.03em; }
+.mk-stat b i { font-size: 0.9rem; font-style: normal; color: var(--mk-muted); }
+.mk-stat span { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.09em; color: var(--mk-muted); }
+.mk-stat-weak b { color: var(--mk-review); font-family: var(--font-type, ui-monospace, monospace); font-size: 1.3rem; }
+
+/* ── Mastery keymap ─────────────────────────────────────────────────────── */
+
+.mk-keymap { display: flex; flex-direction: column; gap: 0.3rem; margin-top: auto; }
+.mk-krow { display: flex; gap: 0.3rem; }
+.mk-krow:nth-child(2) { padding-left: 1rem; }
+.mk-krow:nth-child(3) { padding-left: 2.2rem; }
+
+.mk-key {
+  flex: 0 0 auto;
+  width: 1.75rem;
+  height: 1.75rem;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  font-family: var(--font-type, ui-monospace, monospace);
+  font-size: 0.78rem;
+  color: #06121a;
+  font-weight: 600;
+}
+
+.mk-t-mastered { background: var(--mk-mastered); }
+.mk-t-reliable { background: var(--mk-reliable); }
+.mk-t-improving { background: var(--mk-improving); }
+.mk-t-learning { background: var(--mk-learning); }
+.mk-t-review { background: var(--mk-review); }
+
+.mk-legend { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.5rem; font-size: 0.66rem; color: var(--mk-muted); }
+.mk-legend span { display: inline-flex; align-items: center; gap: 0.3rem; }
+.mk-legend i { width: 9px; height: 9px; border-radius: 3px; }
+
+@container (max-width: 24rem) { .mk-keymap { display: none; } }
+
+/* ── Coach ──────────────────────────────────────────────────────────────── */
+
+.mk-coach { padding: 1.3rem 1.4rem 1.5rem; display: flex; flex-direction: column; gap: 1.1rem; }
+.mk-coach-head { display: flex; align-items: center; gap: 0.7rem; }
+.mk-coach-head strong { display: block; }
+
+.mk-avatar {
+  width: 2.2rem;
+  height: 2.2rem;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  font-weight: 800;
+  color: #10132c;
+  background: linear-gradient(135deg, var(--mk-accent), #14d8c4);
+}
+
+.mk-coach-say {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: #d6dbf5;
+  border-left: 2px solid var(--mk-accent);
+  padding-left: 1rem;
+}
+
+.mk-coach-say b { color: var(--mk-fg); }
+
+.mk-coach-plan {
+  background: var(--mk-panel);
+  border: 1px solid var(--mk-hair);
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+}
+
+.mk-row { display: flex; align-items: center; gap: 0.55rem; padding: 0.28rem 0; font-size: 0.88rem; }
+.mk-row-off { color: var(--mk-muted); }
+.mk-tick { width: 14px; height: 14px; border-radius: 5px; border: 1.5px solid var(--mk-accent); flex: 0 0 auto; }
+.mk-row-off .mk-tick { border-color: var(--mk-border); }
+
+/* ── Mode tiles ─────────────────────────────────────────────────────────── */
+
+.mk-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+@container (max-width: 34rem) { .mk-tiles { grid-template-columns: repeat(2, 1fr); } }
+
+.mk-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--mk-hair);
+  border-radius: 10px;
+  background: var(--mk-panel);
+  font-size: 0.82rem;
+}
+
+.mk-tile small { color: var(--mk-muted); font-size: 0.7rem; }
+.mk-tile.is-on { border-color: var(--mk-accent); background: color-mix(in srgb, var(--mk-accent) 12%, var(--mk-panel)); }
+
+.mk-setup {
+  border-top: 1px solid var(--mk-hair);
+  padding-top: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.mk-setup .mk-eyebrow { margin: 0; flex: 1 0 auto; }
+
+.mk-seg { display: flex; border: 1px solid var(--mk-border); border-radius: 8px; overflow: hidden; font-size: 0.76rem; }
+.mk-seg span { padding: 0.3rem 0.65rem; color: var(--mk-muted); border-right: 1px solid var(--mk-border); }
+.mk-seg span:last-child { border-right: 0; }
+.mk-seg .is-on { background: var(--mk-accent); color: #08141c; font-weight: 700; }
+
+.mk-cta {
+  background: var(--mk-accent);
+  color: #08141c;
+  font-weight: 700;
+  font-size: 0.8rem;
+  border-radius: 8px;
+  padding: 0.4rem 0.95rem;
+}
+
+/* ── Race lanes ─────────────────────────────────────────────────────────── */
+
+.mk-lanes { display: flex; flex-direction: column; gap: 0.6rem; }
+.mk-lane { display: grid; grid-template-columns: 5.5rem 1fr 5rem; align-items: center; gap: 0.7rem; font-size: 0.78rem; }
+.mk-lane-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mk-lane-note { color: var(--mk-muted); font-size: 0.7rem; text-align: right; }
+
+.mk-track { position: relative; height: 10px; border-radius: 999px; background: var(--mk-panel); border: 1px solid var(--mk-hair); }
+.mk-fill { position: absolute; inset: 0 auto 0 0; border-radius: 999px; }
+.mk-fill-you { background: linear-gradient(90deg, transparent, var(--mk-mastered)); }
+.mk-fill-ghost { background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3)); }
+.mk-fill-cpu { background: linear-gradient(90deg, transparent, #8b7cff); }
+
+.mk-comet { position: absolute; top: 50%; width: 14px; height: 14px; border-radius: 50%; transform: translateY(-50%); }
+.mk-comet-you { background: var(--mk-mastered); box-shadow: 0 0 12px var(--mk-mastered); }
+.mk-comet-ghost { background: rgba(255, 255, 255, 0.45); border: 1px dashed rgba(255, 255, 255, 0.7); }
+.mk-comet-cpu { background: #8b7cff; }
+
+@container (max-width: 28rem) {
+  .mk-lane { grid-template-columns: 4.5rem 1fr; }
+  .mk-lane-note { display: none; }
+}
+
+/* ── Analytics panels ───────────────────────────────────────────────────── */
+
+.mk-panels { display: grid; grid-template-columns: 1.5fr 1fr; gap: 0.7rem; }
+@container (max-width: 32rem) { .mk-panels { grid-template-columns: 1fr; } }
+
+.mk-panel {
+  background: var(--mk-panel);
+  border: 1px solid var(--mk-hair);
+  border-radius: 12px;
+  padding: 0.85rem 1rem 0.9rem;
+  color: var(--mk-accent);
+  display: flex;
+  flex-direction: column;
+}
+
+.mk-panel small { color: var(--mk-muted); font-size: 0.68rem; line-height: 1.4; margin-top: 0.4rem; }
+.mk-chart { width: 100%; height: auto; }
+.mk-ring { width: 100%; max-width: 7rem; height: auto; margin: 0 auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mk-caret { animation: none; }
+}
+
+/* ── Placement on a public page ─────────────────────────────────────────── */
+
+.pub-shot { margin: 2rem 0 3rem; }
+.pub-shot figcaption,
+.pub-shot-note {
+  display: block;
+  margin-top: 0.85rem;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--muted);
+  max-width: 60ch;
+}

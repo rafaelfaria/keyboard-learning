@@ -24,6 +24,8 @@ export default function SignIn() {
   const { user, ready, busy, error, linkSentTo, providers } = useAccount();
   const [email, setEmail] = useState('');
   const [offline, setOffline] = useState(!navigator.onLine);
+  /** Set the moment a student chooses the class-code door, read after sign-in. */
+  const [joining, setJoining] = useState(false);
 
   useEffect(() => {
     const on = () => setOffline(false);
@@ -34,7 +36,9 @@ export default function SignIn() {
   }, []);
 
   // Already signed in — resume the last explorer, or go wherever they belong.
-  if (user) return <EnterJourney />;
+  // A student who came in through "I have a class code" carries that errand
+  // through the handshake instead of being resumed into the app.
+  if (user) return <EnterJourney next={joining ? '/join' : undefined} />;
 
   // A project with no Supabase configured would strand everyone at this screen,
   // so an unconfigured build falls through rather than bricking.
@@ -65,7 +69,7 @@ export default function SignIn() {
             <h2>Check your email</h2>
             <p className="muted">
               We sent a sign-in link to <strong>{linkSentTo}</strong>. Open it on
-              this device and you're in — no password needed.
+              this device and you're in. No password needed.
             </p>
             <Btn kind="soft" onClick={() => account.clearError()}>Use a different email</Btn>
           </div>
@@ -95,6 +99,25 @@ export default function SignIn() {
                 </button>
               </>
             )}
+
+            {/* The kid door (docs/classrooms-plan.md §5): a device-bound
+                anonymous session, then straight to the class-code screen.
+                No email, no password, nothing a child needs to invent. */}
+            <div className="signin-or"><span>joining a class?</span></div>
+            <button
+              type="button" className="oauth-btn"
+              disabled={Boolean(busy)}
+              onClick={() => {
+                setJoining(true);
+                void account.signInAnonymously().then((ok) => { if (!ok) setJoining(false); });
+              }}
+            >
+              <Ic n="key" size={16} />
+              {busy === 'anon' ? 'Getting your seat ready…' : 'I have a class code'}
+            </button>
+            <p className="small muted" style={{ marginTop: 6 }}>
+              For students at school. The code from your teacher is all you need.
+            </p>
           </>
         )}
 

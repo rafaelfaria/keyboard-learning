@@ -12,6 +12,31 @@ import { mulberry32, hashStr, pick, uid } from './rng';
 import { buildStages } from './curriculum';
 import { COMMON_WORDS, FORGE_ITEMS, FORGE_MATERIALS, FORGE_SUFFIX } from './words';
 import { THEMES } from './themes';
+import { mergeProfileData } from './merge';
+import { MISC_KEYS } from './sync';
+
+/**
+ * How many explorers one device may hold. Sized for a household — two grown-ups
+ * and two kids — not a classroom; schools get their own surface (see
+ * docs/classrooms-plan.md). Enforced here rather than only in the UI because
+ * /onboarding is reachable straight from the URL bar.
+ */
+export const MAX_PROFILES = 4;
+
+/**
+ * How many explorers the *current account* can see. Injected by the sync engine
+ * rather than imported, because the store must not depend on the sync layer
+ * (that would be a cycle) — and because a browser can hold another household's
+ * cached profiles, which must never count against this account's allowance.
+ */
+let countForAccount: (() => number) | null = null;
+export function setProfileCounter(fn: () => number): void { countForAccount = fn; }
+
+/** ProfileData sections that sync on their own stamp; the rest ride under 'misc'. */
+const SECTION_KEYS = [
+  'profile', 'settings', 'keyStats', 'sessions', 'records', 'xp', 'days',
+  'lessons', 'badges', 'missions',
+] as const satisfies readonly (keyof ProfileData)[];
 
 function defaultSettings(age: AgeGroup): Settings {
   return {
@@ -89,6 +114,7 @@ export interface RootState {
   deleteProfile: (id: string) => void;
   signOut: () => void;
   patch: (fn: (d: ProfileData) => void) => void;
+  applyRemoteProfile: (id: string, remote: Partial<ProfileData>) => void;
   recordSession: (r: SessionResult) => Rewards;
   finishAssessment: (a: AssessmentResult, planStage: number, seed: boolean) => void;
   clearSeeded: () => void;
@@ -294,12 +320,16 @@ export const useStore = create<RootState>()(
       activeId: null,
       profiles: {},
 
+      /** Returns the new profile's id, or '' when the device is already full. */
       createProfile(p) {
+        const used = countForAccount?.() ?? Object.keys(get().profiles).length;
+        if (used >= MAX_PROFILES) return '';
         const id = uid();
         const profile: Profile = { ...p, id, createdAt: Date.now() };
         set((s) => {
           s.profiles[id] = freshData(profile);
           s.activeId = id;
+          touch(s.profiles[id], 'profile');
         });
         return id;
       },
@@ -320,9 +350,41 @@ export const useStore = create<RootState>()(
       },
 
       patch(fn) {
+        const id = get().activeId;
+        const before = id ? get().profiles[id] : null;
         set((s) => {
           const d = s.activeId ? s.profiles[s.activeId] : null;
           if (d) fn(d);
+        });
+        // Stamp whatever actually changed. immer gives structural sharing, so a
+        // changed reference is an exact signal — which means every call site
+        // (settings toggles, name edits, theme unlocks) feeds the sync diff
+        // without having to name its section. Cheap: a handful of ref compares.
+        const after = id ? get().profiles[id] : null;
+        if (!before || !after || before === after) return;
+        const changed = SECTION_KEYS.filter((k) => before[k] !== after[k]);
+        const miscChanged = MISC_KEYS.some((k) => before[k] !== after[k]);
+        if (!changed.length && !miscChanged) return;
+        set((s) => {
+          const d = s.profiles[id!];
+          if (d) touch(d, ...changed, ...(miscChanged ? ['misc'] : []));
+        });
+      },
+
+      /**
+       * Fold a server copy into the local one (plan §8). Called by the sync
+       * engine after boot and on sign-in — never on an interaction path, and
+       * always through merge.ts so conflicts resolve without asking.
+       */
+      applyRemoteProfile(id, remote) {
+        set((s) => {
+          const local = s.profiles[id];
+          if (local) {
+            s.profiles[id] = mergeProfileData(local, remote);
+          } else if (remote.profile) {
+            // A profile this device has never seen — the multi-device restore.
+            s.profiles[id] = mergeProfileData(freshData(remote.profile), remote);
+          }
         });
       },
 
@@ -342,6 +404,7 @@ export const useStore = create<RootState>()(
           d.assessment = a;
           d.planStage = planStage;
           if (seed && !d.sessions.some((x) => x.seeded)) seedHistory(d, a);
+          touch(d, 'misc', 'sessions', 'days', 'keyStats');
         });
       },
 
@@ -351,6 +414,7 @@ export const useStore = create<RootState>()(
           if (!d) return;
           d.sessions = d.sessions.filter((x) => !x.seeded);
           d.seedCleared = true;
+          touch(d, 'sessions', 'misc');
         });
       },
     })),

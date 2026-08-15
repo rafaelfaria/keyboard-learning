@@ -12,6 +12,7 @@ import { dailyChallenge } from '../lib/challenge';
 import { dashboardTip } from '../lib/coach';
 import { Btn, Card, Chip } from '../components/ui';
 import { CoachCard } from '../components/ResultsPanel';
+import { ClassCard } from '../components/ClassCard';
 import { Avatar, BlockAvatar } from '../components/avatars';
 import { Critter, PIXEL_PALS } from '../components/gamekit';
 import { IslandMap, type StopVM } from '../components/IslandMap';
@@ -178,6 +179,8 @@ export default function KidHome() {
           <Btn kind={dailyDone ? 'soft' : 'primary'} to="/app/challenge">{dailyDone ? 'See today\'s board' : 'Try it →'}</Btn>
         </Card>
       </div>
+
+      <ClassCard />
 
       <CoachCard text={tip} />
 

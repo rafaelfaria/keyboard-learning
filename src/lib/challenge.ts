@@ -44,7 +44,11 @@ export function dailyChallenge(age: AgeGroup, date = new Date()): DailySpec {
   };
 }
 
-export interface BoardRow { name: string; avatar: string; wpm: number; acc: number; score: number; you?: boolean }
+export interface BoardRow {
+  name: string; avatar: string; wpm: number; acc: number; score: number; you?: boolean;
+  /** Server-assigned position. Absent on the simulated board, where index is rank. */
+  rank?: number;
+}
 
 /** Deterministic, age-divided daily board with the user's result merged in. */
 export function dailyBoard(age: AgeGroup, spec: DailySpec, you?: { name: string; avatar: string; wpm: number; acc: number }): BoardRow[] {

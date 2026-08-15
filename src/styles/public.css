@@ -1,0 +1,501 @@
+/* ==========================================================================
+   Public / crawlable pages (/typing-test, /learn-to-type, /faq, …)
+
+   These pages are prerendered to static HTML, so this stylesheet is what a
+   visitor sees before any JavaScript runs. It leans on the design tokens
+   already defined in base.css (--bg, --fg, --accent, --border, --muted…) so a
+   public page inherits the active theme rather than defining a second palette.
+   ========================================================================== */
+
+.pub-root {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--fg);
+  display: flex;
+  flex-direction: column;
+}
+
+.pub-wrap {
+  width: min(100% - 2.5rem, 74rem);
+  margin-inline: auto;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.pub-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(14px);
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  border-bottom: 1px solid var(--border);
+}
+
+.pub-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  min-height: 4rem;
+  flex-wrap: wrap;
+}
+
+.pub-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.pub-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.pub-nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.92rem;
+  padding: 0.35rem 0;
+  border-bottom: 2px solid transparent;
+}
+
+.pub-nav a:hover,
+.pub-nav a:focus-visible {
+  color: var(--fg);
+  border-bottom-color: var(--accent);
+}
+
+.pub-nav .pub-cta {
+  color: var(--bg);
+  background: var(--accent);
+  border-radius: 999px;
+  padding: 0.45rem 1.05rem;
+  font-weight: 600;
+  border-bottom: none;
+}
+
+.pub-nav .pub-cta:hover {
+  filter: brightness(1.1);
+  border-bottom-color: transparent;
+}
+
+@media (max-width: 46rem) {
+  .pub-header-inner { gap: 0.5rem; padding-block: 0.6rem; }
+  .pub-nav { gap: 0.5rem 0.9rem; font-size: 0.86rem; }
+  .pub-nav a { font-size: 0.86rem; padding: 0.2rem 0; }
+  .pub-nav .pub-cta { padding: 0.35rem 0.85rem; }
+}
+
+/* ── Page body ──────────────────────────────────────────────────────────── */
+
+.pub-main {
+  flex: 1;
+  padding: 2.5rem 0 4.5rem;
+}
+
+.pub-main .pub-wrap { width: min(100% - 2.5rem, 50rem); }
+.pub-main-wide .pub-wrap { width: min(100% - 2.5rem, 68rem); }
+
+.pub-crumbs { margin-bottom: 1.5rem; }
+
+.pub-crumbs ol {
+  display: flex;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+  flex-wrap: wrap;
+}
+
+.pub-crumbs li + li::before { content: '/'; margin-right: 0.5rem; opacity: 0.5; }
+.pub-crumbs a { color: var(--muted); text-decoration: none; }
+.pub-crumbs a:hover { color: var(--accent); }
+
+.pub-h1 {
+  font-size: clamp(2rem, 1.4rem + 2.4vw, 3.1rem);
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  margin: 0 0 0.9rem;
+  max-width: 22ch;
+}
+
+.pub-root-home .pub-h1,
+.pub-main-wide .pub-h1 { max-width: 26ch; }
+
+.pub-lede {
+  font-size: clamp(1.05rem, 1rem + 0.45vw, 1.3rem);
+  line-height: 1.55;
+  color: var(--muted);
+  max-width: 62ch;
+  margin: 0 0 2.5rem;
+}
+
+.pub-intro {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  max-width: 68ch;
+  margin: 0 0 2.5rem;
+}
+
+.pub-section { margin: 0 0 3rem; }
+
+.pub-section h2 {
+  font-size: clamp(1.35rem, 1.2rem + 0.7vw, 1.75rem);
+  letter-spacing: -0.015em;
+  margin: 0 0 0.9rem;
+  scroll-margin-top: 5.5rem;
+}
+
+.pub-section h3 { font-size: 1.08rem; margin: 0 0 0.4rem; }
+
+.pub-section p {
+  line-height: 1.72;
+  max-width: 68ch;
+  margin: 0 0 1rem;
+  color: color-mix(in srgb, var(--fg) 88%, var(--muted));
+}
+
+.pub-section a,
+.pub-intro a,
+.tt-read a { color: var(--accent); }
+
+.pub-meta {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.pub-meta span { color: var(--fg); }
+
+.pub-skill {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin: 0 0 0.55rem !important;
+}
+
+/* ── Table of contents ──────────────────────────────────────────────────── */
+
+.pub-toc {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.15rem 1.4rem;
+  margin: 0 0 2.75rem;
+  background: color-mix(in srgb, var(--fg) 3%, transparent);
+}
+
+.pub-toc strong {
+  display: block;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 0.7rem;
+}
+
+.pub-toc ol, .pub-toc ul { margin: 0; padding-left: 1.1rem; line-height: 1.9; }
+.pub-toc-inline ul { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.45rem 1.1rem; }
+.pub-toc a { color: var(--fg); text-decoration: none; border-bottom: 1px solid var(--border); }
+.pub-toc a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ── Cards ──────────────────────────────────────────────────────────────── */
+
+.pub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1.1rem;
+  margin: 1.5rem 0 0;
+}
+
+.pub-card {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.35rem 1.4rem;
+  background: color-mix(in srgb, var(--fg) 3%, transparent);
+}
+
+.pub-card h2 { font-size: 1.15rem; margin: 0 0 0.5rem; letter-spacing: -0.01em; }
+.pub-card h3 { font-size: 1.02rem; margin: 0 0 0.5rem; }
+.pub-card p { margin: 0; line-height: 1.65; font-size: 0.94rem; color: var(--muted); }
+
+.pub-steps {
+  line-height: 1.75;
+  max-width: 68ch;
+  padding-left: 1.2rem;
+}
+
+.pub-steps li { margin-bottom: 0.85rem; }
+
+/* ── Bullet lists and definition lists ──────────────────────────────────── */
+
+.pub-bullets {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+  max-width: 68ch;
+}
+
+.pub-bullets li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: 0.6rem;
+  line-height: 1.7;
+  color: color-mix(in srgb, var(--fg) 88%, var(--muted));
+}
+
+.pub-bullets li::before {
+  content: '';
+  position: absolute;
+  left: 0.15rem;
+  top: 0.65em;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+/* A term/definition pair reads as one thought; a card grid reads as N things
+   to compare. These pages want the former. */
+.pub-defs { margin: 1.25rem 0 0; max-width: 70ch; }
+
+.pub-defs > div {
+  display: grid;
+  grid-template-columns: minmax(9rem, 13rem) 1fr;
+  gap: 0.4rem 1.75rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.pub-defs > div:last-child { border-bottom: 1px solid var(--border); }
+
+.pub-defs dt { font-weight: 650; letter-spacing: -0.01em; }
+.pub-defs dd { margin: 0; line-height: 1.7; color: var(--muted); }
+.pub-defs dd em { color: color-mix(in srgb, var(--fg) 80%, var(--muted)); font-style: normal; }
+
+@media (max-width: 40rem) {
+  .pub-defs > div { grid-template-columns: 1fr; gap: 0.3rem; }
+}
+
+/* ── Legal document stamp ───────────────────────────────────────────────── */
+
+.pub-legal-stamp {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: -1.25rem 0 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.pub-legal-stamp a { color: var(--accent); }
+
+/* ── FAQ ────────────────────────────────────────────────────────────────── */
+
+.pub-faq-item {
+  border-bottom: 1px solid var(--border);
+  padding: 1.15rem 0;
+}
+
+.pub-faq-item summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.pub-faq-item summary::-webkit-details-marker { display: none; }
+.pub-faq-item summary::before { content: '+'; color: var(--accent); font-weight: 700; }
+.pub-faq-item[open] summary::before { content: '−'; }
+.pub-faq-item summary h2 { display: inline; font-size: 1.1rem; margin: 0; letter-spacing: -0.01em; }
+.pub-faq-item p { margin: 0.7rem 0 0 1.2rem; line-height: 1.72; max-width: 68ch; color: var(--muted); }
+
+/* ── Glossary ───────────────────────────────────────────────────────────── */
+
+.pub-glossary { margin: 0; }
+
+.pub-term {
+  border-top: 1px solid var(--border);
+  padding: 1.4rem 0;
+  scroll-margin-top: 5.5rem;
+}
+
+.pub-term dt h2 { font-size: 1.1rem; margin: 0 0 0.45rem; letter-spacing: -0.01em; }
+.pub-term dd { margin: 0; line-height: 1.72; max-width: 68ch; color: var(--muted); }
+
+/* ── Typing test ────────────────────────────────────────────────────────── */
+
+.tt-test {
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.5rem;
+  margin-bottom: 3rem;
+  background: color-mix(in srgb, var(--fg) 3%, transparent);
+}
+
+.tt-controls {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.tt-dur, .tt-restart {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 0.4rem 1rem;
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.tt-dur.is-on { background: var(--accent); border-color: var(--accent); color: var(--bg); font-weight: 600; }
+.tt-restart { margin-left: auto; }
+.tt-dur:hover, .tt-restart:hover { color: var(--fg); border-color: var(--accent); }
+
+.tt-field { position: relative; cursor: text; margin-top: 1rem; }
+.tt-hint { font-size: 0.88rem; color: var(--muted); margin-top: 0.9rem; }
+
+.tt-score-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.75rem;
+  margin: 1rem 0 1.5rem;
+}
+
+.tt-score { display: flex; flex-direction: column; }
+.tt-score b { font-size: 1.9rem; line-height: 1; letter-spacing: -0.02em; }
+.tt-score-main b { font-size: 3rem; color: var(--accent); }
+.tt-score span { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); margin-top: 0.3rem; }
+
+.tt-read { line-height: 1.72; max-width: 68ch; color: var(--muted); }
+
+.tt-keys { margin-top: 1.75rem; }
+.tt-keys h3 { font-size: 1rem; margin: 0 0 0.7rem; }
+.tt-keys ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.tt-keys li { display: flex; align-items: center; gap: 0.75rem; font-size: 0.92rem; color: var(--muted); }
+.tt-keys kbd {
+  font-family: var(--mono, ui-monospace, monospace);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.15rem 0.5rem;
+  min-width: 2.2rem;
+  text-align: center;
+  color: var(--fg);
+}
+
+.tt-again { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 2rem; }
+
+/* ── CTA band + next steps ──────────────────────────────────────────────── */
+
+.pub-cta-band {
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2.25rem;
+  margin: 3rem 0;
+  text-align: center;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.pub-cta-band h2 { margin: 0 0 0.6rem; font-size: 1.5rem; letter-spacing: -0.02em; }
+.pub-cta-band p { margin: 0 auto 1.5rem; max-width: 48ch; color: var(--muted); line-height: 1.65; }
+.pub-cta-row { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+
+.pub-next { margin-top: 3.5rem; }
+.pub-next h2 { font-size: 1.2rem; margin: 0 0 1rem; }
+
+.pub-next-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.9rem;
+}
+
+.pub-next-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.1rem 1.2rem;
+  text-decoration: none;
+  color: var(--fg);
+}
+
+.pub-next-card:hover { border-color: var(--accent); }
+.pub-next-card strong { font-size: 0.98rem; }
+.pub-next-card span { font-size: 0.86rem; color: var(--muted); line-height: 1.5; }
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+
+.pub-footer {
+  border-top: 1px solid var(--border);
+  padding: 3rem 0 1.5rem;
+  background: color-mix(in srgb, var(--fg) 2%, transparent);
+}
+
+.pub-footer-inner {
+  display: grid;
+  /* min() keeps every track narrower than the viewport, so the link columns
+     wrap on a phone instead of pushing the page into horizontal scroll. */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+  gap: 2rem;
+  align-items: start;
+}
+
+.pub-footer-brand { grid-column: 1 / -1; }
+
+@media (min-width: 60rem) {
+  .pub-footer-inner { grid-template-columns: minmax(15rem, 1.6fr) repeat(auto-fit, minmax(8rem, 1fr)); }
+  .pub-footer-brand { grid-column: auto; }
+}
+
+.pub-footer-brand p {
+  margin: 0.85rem 0 0;
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: var(--muted);
+  max-width: 34ch;
+}
+
+.pub-foot-col { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.pub-foot-col strong {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 0.2rem;
+}
+
+.pub-foot-col a { font-size: 0.88rem; color: var(--fg); text-decoration: none; opacity: 0.85; }
+.pub-foot-col a:hover { color: var(--accent); opacity: 1; }
+
+.pub-foot-legal {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 2.5rem 0 0;
+}
+
+/* Prerendered home outline — replaced by the live landing page on mount, so it
+   only ever needs to be legible, never beautiful. */
+.pub-root-home {
+  width: min(100% - 2.5rem, 60rem);
+  margin-inline: auto;
+  padding: 3rem 0;
+  line-height: 1.7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pub-root * { animation: none !important; transition: none !important; }
+}

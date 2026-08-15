@@ -1,5 +1,23 @@
 # KeyTopia Classroom — design plan
 
+> **Status (2026-08-15): items 1–4 shipped — "Classroom core".** A teacher
+> creates a class, students join by code with no email, and the dashboard reads
+> real lesson stars and practice minutes. Items 5–7 ("Play together": real race
+> rooms, co-op, async duels) are **not built** — every multiplayer surface in
+> the app is still the labeled simulation described in §1.
+>
+> Shipped: `supabase/migrations/20260814121000_classrooms.sql`,
+> `supabase/tests/classroom_rls.sql`, `src/lib/classroom.ts`,
+> `src/pages/JoinClass.tsx`, `src/components/ClassCard.tsx`, a rebuilt
+> `src/pages/Family.tsx`, and the `day_minutes` split in `src/lib/syncSupabase.ts`.
+>
+> Two deviations from §4 as written, both deliberate:
+> `class_members` gained a surrogate `id` (unclaimed seats have no `profile_id`,
+> so the composite key could not be the primary key), and `class_daily_scores`
+> stores `mode`/`rhythm` with `score` as a generated column rather than a
+> client-supplied integer — matching the sibling `daily_scores` table so a
+> client cannot post a score unrelated to its own wpm/acc.
+
 Classrooms turn KeyTopia's simulated community into a real one, for exactly two rooms:
 a teacher running a class, and a parent with two or three kids. This plan sits **after**
 the Supabase integration step (`docs/two-worlds-plan.md` §7 decision 5, §8): classes need
@@ -220,17 +238,19 @@ via `merge.ts` — its own ~2–3 sessions per two-worlds plan §8, not counted 
 Then, ordered by dependency but run as one continuous effort — **~10–13 focused
 sessions**:
 
-1. Schema + RLS + `join_class` RPC + the `day_minutes` split — 1–1.5
-2. Client class module + join flows (anon auth, code entry, safe-name picker) — 2
-3. Teacher dashboard: concept table made real, assignment create/track, roster + claim
-   codes — 2–2.5
-4. Class daily challenge: submit + real board + `hideLeaderboards`/`hideBoard` rules — 1
+1. ~~Schema + RLS + `join_class` RPC + the `day_minutes` split~~ — **done**
+2. ~~Client class module + join flows (anon auth, code entry, safe-name picker)~~ — **done**
+3. ~~Teacher dashboard: concept table made real, assignment create/track, roster + claim
+   codes~~ — **done**
+4. ~~Class daily challenge: submit + real board + `hideLeaderboards`/`hideBoard` rules~~ — **done**
 5. Real race rooms: presence lobby, progress broadcast + interpolation, results, new
    code format, `RaceHub` copy — 2
 6. Co-op shared transmission (line-granular channel; class pairs and family) — 1.5–2
 7. Async classmate duels (seeded text, recorded-run rival, deadline) — 1
 8. Safety + verification pass: two-browser end-to-end, throttled/offline mid-race
-   behavior, RLS tests as SQL, full copy audit, `tsc` clean — 1
+   behavior, RLS tests as SQL, full copy audit, `tsc` clean — **done for 1–4**
+   (RLS suite, browser end-to-end, copy audit, `tsc` clean); the race-specific
+   throttled/offline checks belong with item 5.
 
 Items 1–4 are the point where a teacher gets full value ("Classroom core"); 5–7 are
 "Play together". That split is dependency order inside one program, not release phases.

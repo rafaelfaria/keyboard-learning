@@ -33,6 +33,7 @@ npm run preview
 | Brand & icons | `src/components/Brand.tsx`, `public/*.svg`, `scripts/gen-icons.mjs` | Vector logo mark (orbit + keycap + spark); `npm run icons` rasterises every favicon, PWA icon, .ico and the 1200×630 social card |
 | Accounts | `src/lib/auth.ts`, `src/pages/ProfilePicker.tsx` | Log out → "Who's typing?" picker. All sign-in/out goes through the `auth` adapter, so a real backend swaps in by editing that one file |
 | Icons & avatars | `src/components/icons.tsx`, `avatars.tsx` | lucide icon system + Minecraft-style block avatars (level-unlocked presets) |
+| Public pages & SEO | `src/lib/seo/`, `src/pages/public/`, `scripts/prerender.mjs` | Eleven crawlable pages (typing test, guide, curriculum, games, kids, schools, FAQ, glossary, legal) prerendered to static HTML at build, with JSON-LD, per-page OG images, `robots.txt`, `sitemap.xml` and `llms.txt`. See [docs/seo.md](docs/seo.md) |
 
 All lesson content, sentences, paragraphs and names are original. Data lives in
 `localStorage` under `keytopia-v1`; sample history seeded after the placement test can be

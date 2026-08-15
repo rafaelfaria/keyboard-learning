@@ -440,13 +440,47 @@ i.cal-l4 { background: var(--accent); }
 .kip { flex: none; }
 .kip-light { animation: kiplight 2.4s ease infinite; }
 @keyframes kiplight { 50% { opacity: 0.45; } }
-.results { display: flex; flex-direction: column; gap: 18px; max-width: 760px; margin: 0 auto; }
-.results-stars { text-align: center; }
+.results { display: flex; flex-direction: column; gap: 26px; max-width: 760px; margin: 0 auto; }
+.results-stars { text-align: center; margin-bottom: 6px; }
 .results-stats { display: flex; justify-content: center; gap: 8px 30px; flex-wrap: wrap; padding: 8px 0; }
 .rewards-banner { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+
+/* Tier 1 — the verdict. One number leads, one supports, everything else is metadata. */
+.results-hero { text-align: center; }
+.hero-record { display: inline-flex; align-items: center; gap: 6px; color: var(--good); font-weight: 700; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
+.hero-nums { display: flex; align-items: baseline; justify-content: center; gap: 34px; flex-wrap: wrap; }
+.hero-main, .hero-side { display: flex; flex-direction: column; align-items: center; }
+.hero-v { font-size: clamp(3.2rem, 11vw, 4.6rem); font-weight: 800; line-height: 1; letter-spacing: -0.035em; color: var(--accent); }
+.hero-v2 { font-size: clamp(1.9rem, 6vw, 2.4rem); font-weight: 750; line-height: 1.1; letter-spacing: -0.02em; }
+.hero-good .hero-v2 { color: var(--good); }
+.hero-bad .hero-v2 { color: var(--bad); }
+.hero-l { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 6px; }
+.hero-meta { color: var(--muted); font-size: 0.85rem; margin-top: 14px; }
+.results-earned { display: flex; flex-wrap: wrap; gap: 6px 14px; justify-content: center; margin-top: 12px; font-size: 0.85rem; color: var(--muted); }
+.results-earned > span { display: inline-flex; align-items: center; gap: 5px; }
+.earned-xp, .earned-badge { color: var(--gold); font-weight: 650; }
+.earned-hi { color: var(--accent); font-weight: 650; }
+
+/* Tier 2 — what to do next: the coach line and the action it argues for, together. */
+.results-next { display: flex; flex-direction: column; gap: 14px; }
 .results-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-.results-detail { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
-.detail-body { padding-top: 14px; }
+
+/* Tier 3 — evidence, laid out in the page instead of behind tabs. */
+.results-detail { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; }
+.detail-h { font-size: 0.82rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 12px; }
+.detail-body { display: flex; flex-direction: column; gap: 10px; }
+.detail-line { margin: 0; }
+.detail-fold { border-top: 1px solid var(--border); margin-top: 16px; }
+.detail-fold > summary { display: flex; align-items: center; gap: 10px; min-height: 48px; cursor: pointer; list-style: none; font-weight: 650; }
+.detail-fold > summary::-webkit-details-marker { display: none; }
+.detail-fold > summary:hover .fold-title { color: var(--accent); }
+.detail-fold > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+.fold-hint { color: var(--muted); font-size: 0.85rem; font-weight: 400; }
+.detail-fold > summary svg { color: var(--muted); margin-left: auto; flex: none; transition: transform 0.18s ease; }
+.detail-fold[open] > summary svg { transform: rotate(90deg); }
+.fold-body { padding: 4px 0 14px; }
+@media (prefers-reduced-motion: reduce) { .detail-fold > summary svg { transition: none; } }
+@media (max-width: 560px) { .fold-hint { display: none; } }
 .rhythm-cols { display: grid; grid-template-columns: 1fr 200px; gap: 18px; align-items: start; }
 .fp-col { text-align: center; }
 @media (max-width: 640px) { .rhythm-cols { grid-template-columns: 1fr; } }

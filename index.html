@@ -3,14 +3,40 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- Everything between the markers is replaced per route by
+         scripts/prerender.mjs. The values here are the defaults served for any
+         route that is not prerendered (the app shell), and the source the dev
+         server uses. Do not add per-page tags outside the markers. -->
+    <!--seo-start-->
     <title>KeyTopia — every keyboard is a world</title>
-    <meta name="description" content="KeyTopia teaches you to type beautifully: adaptive lessons, animated finger guidance, original games, comet races and deep analytics. For kids, teens, adults, schools and competitive typists." />
-    <meta name="theme-color" content="#0b1020" />
-    <meta name="application-name" content="KeyTopia" />
-    <meta name="apple-mobile-web-app-title" content="KeyTopia" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="color-scheme" content="dark light" />
+    <meta name="description" content="KeyTopia is a free typing tutor that teaches touch typing properly: a 60-second placement test, adaptive lessons built from your own weak keys, seven original typing games, races and deep analytics — for kids, teens, adults, schools and competitive typists." />
+    <link rel="canonical" href="https://keytopia.app/" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="KeyTopia" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:title" content="KeyTopia — every keyboard is a world" />
+    <meta property="og:description" content="Don't just type faster. Learn to type beautifully — adaptive lessons, original games, races and deep analytics." />
+    <meta property="og:url" content="https://keytopia.app/" />
+    <meta property="og:image" content="https://keytopia.app/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="KeyTopia — every keyboard is a world" />
+    <meta name="twitter:description" content="Don't just type faster. Learn to type beautifully." />
+    <meta name="twitter:image" content="https://keytopia.app/og.png" />
+    <!--seo-end-->
+
+    <!-- Static chrome: identical on every route, so the prerenderer leaves it
+         alone and applyHead() skips anything marked data-static. -->
+    <meta name="theme-color" content="#0b1020" data-static />
+    <meta name="application-name" content="KeyTopia" data-static />
+    <meta name="apple-mobile-web-app-title" content="KeyTopia" data-static />
+    <meta name="apple-mobile-web-app-capable" content="yes" data-static />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" data-static />
+    <meta name="color-scheme" content="dark light" data-static />
+    <meta name="format-detection" content="telephone=no" data-static />
 
     <!-- Favicons -->
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
@@ -22,21 +48,8 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
     <link rel="mask-icon" href="/favicon.svg" color="#3b82f6" />
     <link rel="manifest" href="/site.webmanifest" />
-    <meta name="msapplication-TileColor" content="#0b1020" />
-    <meta name="msapplication-TileImage" content="/mstile-270.png" />
-
-    <!-- Social -->
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="KeyTopia" />
-    <meta property="og:title" content="KeyTopia — every keyboard is a world" />
-    <meta property="og:description" content="Don't just type faster. Learn to type beautifully — adaptive lessons, original games, races and deep analytics." />
-    <meta property="og:image" content="/og.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="KeyTopia — every keyboard is a world" />
-    <meta name="twitter:description" content="Don't just type faster. Learn to type beautifully." />
-    <meta name="twitter:image" content="/og.png" />
+    <meta name="msapplication-TileColor" content="#0b1020" data-static />
+    <meta name="msapplication-TileImage" content="/mstile-270.png" data-static />
   </head>
   <body>
     <div id="root"></div>

@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useData, useStore, useUi } from '../lib/store';
-import { dailyChallenge, dailyBoard, scoreFor } from '../lib/challenge';
+import { dailyChallenge, scoreFor } from '../lib/challenge';
+import { Leaderboard } from '../components/Leaderboard';
+import { submitBestDailyScore } from '../lib/leaderboard';
 import { GhostInput, LiveStats, TypingText, useTypingSession } from '../components/typing';
 import { Btn, Card, Chip, Stat } from '../components/ui';
 import { ResultsPanel } from '../components/ResultsPanel';
@@ -8,7 +10,6 @@ import { sessionInsight, nextAction } from '../lib/coach';
 import type { Rewards, SessionResult } from '../lib/types';
 import { snd } from '../lib/sound';
 import { Ic } from '../components/icons';
-import { Avatar } from '../components/avatars';
 
 export default function Challenge() {
   const data = useData();
@@ -36,6 +37,10 @@ export default function Challenge() {
             d.daily[spec.key] = { wpm: r.wpm, acc: r.acc, rank: 0 };
           }
         });
+        // Publishing is deliberately not awaited: the score is already saved
+        // locally, so a slow or absent network must not hold up the results
+        // screen. The board reconciles on its next read.
+        void submitBestDailyScore(data, spec, r);
         if (data.settings.soundOn) snd.done();
         if (rewards.badges.length) pushToast({ kind: 'badge', icon: 'medal', title: 'Badge unlocked!' });
         setFinished({ result: r, rewards });
@@ -45,12 +50,6 @@ export default function Challenge() {
   );
 
   if (!data || !spec) return null;
-
-  const board = dailyBoard(
-    data.profile.ageGroup, spec,
-    myResult ? { name: data.profile.name, avatar: data.profile.avatar, wpm: myResult.wpm, acc: myResult.acc } : undefined,
-  );
-  const divisions = { kid: 'Young Explorers division', teen: 'Rising Stars division', adult: 'Open division' } as const;
 
   if (phase === 'run') {
     return (
@@ -107,27 +106,20 @@ export default function Challenge() {
             <Btn big onClick={() => { setPhase('run'); setTimeout(session.focus, 80); }}>{myResult ? '↻ Improve today\'s score' : 'Take the challenge →'}</Btn>
           </div>
         </Card>
-        <Card>
-          <div className="row spread">
-            <h3><Ic n="medal" size={17} /> {divisions[data.profile.ageGroup]}</h3>
-            {data.settings.hideLeaderboards && <Chip>Boards hidden in your settings</Chip>}
-          </div>
-          {!data.settings.hideLeaderboards ? (
-            <div>
-              {board.slice(0, 10).map((r, i) => (
-                <div key={i} className="feed-row" style={r.you ? { background: 'color-mix(in oklab, var(--accent) 10%, transparent)', borderRadius: 8, padding: '8px 8px' } : undefined}>
-                  <strong style={{ width: 22 }}>{i + 1}</strong>
-                  <Avatar v={r.avatar} size={24} className="feed-av" />
-                  <span>{r.you ? <strong>{r.name} (you)</strong> : r.name}</span>
-                  <small>{r.wpm} wpm · {r.acc}%</small>
-                </div>
-              ))}
-              <p className="small muted" style={{ marginTop: 8 }}>Board rivals are simulated in this offline build — your score is real and saved.</p>
+        {data.settings.hideLeaderboards ? (
+          <Card>
+            <div className="row spread">
+              <h3><Ic n="medal" size={17} /> Leaderboards</h3>
+              <Chip>Hidden in your settings</Chip>
             </div>
-          ) : (
-            <p className="muted small" style={{ marginTop: 10 }}>You've chosen a board-free experience. Your daily results still count toward streaks and records. Change anytime in Settings.</p>
-          )}
-        </Card>
+            <p className="muted small" style={{ marginTop: 10 }}>
+              You've chosen a board-free experience, so nothing is uploaded and no board is shown.
+              Your daily results still count toward streaks and records. Change anytime in Settings.
+            </p>
+          </Card>
+        ) : (
+          <Leaderboard data={data} spec={spec} />
+        )}
       </div>
     </div>
   );

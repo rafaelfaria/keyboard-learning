@@ -1,11 +1,19 @@
 {
+  "id": "/",
   "name": "KeyTopia — every keyboard is a world",
   "short_name": "KeyTopia",
   "description": "Learn to type beautifully: adaptive lessons, original games, races and deep analytics for every age.",
   "start_url": "/app",
   "scope": "/",
   "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ],
   "orientation": "any",
+  "lang": "en",
+  "dir": "ltr",
   "background_color": "#0b1020",
   "theme_color": "#0b1020",
   "categories": [
@@ -22,18 +30,37 @@
     {
       "src": "/icon-192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any"
     },
     {
       "src": "/icon-512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any"
     },
     {
       "src": "/icon-maskable-512.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Continue training",
+      "short_name": "Train",
+      "url": "/app"
+    },
+    {
+      "name": "Free typing test",
+      "short_name": "Test",
+      "url": "/typing-test"
+    },
+    {
+      "name": "Learn to type",
+      "short_name": "Learn",
+      "url": "/learn-to-type"
     }
   ]
 }

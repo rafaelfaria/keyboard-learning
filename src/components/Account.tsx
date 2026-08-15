@@ -5,8 +5,7 @@ import { auth } from '../lib/auth';
 import { useStore } from '../lib/store';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { lastProfileFor, useSync, visibleProfileIds } from '../lib/syncEngine';
-import { Btn, Card, Logo } from './ui';
-import { Ic } from './icons';
+import { Btn, Logo } from './ui';
 
 /**
  * Account surfaces for the signed-in app.
@@ -91,7 +90,7 @@ export function RequireAccount({ children }: { children: React.ReactNode }) {
  *      returning parent on a fresh browser used to land on "Add an explorer"
  *      while their two kids' profiles were still downloading.
  */
-export function EnterJourney() {
+export function EnterJourney({ next }: { next?: string } = {}) {
   const nav = useNavigate();
   const user = useAccount((s) => s.user);
   const profiles = useStore((s) => s.profiles);
@@ -101,6 +100,21 @@ export function EnterJourney() {
   useEffect(() => {
     if (!user) return;
     const visible = visibleProfileIds(Object.keys(profiles), user.id, owners);
+    // `next` is an errand the user started *before* signing in — joining a
+    // class. It outranks the resume rules below, which would otherwise drop a
+    // student into the app and quietly lose the code they came to type. An
+    // explorer still has to exist first, so an empty device detours through
+    // /welcome and comes straight back.
+    if (next) {
+      if (visible.length) {
+        const last = lastProfileFor(user.id);
+        const pick = last && visible.includes(last) ? last : visible[0];
+        void auth.signIn(pick).then(() => nav(next, { replace: true }));
+      } else if (hydrated) {
+        nav(`/welcome?next=${encodeURIComponent(next)}`, { replace: true });
+      }
+      return;
+    }
     const last = lastProfileFor(user.id);
     if (last && visible.includes(last)) {
       void auth.signIn(last).then(() => nav('/app', { replace: true }));
@@ -108,73 +122,9 @@ export function EnterJourney() {
     }
     if (visible.length) { nav('/who', { replace: true }); return; }
     if (hydrated) nav('/welcome', { replace: true });
-  }, [user, profiles, owners, hydrated, nav]);
+  }, [user, profiles, owners, hydrated, next, nav]);
 
   return <QuietSplash label="Loading your world…" />;
-}
-
-/** The signed-in account panel on the Profile page. */
-export function AccountCard() {
-  const user = useAccount((s) => s.user);
-  if (!isSupabaseConfigured || !user) return null;
-
-  const who = user.email ?? (user.user_metadata?.name as string | undefined) ?? 'your account';
-  return (
-    <Card>
-      <h3><Ic n="cloud-check" size={17} /> Your account</h3>
-      <p className="small muted">
-        Signed in as <strong>{who}</strong>. Every explorer here belongs to this
-        account, so a new laptop picks up exactly where this one left off.
-      </p>
-      <div className="row gap wrap" style={{ marginTop: 12, alignItems: 'center' }}>
-        <SyncPill verbose />
-      </div>
-    </Card>
-  );
-}
-
-/**
- * The one permitted sync surface (plan §8): ambient, never a toast. "Offline"
- * is stated plainly rather than as an error, because offline practice is a
- * supported way to use the app, not a failure.
- *
- * Ambient placements are exception-only: a healthy synced state shows nothing,
- * because permanent reassurance reads as a warning after the first session.
- * "Saving…" only appears once a sync has run long enough to be worth knowing
- * about; sub-second syncs stay invisible. The Account panel passes `verbose`
- * to keep the full status, since that page is where you go to check it.
- */
-export function SyncPill({ verbose = false }: { verbose?: boolean }) {
-  const status = useSync((s) => s.status);
-  const slowSync = useSlowSync(status);
-  if (status === 'off') return null;
-  if (!verbose) {
-    if (status === 'synced') return null;
-    if (status === 'syncing' && !slowSync) return null;
-  }
-  const map = {
-    synced: { icon: 'cloud-check', text: 'Saved to your account', cls: 'ok' },
-    syncing: { icon: 'refresh', text: 'Saving…', cls: 'go' },
-    offline: { icon: 'cloud-off', text: 'Offline — saved on this device', cls: 'off' },
-  } as const;
-  const s = map[status];
-  return (
-    <span className={`sync-pill ${s.cls}`} title={s.text}>
-      <Ic n={s.icon} size={13} className={status === 'syncing' ? 'spin' : ''} />
-      <span className="sync-pill-txt">{s.text}</span>
-    </span>
-  );
-}
-
-/** True once a 'syncing' status has persisted past the flicker threshold. */
-function useSlowSync(status: string) {
-  const [slow, setSlow] = useState(false);
-  useEffect(() => {
-    if (status !== 'syncing') { setSlow(false); return; }
-    const t = setTimeout(() => setSlow(true), 800);
-    return () => clearTimeout(t);
-  }, [status]);
-  return slow;
 }
 
 /**

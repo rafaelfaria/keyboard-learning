@@ -5,7 +5,6 @@ import { account, useAccount } from '../lib/account';
 import { Logo } from '../components/ui';
 import { Avatar } from '../components/avatars';
 import { Ic } from '../components/icons';
-import { SyncPill } from '../components/Account';
 import { useSync, visibleProfileIds } from '../lib/syncEngine';
 
 /**
@@ -87,7 +86,6 @@ export default function ProfilePicker() {
           <span className="who-account-who">
             <Ic n="user" size={13} /> {user?.email ?? 'Signed in'}
           </span>
-          <SyncPill />
           <button type="button" className="who-signout" onClick={() => void account.signOut()}>
             Log out
           </button>

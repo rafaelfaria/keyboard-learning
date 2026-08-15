@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="x-apple-disable-message-reformatting">
+  <title>Your KeyTopia sign-in link</title>
+</head>
+
+<body style="margin:0;padding:0;background:#0b1020;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;font-size:1px;line-height:1px;color:#0b1020;">
+    Tap once to sign in. No password needed.&nbsp;&nbsp;&nbsp;
+  </div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0b1020;padding:32px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:440px;background:#131a35;border:1px solid #232d55;border-radius:18px;padding:32px;">
+            <tr>
+              <td align="center" style="padding-bottom:14px;">
+                <a href="{{ .SiteURL }}" target="_blank" style="text-decoration:none;display:inline-block;">
+                  <img src="https://xfthivblhhbhokcptygh.supabase.co/storage/v1/object/public/app/public/logo-512.png" width="72" height="72" alt="KeyTopia"
+                    style="width:72px;height:72px;display:block;border:0;border-radius:16px;">
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="font-size:20px;font-weight:700;color:#ffffff;padding-bottom:4px;">KeyTopia</td>
+            </tr>
+            <tr>
+              <td align="center" style="font-size:14px;color:#9aa6c8;padding-bottom:28px;">every keyboard is a world</td>
+            </tr>
+            <tr>
+              <td style="font-size:22px;font-weight:700;color:#ffffff;padding-bottom:10px;">Here's your sign-in link</td>
+            </tr>
+            <tr>
+              <td style="font-size:15px;line-height:1.6;color:#c3cce6;padding-bottom:24px;">
+                Tap the button to sign in. No password needed. This link works once and expires in an hour.
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding-bottom:24px;">
+                <a href="{{ .ConfirmationURL }}" target="_blank"
+                   style="display:inline-block;background:#3ec9a7;color:#06231c;font-size:16px;font-weight:700;text-decoration:none;padding:14px 30px;border-radius:12px;">
+                  Sign in to KeyTopia
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td style="font-size:13px;line-height:1.6;color:#7d88a8;padding-bottom:24px;">
+                If the button doesn't work, copy and paste this link into your browser:<br>
+                <a href="{{ .ConfirmationURL }}" style="color:#3ec9a7;text-decoration:underline;word-break:break-all;">{{ .ConfirmationURL }}</a>
+              </td>
+            </tr>
+            <tr>
+              <td style="font-size:13px;line-height:1.6;color:#7d88a8;border-top:1px solid #232d55;padding-top:18px;">
+                If you didn't ask for this, you can ignore it. Nothing will happen and no account is created.
+              </td>
+            </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+
+</html>

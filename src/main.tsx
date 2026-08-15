@@ -9,6 +9,9 @@ import '@fontsource/atkinson-hyperlegible/700.css';
 import './styles/base.css';
 import './styles/app.css';
 import './styles/landing.css';
+import './styles/public.css';
+import './styles/mock.css';
+import './styles/classroom.css';
 import { AppShell, ThemeSync } from './components/Shell';
 import Landing from './pages/Landing';
 import Onboarding from './pages/Onboarding';
@@ -34,6 +37,18 @@ import BadgesPage from './pages/BadgesPage';
 import Family from './pages/Family';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
+import {
+  AdaptivePracticePage, AnalyticsPage, CurriculumPage, FaqPage, GlossaryPage,
+  KidsPage, LearnToTypePage, PracticeModesPage, PrivacyPage, RacesPage,
+  SchoolsPage, TermsPage, TypingGamesPage,
+} from './pages/public/pages';
+import { TypingTestPage } from './pages/public/TypingTest';
+import { AuthCallback, RequireAccount } from './components/Account';
+import SignIn from './pages/SignIn';
+import CreateProfile from './pages/CreateProfile';
+import JoinClass from './pages/JoinClass';
+import { startSync } from './lib/syncEngine';
+import { startClassroomWatch } from './lib/classroom';
 
 class Boundary extends React.Component<{ children: React.ReactNode }, { err: Error | null }> {
   state = { err: null as Error | null };
@@ -58,9 +73,45 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <ThemeSync />
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/onboarding" element={<Onboarding />} />
-        <Route path="/who" element={<ProfilePicker />} />
-        <Route path="/app" element={<AppShell />}>
+
+        {/* Public, crawlable pages. Each is prerendered to static HTML at build
+            time (scripts/prerender.mjs) and registered in src/lib/seo/site.ts —
+            adding one here means also adding it there, which is what feeds the
+            sitemap, robots.txt, llms.txt and the OG-image generator. */}
+        <Route path="/typing-test" element={<TypingTestPage />} />
+        <Route path="/learn-to-type" element={<LearnToTypePage />} />
+        <Route path="/curriculum" element={<CurriculumPage />} />
+        <Route path="/typing-games" element={<TypingGamesPage />} />
+        <Route path="/adaptive-practice" element={<AdaptivePracticePage />} />
+        <Route path="/typing-practice-modes" element={<PracticeModesPage />} />
+        <Route path="/typing-races" element={<RacesPage />} />
+        <Route path="/typing-analytics" element={<AnalyticsPage />} />
+        <Route path="/typing-for-kids" element={<KidsPage />} />
+        <Route path="/typing-for-schools" element={<SchoolsPage />} />
+        <Route path="/faq" element={<FaqPage />} />
+        <Route path="/typing-glossary" element={<GlossaryPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+
+        {/* --- the account boundary -------------------------------------
+            Everything above this line is open to anyone and prerendered for
+            search engines. Everything below owns saved progress, so it needs a
+            session: a profile can never exist outside an account, which is what
+            keeps "whose progress is this?" from ever being a question. */}
+        <Route path="/signin" element={<SignIn />} />
+        {/* Where Google and email sign-in links come back to. Must match the
+            redirect allowlist in the Supabase dashboard. */}
+        <Route path="/auth/callback" element={<AuthCallback />} />
+
+        <Route path="/welcome" element={<RequireAccount><CreateProfile /></RequireAccount>} />
+        <Route path="/who" element={<RequireAccount><ProfilePicker /></RequireAccount>} />
+        {/* Joining a class needs an account, but never an email: the sign-in
+            page offers a device-bound anonymous seat for students. */}
+        <Route path="/join" element={<RequireAccount><JoinClass /></RequireAccount>} />
+        {/* The full guided setup with the placement test. Reachable from inside
+            the app; no longer the front door. */}
+        <Route path="/onboarding" element={<RequireAccount><Onboarding /></RequireAccount>} />
+        <Route path="/app" element={<RequireAccount><AppShell /></RequireAccount>}>
           <Route index element={<HomeGate />} />
           <Route path="learn" element={<Learn />} />
           <Route path="lesson/:id" element={<LessonPlayer />} />
@@ -89,3 +140,14 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     </BrowserRouter>
   </Boundary>,
 );
+
+// Sync starts *after* the first render, never before it: the app must paint
+// from localStorage without waiting on any network call (plan §8, instant bar).
+// A timeout rather than requestAnimationFrame on purpose — rAF never fires in a
+// background tab, which would strand a restored session with sync switched off.
+// With no Supabase project configured this is a no-op.
+setTimeout(startSync, 0);
+// Same contract for the classroom mirror: it watches the store from outside and
+// pushes finished daily-challenge runs to class boards in the background, so no
+// classroom code sits on the typing path (docs/classrooms-plan.md §2.5).
+setTimeout(startClassroomWatch, 0);

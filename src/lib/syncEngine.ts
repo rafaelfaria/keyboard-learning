@@ -18,10 +18,17 @@ import { supabaseSync } from './syncSupabase';
  *   - failures retry with backoff and never raise a toast
  *   - conflicts resolve through merge.ts, never by asking
  *
- * The only surface is one ambient indicator (see components/SyncPill).
+ * Sync has no UI surface at all. The one failure a user must act on — a dead
+ * session — surfaces as the sign-in page via the auth listener; everything
+ * else retries here until it heals.
  */
 
-export type SyncStatus = 'off' | 'synced' | 'syncing' | 'offline';
+/**
+ * 'retrying' is a failure with the network up: the push bounced and a backoff
+ * timer holds the next attempt. It is distinct from 'syncing' so the UI never
+ * shows a perpetual "Saving…" spinner for a server that keeps saying no.
+ */
+export type SyncStatus = 'off' | 'synced' | 'syncing' | 'retrying' | 'offline';
 
 interface SyncState {
   status: SyncStatus;
@@ -139,13 +146,40 @@ function schedule(delay = DEBOUNCE_MS): void {
   flushTimer = setTimeout(() => { void flush(); }, delay);
 }
 
-function onFailure(): void {
-  // Transient failures are invisible: no toast, no error state in the UI beyond
-  // the ambient pill going quiet.
-  useSync.setState({ status: navigator.onLine ? 'syncing' : 'offline' });
+/**
+ * Retry a failure. Sync has no UI at all (plan §8, revised): transient
+ * failures heal themselves here, and the one unhealable failure — a dead
+ * session — surfaces through the auth listener, which signs the account out
+ * and routes to the sign-in page. That page is the error message.
+ */
+function onFailure(err?: unknown): void {
+  useSync.setState({ status: navigator.onLine ? 'retrying' : 'offline' });
+  // An auth-flavored failure retries forever without an active session refresh:
+  // ask for one now. Either it succeeds and the next retry goes through, or it
+  // fails and Supabase emits SIGNED_OUT -> onUser(null) -> sign-in page.
+  if (err instanceof Error && /jwt|token|expired|not.?authenticated|401/i.test(err.message)) {
+    void supabase?.auth.refreshSession();
+  }
   backoff = Math.min(backoff ? backoff * 2 : 2000, MAX_BACKOFF_MS);
   if (retryTimer) clearTimeout(retryTimer);
-  retryTimer = setTimeout(() => { void flush(); }, backoff);
+  retryTimer = setTimeout(() => { void retry(); }, backoff);
+}
+
+/**
+ * What a retry actually re-runs. A failed first pull must retry the *pull*,
+ * not just the push — otherwise a sign-in during a blip never receives the
+ * account's remote profiles until the next sign-in.
+ */
+let reconcilePending: string | null = null;
+
+async function retry(): Promise<void> {
+  if (reconcilePending && userId === reconcilePending) {
+    const uid = reconcilePending;
+    reconcilePending = null;
+    await reconcile(uid);
+    return;
+  }
+  await flush();
 }
 
 function onSuccess(): void {
@@ -179,8 +213,8 @@ async function flush(): Promise<void> {
       setCursor(changes.profileId, changes.upTo, userId);
     }
     onSuccess();
-  } catch {
-    onFailure();
+  } catch (err) {
+    onFailure(err);
   }
 }
 
@@ -210,10 +244,14 @@ async function reconcile(uid: string): Promise<void> {
       if (!meta[id]?.owner) setCursor(id, 0, uid);
     }
     paused = false;
+    reconcilePending = null;
     await flush();
-  } catch {
+  } catch (err) {
     paused = false;
-    onFailure();
+    // The pull didn't finish; make sure the retry repeats it rather than only
+    // pushing local work over a store we never read.
+    reconcilePending = uid;
+    onFailure(err);
   } finally {
     // Even a failed pull settles the question "have we tried yet?" - routing
     // must not wait forever on a network that isn't there.
@@ -232,6 +270,7 @@ function onUser(user: User | null): void {
     if (userId && active) rememberLast(userId, active);
     userId = null;
     adapter = null;
+    reconcilePending = null;
     if (flushTimer) clearTimeout(flushTimer);
     if (retryTimer) clearTimeout(retryTimer);
     // Drop the active learner: a *different* account signing in on this browser
@@ -266,15 +305,20 @@ export function startSync(): () => void {
 
   const wake = () => { if (adapter) { backoff = 0; schedule(300); } };
   window.addEventListener('online', wake);
-  // Leaving the tab is the best moment to make sure the last run is safe.
-  const onHide = () => { if (document.visibilityState === 'hidden') schedule(0); };
-  document.addEventListener('visibilitychange', onHide);
+  // Leaving the tab is the best moment to make sure the last run is safe, and
+  // coming back is the best moment to heal: don't leave a mid-backoff retry
+  // waiting up to a minute while the user is looking at the screen.
+  const onVisibility = () => {
+    if (document.visibilityState === 'hidden') { schedule(0); return; }
+    if (retryTimer) wake();
+  };
+  document.addEventListener('visibilitychange', onVisibility);
 
   return () => {
     running = false;
     stopAccount();
     stopStore();
     window.removeEventListener('online', wake);
-    document.removeEventListener('visibilitychange', onHide);
+    document.removeEventListener('visibilitychange', onVisibility);
   };
 }

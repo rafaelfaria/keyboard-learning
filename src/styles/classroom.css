@@ -1,0 +1,99 @@
+/* KeyTopia Classroom (docs/classrooms-plan.md).
+   A separate sheet rather than more of app.css: everything here belongs to one
+   feature, and it reuses the existing card/table/chip vocabulary instead of
+   inventing a second visual language for teachers. */
+
+/* ---- codes -------------------------------------------------------------
+   Join and seat codes get read aloud across a classroom and typed by children,
+   so they are monospaced, widely tracked and large enough to read from a
+   projector without zooming. */
+.cls-code,
+.cls-seat-code {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  background: color-mix(in oklab, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent);
+  border-radius: 8px;
+  padding: 5px 10px;
+  white-space: nowrap;
+}
+.cls-code { font-size: 1.15rem; }
+.cls-seat-code { font-size: 0.9rem; }
+
+.join-code {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 1.5rem;
+  letter-spacing: 0.22em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* ---- the join page ---------------------------------------------------- */
+.join-profiles { display: flex; flex-wrap: wrap; gap: 8px; }
+.join-profile {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 12px 7px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.14));
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.join-profile.on {
+  border-color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 14%, transparent);
+}
+.join-name {
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: color-mix(in oklab, var(--accent) 10%, transparent);
+}
+
+/* ---- student card ----------------------------------------------------- */
+.cls-assigns { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+.cls-assign {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: color-mix(in oklab, var(--fg, #fff) 4%, transparent);
+}
+.cls-assign-ic { display: inline-flex; opacity: 0.75; }
+.cls-assign-txt { flex: 1; min-width: 0; font-size: 0.92rem; }
+.cls-board { margin-top: 6px; }
+.cls-you {
+  background: color-mix(in oklab, var(--accent) 10%, transparent);
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+
+/* ---- teacher admin ---------------------------------------------------- */
+.cls-admin { margin-bottom: 14px; }
+.cls-sub {
+  display: flex; align-items: center; gap: 6px;
+  margin: 18px 0 8px;
+  font-size: 0.98rem;
+}
+.cls-select { max-width: 220px; }
+
+/* A remove control that stays quiet until it is wanted: destructive actions
+   should be reachable, never the loudest thing in a roster. */
+.cls-x {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  opacity: 0.4;
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1;
+  padding: 4px 6px;
+  border-radius: 6px;
+}
+.cls-x:hover, .cls-x:focus-visible { opacity: 1; color: var(--bad); }
+
+@media (max-width: 640px) {
+  .cls-select, .cls-admin .ob-input { max-width: 100%; }
+}

@@ -3,17 +3,20 @@
   "configurations": [
     {
       "name": "keytopia",
+      "url": "http://localhost:50675",
+      "port": 50675
+    },
+    {
+      "name": "keytopia-fresh",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
-      "port": 50675,
-      "autoPort": true
+      "port": 50675
     },
     {
       "name": "keytopia-prod",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "preview"],
-      "port": 4173,
-      "autoPort": true
+      "port": 4173
     }
   ]
 }
