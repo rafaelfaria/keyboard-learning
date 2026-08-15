@@ -115,7 +115,7 @@
    measure and use the full container the way the card grids on these pages
    already do. */
 
-.pub-play-grid { margin: var(--flow-3) 0 0; }
+.pub-play-grid { margin-block: var(--flow-3) 0; }
 .pub-play-grid .play-card h3 { font-size: 1.06rem; margin: 14px 0 6px; letter-spacing: -0.01em; }
 .pub-play-grid .play-card h2 { font-size: 1.4rem; margin: 4px 0 10px; letter-spacing: -0.02em; }
 .pub-play-grid .play-card p { font-size: 0.93rem; line-height: 1.6; color: #98a0c4; max-width: none; margin: 0 0 10px; }

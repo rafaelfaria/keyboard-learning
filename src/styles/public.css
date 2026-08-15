@@ -216,8 +216,36 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
   padding: 2.5rem 0 4.5rem;
 }
 
+/* Reading column, then breakouts.
+   ------------------------------------------------------------------
+   The wide pages used to set a 68rem container and cap prose at the 42rem
+   measure inside it. Two widths, but lopsided: every paragraph sat hard left
+   with a third of the container empty to its right, which reads as a broken
+   line-break rather than as a column.
+
+   Now the container IS the measure on every page, so prose is centred in the
+   viewport, and the blocks that genuinely want more room — card grids, CTA
+   bands, product shots — break out of it equally on both sides. The page has
+   one axis of symmetry instead of a ragged right edge. */
 .pub-main .pub-wrap { width: min(100% - 2.5rem, var(--measure)); }
-.pub-main-wide .pub-wrap { width: min(100% - 2.5rem, 68rem); }
+
+/* How far a breakout may spread. Prose-only pages do not bleed at all, which
+   is what the `wide` prop on PublicPage now decides. */
+.pub-main { --bleed: var(--measure); }
+.pub-main-wide { --bleed: 68rem; }
+
+.pub-grid,
+.pub-play-grid,
+.pub-next-grid,
+.pub-cta-band,
+.pub-shot {
+  /* Viewport-relative, not `100% + …`: percentages here resolve against the
+     reading column, so the breakout could never grow past it. The 2.5rem
+     matches the container's own gutter and stays clear of the scrollbar. */
+  --bleed-w: min(100vw - 2.5rem, var(--bleed));
+  width: var(--bleed-w);
+  margin-inline: calc((100% - var(--bleed-w)) / 2);
+}
 
 .pub-crumbs { margin-bottom: 1.5rem; }
 
@@ -328,7 +356,7 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
   gap: 1.1rem;
-  margin: var(--flow-3) 0 0;
+  margin-block: var(--flow-3) 0;
 }
 
 .pub-card {
@@ -712,7 +740,10 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 2.25rem;
-  margin: var(--flow-5) 0;
+  /* margin-block, never the shorthand: these elements take their inline
+     margins from the breakout rule above, and `margin: x 0` silently resets
+     them, which pushed the band off the right edge of the page. */
+  margin-block: var(--flow-5);
   text-align: center;
   background: color-mix(in srgb, var(--accent) 8%, transparent);
 }

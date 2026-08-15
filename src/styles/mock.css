@@ -344,7 +344,7 @@
 
 /* ── Placement on a public page ─────────────────────────────────────────── */
 
-.pub-shot { margin: 2rem 0 3rem; }
+.pub-shot { margin-block: 2rem 3rem; }
 .pub-shot figcaption,
 .pub-shot-note {
   display: block;

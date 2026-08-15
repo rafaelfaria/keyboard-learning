@@ -352,11 +352,14 @@ img, svg { max-width: 100%; display: block; }
 .type-focus-hint { position: absolute; inset: 0; margin: auto; height: 46px; width: max-content; padding: 0 22px; background: var(--surface); border: 1px solid var(--accent); color: var(--text); border-radius: 12px; cursor: pointer; font-weight: 650; z-index: 3; }
 
 /* ---------- Live stats ---------- */
-.live-stats { display: flex; align-items: center; gap: 22px; padding: 8px 4px; }
+/* Wraps on a narrow screen. The row is three unshrinkable figures plus a
+   progress bar with a 60px floor, which together overflowed a phone and gave
+   the typing test a horizontal scrollbar. */
+.live-stats { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 22px; padding: 8px 4px; }
 .ls-item { display: flex; align-items: baseline; gap: 6px; }
 .ls-v { font-weight: 780; font-size: 1.35rem; font-variant-numeric: tabular-nums; }
 .ls-l { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; }
-.ls-bar { flex: 1; height: 6px; background: var(--ring-track); border-radius: 999px; overflow: hidden; min-width: 60px; }
+.ls-bar { flex: 1 1 8rem; min-width: 0; height: 6px; background: var(--ring-track); border-radius: 999px; overflow: hidden; }
 .ls-fill { height: 100%; background: var(--accent); border-radius: 999px; transition: width 0.25s linear; }
 
 /* ---------- Keyboard visual ---------- */
