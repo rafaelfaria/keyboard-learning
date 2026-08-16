@@ -165,6 +165,14 @@ export default function Profile() {
               )
               : <p className="small muted">Up to {MAX_PROFILES} family members can each have their own world here.</p>}
             <div className="col" style={{ gap: 6, marginTop: 10 }}>
+              {/* The card is called Explorers, so the one you are using belongs in
+                  it — leaving it out meant a character you had just built could
+                  not be seen here at all. It sits first and does not switch. */}
+              <div className="opt-tile is-you">
+                <Avatar v={data.profile.avatar} size={34} />
+                <span><strong>{data.profile.name}</strong><small>Level {lvl.level}</small></span>
+                <span className="chip chip-accent small push-right">You</span>
+              </div>
               {others.map((p) => (
                 <button key={p.profile.id} type="button" className="opt-tile" onClick={async () => { await auth.signIn(p.profile.id); nav('/app'); }}>
                   <Avatar v={p.profile.avatar} size={34} />

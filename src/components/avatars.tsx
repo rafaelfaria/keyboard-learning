@@ -9,6 +9,12 @@ import {
 export { ANIMAL_START, ANIMAL_COUNT, PRESET_CHARACTERS };
 export type { Character, Expression };
 
+/**
+ * Below this, a whole bust is too small to tell one explorer from another, so
+ * the frame moves in to the head and keeps only a hint of the shoulders.
+ */
+const CLOSE_UP = 44;
+
 /** The pixel sprite itself. Everything on screen ends up here. */
 export const CharacterSprite = memo(function CharacterSprite({
   ch, size = 40, expr = 'happy', className = '', title,
@@ -17,9 +23,10 @@ export const CharacterSprite = memo(function CharacterSprite({
 }) {
   const px = spriteFor(ch, expr);
   const label = title ?? describeCharacter(ch);
+  const box = size < CLOSE_UP ? `1 0 ${GRID - 2} ${GRID - 2}` : `0 0 ${GRID} ${GRID}`;
   return (
     <svg
-      viewBox={`0 0 ${GRID} ${GRID}`} width={size} height={size}
+      viewBox={box} width={size} height={size}
       className={`bk-av ${className}`} shapeRendering="crispEdges"
       role="img" aria-label={label}
     >

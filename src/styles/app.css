@@ -1080,27 +1080,100 @@ h1 .ic, h2 .ic, h3 .ic { margin-right: 4px; color: var(--accent); }
 .jn-guide-camp { display: flex; align-items: center; gap: 6px; padding: 7px 4px 5px; color: var(--gold); font-size: 0.78rem; font-weight: 700; }
 .jn-camp-link { background: none; border: none; color: var(--accent); font: inherit; cursor: pointer; text-decoration: underline; padding: 0; }
 
-/* train hub: one hero, four groups of compact rows */
+/* train hub: one hero, four groups of compact rows.
+   The groups sit on `align-items: start` so a four-mode card keeps its own
+   height instead of stretching to match the five-mode one beside it; a stretched
+   card ends in a band of empty surface that reads as missing content. */
 .trainhub { display: flex; flex-direction: column; gap: 16px; }
-.train-hero { border: 1.5px solid color-mix(in oklab, var(--accent) 45%, var(--border)); background: linear-gradient(135deg, color-mix(in oklab, var(--accent) 10%, var(--surface)), var(--surface)); }
-.train-hero-ic { width: 52px; height: 52px; border-radius: 16px; background: color-mix(in oklab, var(--accent) 16%, var(--surface)); display: flex; align-items: center; justify-content: center; color: var(--accent); flex: none; }
-.train-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-@media (max-width: 780px) { .train-groups { grid-template-columns: 1fr; } }
-.train-group { padding: 14px 16px; }
-.train-group-head { display: flex; align-items: baseline; gap: 8px; padding-bottom: 6px; }
-.train-group-head .ic { align-self: center; color: var(--accent); }
-.train-group-head h3 { margin: 0; font-size: 1rem; }
-.train-group-head small { font-size: 0.76rem; }
-.train-row { display: flex; align-items: center; gap: 11px; padding: 9px 6px; border-top: 1px solid var(--border); color: var(--text); text-decoration: none; border-radius: 10px; transition: background 0.12s; min-height: 44px; }
-.train-row:hover { background: color-mix(in oklab, var(--accent) 8%, transparent); }
-.train-row-ic { width: 30px; height: 30px; border-radius: 9px; background: var(--surface2); display: flex; align-items: center; justify-content: center; color: var(--accent); flex: none; }
+.train-tally { display: inline-flex; align-items: center; gap: 7px; font-size: 0.82rem; font-weight: 700; color: var(--muted); }
+.train-tally .ic { color: var(--accent); }
+
+.train-hero {
+  display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;
+  position: relative; overflow: hidden;
+  border: 1.5px solid color-mix(in oklab, var(--accent) 45%, var(--border));
+  background: linear-gradient(135deg, color-mix(in oklab, var(--accent) 13%, var(--surface)), color-mix(in oklab, var(--accent2) 9%, var(--surface)));
+}
+.train-hero::after {
+  content: ''; position: absolute; right: -70px; top: -80px; width: 260px; height: 260px; border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in oklab, var(--accent) 22%, transparent), transparent 70%);
+  pointer-events: none;
+}
+.train-hero-main { display: flex; gap: 15px; align-items: flex-start; min-width: min(100%, 260px); flex: 1; position: relative; }
+.train-hero-ic { width: 56px; height: 56px; border-radius: 18px; background: color-mix(in oklab, var(--accent) 18%, var(--surface)); border: 1px solid color-mix(in oklab, var(--accent) 32%, transparent); display: flex; align-items: center; justify-content: center; color: var(--accent); flex: none; }
+.train-hero-txt h2 { font-size: 1.35rem; margin: 2px 0 4px; }
+.train-hero-txt p { font-size: 0.9rem; margin: 0; max-width: 64ch; }
+.train-hero-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 11px; }
+.train-hero-keys { display: inline-flex; align-items: center; gap: 5px; font-size: 0.78rem; font-weight: 700; color: var(--text-dim); }
+.train-hero-keys .keycap { font-size: 0.78rem; font-weight: 700; }
+.train-tag { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; color: var(--text-dim); background: color-mix(in oklab, var(--surface) 70%, transparent); border: 1px solid var(--border); }
+.train-tag .ic { color: var(--accent); }
+.train-hero-go { display: flex; flex-direction: column; align-items: center; gap: 7px; position: relative; }
+.train-hero-alt { font-size: 0.8rem; color: var(--muted); text-decoration: none; border-bottom: 1px solid transparent; }
+.train-hero-alt:hover { color: var(--accent); border-bottom-color: currentColor; }
+@media (max-width: 620px) {
+  .train-hero-go { width: 100%; }
+  .train-hero-go .btn { width: 100%; justify-content: center; }
+}
+
+/* Two column cards, each holding two groups, so both cards end level. */
+.train-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 860px) { .train-cols { grid-template-columns: 1fr; } }
+.train-col { display: flex; flex-direction: column; padding: 6px 10px 10px; }
+/* the slack between a 7-row and an 8-row column lands here, as breathing room
+   between two groups, instead of pooling at the foot of the shorter card */
+.train-group + .train-group { margin-top: auto; padding-top: 18px; }
+/* A section label, not a fifth heading competing with the row titles below it:
+   the rows are already 0.94rem bold, so a same-size heading read as just another
+   row. Uppercase and small puts it on a different tier at a glance. */
+.train-group-head { padding: 12px 8px 9px; }
+.train-group-head h3 { margin: 0; font-size: 0.74rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.09em; line-height: 1.2; color: var(--text-dim); }
+.train-group-head small { display: block; font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
+.train-rows { display: flex; flex-direction: column; }
+
+.train-row { display: flex; align-items: center; gap: 11px; padding: 9px 8px; color: var(--text); text-decoration: none; border-radius: 11px; transition: background 0.15s ease, transform 0.15s ease; min-height: 48px; position: relative; }
+.train-row + .train-row::before { content: ''; position: absolute; left: 49px; right: 8px; top: 0; height: 1px; background: var(--border); }
+.train-row:hover, .train-row:focus-visible { background: color-mix(in oklab, var(--accent) 9%, transparent); }
+.train-row:hover::before, .train-row:hover + .train-row::before { opacity: 0; }
+.train-row:hover .train-row-go { color: var(--accent); transform: translateX(2px); }
+.train-row-ic { width: 32px; height: 32px; border-radius: 10px; background: var(--surface2); display: flex; align-items: center; justify-content: center; color: var(--accent); flex: none; transition: background 0.15s ease; }
+.train-row:hover .train-row-ic { background: color-mix(in oklab, var(--accent) 18%, var(--surface2)); }
 .train-row-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.25; }
+.train-row-txt strong { font-size: 0.94rem; }
 .train-row-txt small { color: var(--muted); font-size: 0.75rem; }
-.train-row-go { color: var(--muted); flex: none; }
-.train-retest { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border: 1.5px dashed var(--border); border-radius: 14px; color: var(--text); text-decoration: none; transition: border-color 0.15s; }
-.train-retest:hover { border-color: var(--accent); }
-.train-retest .ic { color: var(--accent); }
-.train-retest span { flex: 1; font-size: 0.9rem; }
+.train-row-meta { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2; flex: none; }
+.train-row-meta b { font-size: 0.88rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.train-row-meta b i { font-style: normal; font-size: 0.68rem; font-weight: 700; color: var(--muted); margin-left: 2px; }
+.train-row-meta small { color: var(--muted); font-size: 0.7rem; }
+.train-row-new { flex: none; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); background: color-mix(in oklab, var(--accent) 12%, transparent); border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent); border-radius: 999px; padding: 2px 8px; }
+.train-row-go { color: var(--muted); flex: none; transition: color 0.15s ease, transform 0.15s ease; }
+/* the mode named in the hero, so the two places agree at a glance */
+.train-row-rec { background: color-mix(in oklab, var(--accent) 7%, transparent); box-shadow: inset 2px 0 0 var(--accent); }
+
+.train-retest { display: flex; align-items: center; gap: 12px; padding: 13px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); text-decoration: none; transition: border-color 0.15s ease, background 0.15s ease; min-height: 56px; }
+.train-retest:hover { border-color: var(--accent); background: color-mix(in oklab, var(--accent) 6%, transparent); }
+.train-retest:hover .train-row-go { color: var(--accent); }
+.train-retest-ic { width: 34px; height: 34px; border-radius: 11px; background: var(--surface2); display: flex; align-items: center; justify-content: center; color: var(--accent); flex: none; }
+.train-retest-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.3; }
+.train-retest-txt strong { font-size: 0.94rem; }
+.train-retest-txt small { color: var(--muted); font-size: 0.78rem; }
+.train-retest-time { flex: none; font-size: 0.78rem; font-weight: 700; color: var(--text-dim); background: var(--surface2); border: 1px solid var(--border); border-radius: 999px; padding: 4px 11px; }
+
+/* Entrance: a short lift, staggered down the page. Done in CSS rather than
+   with a JS tween on purpose — `animation-fill-mode: backwards` cannot strand a
+   card at opacity 0 the way an interrupted or rAF-throttled tween can. */
+@keyframes train-in { from { opacity: 0; transform: translateY(14px); } }
+.trainhub > .train-hero, .trainhub .train-col, .trainhub > .train-retest {
+  animation: train-in 0.34s cubic-bezier(0.22, 0.61, 0.36, 1) backwards;
+}
+.trainhub .train-col:nth-child(1) { animation-delay: 0.06s; }
+.trainhub .train-col:nth-child(2) { animation-delay: 0.11s; }
+.trainhub > .train-retest { animation-delay: 0.16s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .train-row, .train-row-ic, .train-row-go, .train-retest { transition: none; }
+  .trainhub > .train-hero, .trainhub .train-col, .trainhub > .train-retest { animation: none; }
+}
 
 /* progress hub tabs */
 .proghub-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
@@ -1464,3 +1537,7 @@ a.who-add-link { text-decoration: none; }
   .xb-opt, .xb-swatch, .xb-expr-btn, .xb-tab { transition: none; }
   .xb-opt:hover:not(:disabled), .xb-swatch:hover:not(:disabled), .xb-expr-btn:hover { transform: none; }
 }
+
+/* The explorer you are signed in as: listed, but not a button to press. */
+.opt-tile.is-you { cursor: default; border-color: color-mix(in oklab, var(--accent) 45%, var(--border)); }
+.opt-tile.is-you:hover { transform: none; }
