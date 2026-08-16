@@ -17,6 +17,7 @@ import { useSync, visibleProfileIds } from '../lib/syncEngine';
 export default function ProfilePicker() {
   const nav = useNavigate();
   const profiles = useStore((s) => s.profiles);
+  const activeId = useStore((s) => s.activeId);
   const user = useAccount((s) => s.user);
   const owners = useSync((s) => s.owners);
   const hydrated = useSync((s) => s.hydrated);
@@ -38,6 +39,11 @@ export default function ProfilePicker() {
   }
 
   const full = list.length >= MAX_PROFILES;
+  // Reached from "Switch explorer" rather than from signing in: someone is
+  // already typing, so changing your mind has to be possible. Arriving here
+  // fresh after sign-in has nothing to go back to, and shows no way out.
+  const current = activeId ? profiles[activeId] : null;
+  const canCancel = !!current && visible.has(current.profile.id);
 
   return (
     <div className="ob-page">
@@ -54,7 +60,7 @@ export default function ProfilePicker() {
               <button
                 key={d.profile.id}
                 type="button"
-                className="who-card"
+                className={`who-card ${d.profile.id === activeId ? 'on' : ''}`}
                 onClick={async () => { await auth.signIn(d.profile.id); nav('/app'); }}
               >
                 <Avatar v={d.profile.avatar} size={56} className="who-av" />
@@ -79,6 +85,12 @@ export default function ProfilePicker() {
           <button type="button" className="who-add-link" onClick={() => nav('/welcome')}>
             <Ic n="user-plus" size={15} /> Add an explorer
             <span className="muted"> · {list.length} of {MAX_PROFILES}</span>
+          </button>
+        )}
+
+        {canCancel && (
+          <button type="button" className="who-add-link" onClick={() => nav('/app')}>
+            <Ic n="chevron-left" size={15} /> Keep typing as {current!.profile.name}
           </button>
         )}
 

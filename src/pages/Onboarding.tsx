@@ -4,6 +4,8 @@ import { Btn, Logo, Bar, Chip } from '../components/ui';
 import { GhostInput, TypingText, useTypingSession, combineResults } from '../components/typing';
 import { KeyboardVisual } from '../components/KeyboardVisual';
 import { useStore, useData, randomKidName, MAX_PROFILES } from '../lib/store';
+import { useAccount } from '../lib/account';
+import { useSync, visibleProfileIds } from '../lib/syncEngine';
 import type { AgeGroup, AssessmentResult, CoachStyle, Goal, LayoutId, SessionResult } from '../lib/types';
 import { COACH_STYLES } from '../lib/coach';
 import { LAYOUT_NAMES, layoutGroups } from '../lib/keyboard';
@@ -149,7 +151,11 @@ export default function Onboarding() {
   const createProfile = useStore((s) => s.createProfile);
   const finishAssessment = useStore((s) => s.finishAssessment);
   const hasProfile = useStore((s) => !!s.activeId);
-  const full = useStore((s) => Object.keys(s.profiles).length >= MAX_PROFILES);
+  const allProfiles = useStore((s) => s.profiles);
+  const obUser = useAccount((s) => s.user);
+  const obOwners = useSync((s) => s.owners);
+  // Another household's cached profiles must not count against this account.
+  const full = visibleProfileIds(Object.keys(allProfiles), obUser?.id ?? null, obOwners).length >= MAX_PROFILES;
 
   const isRetest = params.get('retest') === '1' && !!existing;
   const [a, setA] = useState<Answers>(() => ({

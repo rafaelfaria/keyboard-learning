@@ -4,6 +4,7 @@ import { useData, useStore, levelInfo, currentStreak, MAX_PROFILES } from '../li
 import { auth } from '../lib/auth';
 import { account, useAccount } from '../lib/account';
 import { isSupabaseConfigured } from '../lib/supabase';
+import { useSync, visibleProfileIds } from '../lib/syncEngine';
 import { Ic } from '../components/icons';
 import { Avatar, BlockAvatar, PRESET_CHARACTERS, presetValue } from '../components/avatars';
 import { decodeCharacter, describeCharacter, unlockedCount } from '../lib/character';
@@ -22,6 +23,7 @@ export default function Profile() {
   const profiles = useStore((s) => s.profiles);
   const activeId = useStore((s) => s.activeId);
   const user = useAccount((s) => s.user);
+  const owners = useSync((s) => s.owners);
   const [confirmReset, setConfirmReset] = useState(false);
   const [showRanks, setShowRanks] = useState(false);
   if (!data) return null;
@@ -32,7 +34,12 @@ export default function Profile() {
   const parts = unlockedCount(lvl.level);
   const totalSec = data.sessions.reduce((a, s) => a + s.seconds, 0);
   const badges = Object.keys(data.badges).length;
-  const others = Object.values(profiles).filter((p) => p.profile.id !== activeId);
+  // Only this account's explorers. A shared browser can hold another
+  // household's profiles in the same local cache; listing them here showed
+  // four explorers on a device whose picker only ever offered one, and counted
+  // strangers against this account's allowance.
+  const mine = visibleProfileIds(Object.keys(profiles), user?.id ?? null, owners);
+  const others = mine.filter((id) => id !== activeId).map((id) => profiles[id]);
   const rank = data.assessment?.rank ?? 'Sprout I';
   const email = user?.email ?? (user?.user_metadata?.name as string | undefined);
 
@@ -179,10 +186,10 @@ export default function Profile() {
                   <span><strong>{p.profile.name}</strong><small>Level {levelInfo(p.xp).level}</small></span>
                 </button>
               ))}
-              {Object.keys(profiles).length < MAX_PROFILES
+              {mine.length < MAX_PROFILES
                 ? <Btn kind="soft" onClick={() => nav('/onboarding')}><Ic n="user-plus" size={15} /> Add another explorer</Btn>
                 : <p className="small muted">This device holds the maximum of {MAX_PROFILES} explorers. Delete one to add someone new.</p>}
-              <Btn kind="soft" onClick={async () => { await auth.signOut(); nav('/who'); }}><Ic n="users" size={15} /> Switch explorer</Btn>
+              <Btn kind="soft" onClick={() => nav('/who')}><Ic n="users" size={15} /> Switch explorer</Btn>
               <p className="small muted" style={{ marginTop: 2 }}>Switching just changes who's typing. Nothing is deleted, and everyone's progress stays saved.</p>
             </div>
             {isSupabaseConfigured && user && (

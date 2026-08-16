@@ -451,6 +451,7 @@ h1 .ic, h2 .ic, h3 .ic { margin-right: 4px; color: var(--accent); }
   transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
 }
 .who-card:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 10px 22px color-mix(in oklab, var(--accent) 20%, transparent); }
+.who-card.on { border-color: var(--accent); background: color-mix(in oklab, var(--accent) 12%, var(--surface2)); }
 .who-card strong { font-size: 0.9rem; line-height: 1.25; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .who-card small { display: flex; align-items: center; gap: 4px; font-size: 0.74rem; }
 .who-av { border-radius: 20%; }
