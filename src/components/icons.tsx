@@ -15,7 +15,7 @@ import {
   Snowflake, Umbrella, Bike, Camera, Gift, Key, Magnet, Origami, Pyramid, Rainbow,
   Save, Ship, Stamp, Sword, Telescope, Watch, Axe, Banana, Cat, Dog, Fish, Squirrel,
   Signpost, ZoomIn, Type, Ear, PersonStanding, Snail, Dices, Castle, Candy, Pause, CircleHelp,
-  LogOut, UserPlus, ChevronRight, Check,
+  LogOut, UserPlus, ChevronRight, ChevronLeft, Check,
   RefreshCw, CloudOff, Mail, CloudCheck,
   type LucideIcon,
 } from 'lucide-react';
@@ -50,7 +50,7 @@ export const ICONS: Record<string, LucideIcon> = {
   axe: Axe, banana: Banana, cat: Cat, dog: Dog, fish: Fish, squirrel: Squirrel,
   signpost: Signpost, zoom: ZoomIn, type: Type, ear: Ear, person: PersonStanding,
   snail: Snail, dice: Dices, castle: Castle, candy: Candy, pause: Pause, help: CircleHelp,
-  logout: LogOut, 'user-plus': UserPlus, 'chevron-right': ChevronRight, tick: Check,
+  logout: LogOut, 'user-plus': UserPlus, 'chevron-right': ChevronRight, 'chevron-left': ChevronLeft, tick: Check,
   refresh: RefreshCw, 'cloud-off': CloudOff, mail: Mail, 'cloud-check': CloudCheck,
 };
 

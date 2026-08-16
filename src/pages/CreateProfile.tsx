@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { useStore, randomKidName, MAX_PROFILES } from '../lib/store';
-import { useAccount } from '../lib/account';
+import { account, useAccount } from '../lib/account';
 import { useSync, visibleProfileIds } from '../lib/syncEngine';
 import { readAnonResult, clearAnonResult, starterAssessment } from '../lib/starter';
 import { Btn, Logo } from '../components/ui';
 import { Ic } from '../components/icons';
-import { BlockAvatar } from '../components/avatars';
+import { BlockAvatar, presetValue } from '../components/avatars';
 import type { AgeGroup } from '../lib/types';
 
 /**
@@ -46,9 +46,23 @@ export default function CreateProfile() {
   const [name, setName] = useState('');
   const [avatar, setAvatar] = useState(0);
 
+  const first = count === 0;
+  // The way out. Once explorers exist there is a picker behind this screen, so
+  // "not now" is a real destination and Escape can take it. The very first
+  // explorer has nothing behind it but the public site — that case is handled
+  // by the account footer below, because the person who is truly stuck here is
+  // the parent who signed in with the wrong Google account.
+  const back = first ? null : (next ? after : '/who');
+
+  useEffect(() => {
+    if (!back) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') nav(back); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [back, nav]);
+
   if (count >= MAX_PROFILES) return <Navigate to={next ? after : '/who'} replace />;
 
-  const first = count === 0;
   // Children shouldn't publish their real name, and a grown-up setting up for a
   // child often can't think of one — so kids get a safe generated suggestion.
   const finalName = name.trim() || (age === 'kid' ? randomKidName() : 'Explorer');
@@ -56,7 +70,7 @@ export default function CreateProfile() {
   const create = () => {
     if (!age) return;
     const id = createProfile({
-      name: finalName, avatar: `bk:${avatar}`, ageGroup: age,
+      name: finalName, avatar: presetValue(avatar), ageGroup: age,
       goal: age === 'kid' ? 'school' : 'basics',
       looksAtKeyboard: 'sometimes',
       experience: age === 'kid' ? 'new' : 'some',
@@ -77,7 +91,7 @@ export default function CreateProfile() {
 
   return (
     <div className="ob-page">
-      <Logo />
+      <Link to="/" aria-label="Back to landing page"><Logo /></Link>
       <div className="signin-wrap">
         <h1>{first ? 'Who’s learning?' : 'Add an explorer'}</h1>
         <p className="muted">
@@ -137,6 +151,34 @@ export default function CreateProfile() {
             </p>
           </div>
         )}
+
+        {/* Every other screen in the journey has somewhere to go; this one used
+            to have nothing but a button you could only press after answering.
+            The exit stays subordinate — a link, below the fold of the task. */}
+        <div className="cp-exit">
+          {back ? (
+            <button type="button" className="who-add-link" onClick={() => nav(back)}>
+              <Ic n="chevron-left" size={15} /> Back to explorers
+            </button>
+          ) : (
+            <Link className="who-add-link" to="/">
+              <Ic n="chevron-left" size={15} /> Back to KeyTopia
+            </Link>
+          )}
+
+          {/* Signed in as the wrong person is the one dead end a back link
+              cannot fix, so the account is reachable from here too. */}
+          {first && (
+            <div className="who-account">
+              <span className="who-account-who">
+                <Ic n="user" size={13} /> {user?.email ?? 'Signed in'}
+              </span>
+              <button type="button" className="who-signout" onClick={() => void account.signOut()}>
+                Log out
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

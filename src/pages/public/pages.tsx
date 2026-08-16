@@ -115,7 +115,6 @@ export function CurriculumPage() {
     <PublicPage
       page={def('/curriculum')}
       lede="Nine regions, folded into five worlds, 41 lessons. Difficulty ramps between worlds rather than inside them, so no single lesson ever jumps."
-      wide
     >
       <p className="pub-intro">
         The curriculum rebuilds itself around your keyboard layout (QWERTY, QWERTZ, AZERTY,
@@ -163,7 +162,6 @@ export function TypingGamesPage() {
     <PublicPage
       page={def('/typing-games')}
       lede="Not typing glued onto someone else's arcade game. Each one is built around a single named skill, and tells you which skill that is."
-      wide
     >
       <p className="pub-intro">
         A typing game only helps if the thing it rewards is the thing you want to get better at.
@@ -377,7 +375,6 @@ export function AdaptivePracticePage() {
     <PublicPage
       page={def('/adaptive-practice')}
       lede="Most typing tutors give everyone lesson one. KeyTopia reads what your fingers actually do, then builds the next two minutes out of the keys you keep getting wrong."
-      wide
     >
       <p className="pub-intro">
         The engine has one job: know, at all times, which keys and which letter transitions are
@@ -450,7 +447,6 @@ export function PracticeModesPage() {
     <PublicPage
       page={def('/typing-practice-modes')}
       lede="Practice only pays if you know what it is buying. Every mode names the one skill it builds, so you can pick the five minutes you actually need."
-      wide
     >
       <p className="pub-intro">
         Adaptive practice is the default and covers most days. The rest exist because typing is not
@@ -505,7 +501,6 @@ export function RacesPage() {
     <PublicPage
       page={def('/typing-races')}
       lede="Racing is the part people come back for. It works because the rivals type like people do, and because there is never a stranger on the other side of the screen."
-      wide
     >
       <p className="pub-intro">
         A race is the shortest possible way to find out whether a skill has become automatic. Under
@@ -565,7 +560,6 @@ export function AnalyticsPage() {
     <PublicPage
       page={def('/typing-analytics')}
       lede="A words-per-minute number tells you almost nothing about what to do next. These views tell you exactly what to do next."
-      wide
     >
       <p className="pub-intro">
         KeyTopia records the timing of every keystroke you make, and then works hard to show you only

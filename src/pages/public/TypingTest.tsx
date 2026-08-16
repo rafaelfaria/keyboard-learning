@@ -247,7 +247,6 @@ export function TypingTestPage() {
     <PublicPage
       page={page}
       lede="Type the passage below. You get WPM, raw speed, accuracy, consistency and a per-key breakdown. Free, no sign-up, and the result never leaves your browser."
-      wide
     >
       <section className="tt-test" aria-label="Typing test">
         <div className="tt-controls" role="group" aria-label="Test length">

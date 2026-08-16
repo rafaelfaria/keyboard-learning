@@ -4,6 +4,15 @@
 * { margin: 0; }
 
 :root {
+  /* The one container. Every page outside the app — the landing, the public
+     pages, and the header and footer that frame both — puts its content in a
+     box this wide, so the reader sees a single left edge from the logo down to
+     the last footer link. 1180px is the header's long-standing outer width;
+     --shell is what is left inside it once the gutter is taken off each side,
+     which is the width the content actually occupies. */
+  --gutter: clamp(16px, 4vw, 32px);
+  --shell: calc(1180px - 2 * var(--gutter));
+
   --fscale: 1;
   --font-ui: 'Manrope Variable', system-ui, -apple-system, sans-serif;
   --font-type: 'JetBrains Mono', 'SF Mono', Consolas, monospace;

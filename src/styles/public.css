@@ -11,7 +11,7 @@
    base.css, which lists .pub-root alongside [data-theme='midnight'] so the
    whole token set arrives together. See the comment there for why. */
 .pub-root {
-  /* Measure and rhythm.
+  /* One container, and rhythm.
      ------------------------------------------------------------------
      These pages had five different prose widths (62ch, 68ch, 70ch, 48ch, and
      whatever a card happened to be) and ten different vertical gaps, each one
@@ -19,22 +19,18 @@
      system: a lede that wraps at one point sitting above an intro that wraps
      at another, with no reason a reader could infer.
 
-     One measure for every block of prose, so all of it shares a right edge.
-     One spacing scale, so every gap on the page is a multiple of the same
-     idea. Wide pages still let grids and bands span the full container: two
-     deliberate widths read as structure, five arbitrary ones read as an
-     accident.
+     The width every element now shares is the one the reader already sees on
+     every page: the content box of the nav. --shell and --gutter are defined
+     once in base.css and used by the header, the footer, the landing page and
+     everything below, so nothing on a public page stops short of the container
+     the shell has already drawn.
 
-     The measure is in rem, not ch, which is the detail that actually fixes
-     this. `ch` is relative to the element's own font size, so a single
-     `68ch` token still produced three different right edges: one for the
-     lede, one for the intro and one for body copy. A rem measure gives every
-     block the same edge whatever size it is set in. It also equals the
-     standard container, so on a prose page the text fills its column exactly
-     and there is one width on screen; wide pages keep the wider container for
-     grids, and the two-tier difference is large enough to read as structure. */
-  --measure: 42rem;       /* prose, and the headings that sit above it */
-  --measure-tight: 30rem; /* centred copy, which needs a shorter line */
+     --measure exists so the prose rules read as prose rules, but it is the
+     shell: text runs the full container rather than sitting in a narrower
+     column inside it. --measure-tight is the exception, for copy that is
+     centred rather than set flush left. */
+  --measure: var(--shell);  /* prose, and the headings that sit above it */
+  --measure-tight: 30rem;   /* centred copy, which needs a shorter line */
 
   --flow-1: 0.5rem;
   --flow-2: 0.9rem;
@@ -54,7 +50,7 @@
 html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
 
 .pub-wrap {
-  width: min(100% - 2.5rem, 74rem);
+  width: min(100% - 2 * var(--gutter), var(--shell));
   margin-inline: auto;
 }
 
@@ -76,7 +72,9 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
   max-width: 1180px;
   margin-inline: auto;
   min-height: 4rem;
-  padding: 0.55rem clamp(16px, 4vw, 32px);
+  /* The gutter --shell is derived from, so the logo sits on the same edge as
+     the page body below it. */
+  padding: 0.55rem var(--gutter);
   display: flex;
   align-items: center;
   gap: clamp(12px, 3vw, 28px);
@@ -216,36 +214,21 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
   padding: 2.5rem 0 4.5rem;
 }
 
-/* Reading column, then breakouts.
+/* No reading column, and so no breakouts.
    ------------------------------------------------------------------
-   The wide pages used to set a 68rem container and cap prose at the 42rem
-   measure inside it. Two widths, but lopsided: every paragraph sat hard left
-   with a third of the container empty to its right, which reads as a broken
-   line-break rather than as a column.
+   Two earlier attempts at this: a 68rem container with prose capped at a
+   42rem measure inside it, which left every paragraph hard left with a third
+   of the row empty to its right; then the measure AS the container, with
+   grids and bands breaking out of it. The second is symmetrical, but it makes
+   the page body visibly narrower than the nav above it and the footer below
+   it, so the content reads as failing to reach a container the shell has
+   already drawn.
 
-   Now the container IS the measure on every page, so prose is centred in the
-   viewport, and the blocks that genuinely want more room — card grids, CTA
-   bands, product shots — break out of it equally on both sides. The page has
-   one axis of symmetry instead of a ragged right edge. */
-.pub-main .pub-wrap { width: min(100% - 2.5rem, var(--measure)); }
-
-/* How far a breakout may spread. Prose-only pages do not bleed at all, which
-   is what the `wide` prop on PublicPage now decides. */
-.pub-main { --bleed: var(--measure); }
-.pub-main-wide { --bleed: 68rem; }
-
-.pub-grid,
-.pub-play-grid,
-.pub-next-grid,
-.pub-cta-band,
-.pub-shot {
-  /* Viewport-relative, not `100% + …`: percentages here resolve against the
-     reading column, so the breakout could never grow past it. The 2.5rem
-     matches the container's own gutter and stays clear of the scrollbar. */
-  --bleed-w: min(100vw - 2.5rem, var(--bleed));
-  width: var(--bleed-w);
-  margin-inline: calc((100% - var(--bleed-w)) / 2);
-}
+   One width now. .pub-wrap is the nav's content box, prose included, and
+   nothing breaks out of anything: grids and bands are simply block children
+   filling the container, so their edges are the container's edges by
+   construction rather than by arithmetic. .pub-main therefore needs no
+   container rule of its own; the one .pub-wrap on the page is enough. */
 
 .pub-crumbs { margin-bottom: 1.5rem; }
 
@@ -787,11 +770,15 @@ html:has(.pub-root) { background: #0b1020; color-scheme: dark; }
   background: #0d1226;
   border-top: 1px solid #1e2748;
   color: #eef1fb;
-  padding: clamp(38px, 5vw, 58px) clamp(16px, 4vw, 42px) clamp(26px, 3vw, 38px);
+  padding: clamp(38px, 5vw, 58px) var(--gutter) clamp(26px, 3vw, 38px);
 }
 
+/* Was 1080px, against the header's 1116px content box: an 18px-per-side
+   disagreement between the two pieces of furniture that frame every page, in
+   the one place a reader can see both edges at once. Both are the shell now,
+   on the landing as well as here. */
 .site-foot-inner {
-  max-width: 1080px;
+  max-width: var(--shell);
   margin-inline: auto;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));

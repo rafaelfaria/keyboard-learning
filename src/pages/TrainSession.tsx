@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useData, useStore, useUi } from '../lib/store';
 import { buildModeText } from '../lib/adaptive';
 import type { Rewards, SessionMode, SessionResult } from '../lib/types';
@@ -51,7 +51,14 @@ export default function TrainSession() {
   const pushToast = useUi((s) => s.pushToast);
 
   const meta = MODES.find((m) => m.id === modeParam) ?? MODES[0];
-  const [phase, setPhase] = useState<'pre' | 'run' | 'done'>('pre');
+
+  /* A button that already said "Start" should not land on a second Start. Modes
+     with a pre-flight step (duration, pasted text, dictation notice) still show
+     the intro, because there is something real to decide there. */
+  const [params] = useSearchParams();
+  const autostart = params.get('start') === '1' && !meta.pre;
+
+  const [phase, setPhase] = useState<'pre' | 'run' | 'done'>(autostart ? 'run' : 'pre');
   const [duration, setDuration] = useState(60);
   const [customText, setCustomText] = useState('');
   const [seed, setSeed] = useState(() => Math.floor(Math.random() * 1e9));
@@ -59,7 +66,7 @@ export default function TrainSession() {
   const [paused, setPaused] = useState(false);
   const [pulse, setPulse] = useState(false);
 
-  useEffect(() => { setPhase('pre'); setFinished(null); setSeed(Math.floor(Math.random() * 1e9)); }, [modeParam]);
+  useEffect(() => { setPhase(autostart ? 'run' : 'pre'); setFinished(null); setSeed(Math.floor(Math.random() * 1e9)); }, [modeParam, autostart]);
 
   const gen = useMemo(
     () => (data ? buildModeText(meta.id, data, { seconds: duration, seed, custom: customText }) : null),
@@ -115,6 +122,9 @@ export default function TrainSession() {
     if (meta.id === 'zen' && phase === 'run' && data?.settings.soundOn) startZen();
     return () => stopZen();
   }, [meta.id, phase, data?.settings.soundOn]);
+
+  // Skipping the intro also skips the focus() that Start would have done.
+  useEffect(() => { if (autostart) setTimeout(session.focus, 60); }, [modeParam, autostart]);
 
   useEffect(() => () => { stopSpeak(); stopZen(); }, []);
 
