@@ -202,7 +202,7 @@ export const KINDS: KindDef[] = [
   K({
     id: 'cat', name: 'Cat', blurb: 'Silent paws, very loud opinions.',
     collection: 'creatures', crown: 'beast', level: 0,
-    suggests: { mouth: 'whiskers', eyes: 'bright' },
+    suggests: { mouth: 'whiskers', eyes: 'bright', skin: 6, hairColor: 7 },
     back(c) { earsUp(c, c.hair, '#f0b7c9'); },
     front(c) {
       box(c.out, 6, 8, 9, 9, '#f6ece4');
@@ -249,7 +249,7 @@ export const KINDS: KindDef[] = [
   K({
     id: 'owl', name: 'Owl', blurb: 'Sees every typo coming.',
     collection: 'creatures', crown: 'beast', level: 0,
-    suggests: { eyes: 'huge', mouth: 'beak' },
+    suggests: { eyes: 'huge', mouth: 'beak', skin: 2, hairColor: 2 },
     back(c) {
       sym(c.out, 3, 0, c.hair); sym(c.out, 4, 0, c.hair); sym(c.out, 3, 1, c.hair);
     },
@@ -260,7 +260,7 @@ export const KINDS: KindDef[] = [
   K({
     id: 'bunny', name: 'Bunny', blurb: 'Small hops, big word counts.',
     collection: 'creatures', crown: 'beast', level: 2,
-    suggests: { mouth: 'buck' },
+    suggests: { mouth: 'buck', skin: 0, hairColor: 4 },
     back(c) {
       for (let y = 0; y <= 2; y++) { sym(c.out, 4, y, c.hair); sym(c.out, 5, y, c.hair); }
       sym(c.out, 5, 1, '#f0b7c9'); sym(c.out, 5, 2, '#f0b7c9');
@@ -548,13 +548,29 @@ export const EYES: PartDef[] = [
     P(c.out, EYE_R, EYE_Y, c.hairS); P(c.out, EYE_R + 1, EYE_Y, c.hairS);
   }),
   PART('huge', 'Huge', 2, (c) => {
+    const { expr } = c;
+    if (expr === 'oops') {
+      row(c.out, EYE_Y + 1, EYE_L - 1, EYE_L + 1, INK);
+      row(c.out, EYE_Y + 1, EYE_R, EYE_R + 2, INK);
+      return;
+    }
     box(c.out, EYE_L - 1, EYE_Y, EYE_L + 1, EYE_Y + 1, WHITE);
     box(c.out, EYE_R, EYE_Y, EYE_R + 2, EYE_Y + 1, WHITE);
-    P(c.out, EYE_L, EYE_Y + 1, INK); P(c.out, EYE_R + 1, EYE_Y + 1, INK);
-    P(c.out, EYE_L - 1, EYE_Y, WHITE); P(c.out, EYE_R + 2, EYE_Y, WHITE);
+    const up = expr === 'excited';
+    P(c.out, EYE_L, EYE_Y + (up ? 0 : 1), INK); P(c.out, EYE_R + 1, EYE_Y + (up ? 0 : 1), INK);
+    if (expr === 'focused') { row(c.out, EYE_Y, EYE_L - 1, EYE_L + 1, c.hairS); row(c.out, EYE_Y, EYE_R, EYE_R + 2, c.hairS); }
+    if (expr === 'chill') { row(c.out, EYE_Y, EYE_L - 1, EYE_L + 1, c.skinS); row(c.out, EYE_Y, EYE_R, EYE_R + 2, c.skinS); }
   }),
   PART('bulge', 'Bulging', 2, (c) => {
-    sym(c.out, 4, 1, WHITE); sym(c.out, 5, 1, INK);
+    const { expr } = c;
+    if (expr === 'oops') { sym(c.out, 4, 1, INK); sym(c.out, 5, 1, INK); }
+    else {
+      sym(c.out, 4, 1, WHITE); sym(c.out, 5, 1, WHITE);
+      // the pupils slide with the mood: out when excited, in when concentrating
+      sym(c.out, expr === 'excited' ? 4 : 5, 1, INK);
+      if (expr === 'focused') sym(c.out, 4, 0, c.hairS);
+      if (expr === 'chill') sym(c.out, 5, 0, c.skinS);
+    }
     P(c.out, EYE_L + 1, EYE_Y + 1, c.skinS); P(c.out, EYE_R, EYE_Y + 1, c.skinS);
   }),
   PART('wink', 'Wink', 4, (c) => {
@@ -703,9 +719,14 @@ export const GEARS: PartDef[] = [
   }),
   PART('helm', 'Helm', 9, (c) => {
     cap(c, 3, '#98a2b5');
-    row(c.out, c.face.y0 + 3, 3, 12, '#c2cad9');
-    box(c.out, 7, c.face.y0, 8, c.face.y0 + 3, '#7c869c');
     row(c.out, c.face.y0 - 1, 5, 10, '#98a2b5');
+    row(c.out, 4, 3, 12, '#c2cad9');              // brow ridge, just above the slot
+    for (let y = 5; y <= 8; y++) {                // cheek guards flank the eyes
+      P(c.out, 3, y, '#98a2b5'); P(c.out, 4, y, '#7c869c');
+      P(c.out, 11, y, '#7c869c'); P(c.out, 12, y, '#98a2b5');
+    }
+    for (let y = 4; y <= 7; y++) { P(c.out, 7, y, '#7c869c'); P(c.out, 8, y, '#7c869c'); }
+    row(c.out, 9, 4, 11, '#98a2b5');
   }),
   PART('crown', 'Crown', 10, (c) => {
     row(c.out, c.face.y0, 4, 11, '#e8bb3a');
@@ -898,6 +919,59 @@ export const CATALOGUE: Record<Exclude<Slot, 'kind' | 'face'>, PartDef[]> = {
   hair: HAIRS, eyes: EYES, mouth: MOUTHS, gear: GEARS, outfit: OUTFITS, aura: AURAS,
 };
 
+/**
+ * What a wearer at this level may use.
+ *
+ * A creature's own colours and features are its identity, not a reward: a frog
+ * is green at level 1 or it is not a frog. So anything a kind suggests counts
+ * as unlocked while you are wearing that kind, even when the same swatch is
+ * still locked for everyone else.
+ */
+export function isPartOpen(ch: Character, slot: Exclude<Slot, 'kind' | 'face'>, part: PartDef, level: number): boolean {
+  return part.level <= level || KIND_BY_ID.get(ch.kind)?.suggests?.[slot] === part.id;
+}
+
+export function isSwatchOpen(ch: Character, key: SwatchKey, i: number, level: number): boolean {
+  const list = SWATCHES[key];
+  return (list[i]?.level ?? 99) <= level || KIND_BY_ID.get(ch.kind)?.suggests?.[key] === i;
+}
+
+export type SwatchKey = 'skin' | 'hairColor' | 'outfitColor';
+export const SWATCHES: Record<SwatchKey, Swatch[]> = {
+  skin: SKINS, hairColor: HAIR_COLORS, outfitColor: OUTFIT_COLORS,
+};
+
+/**
+ * Clamp a character to what its wearer may actually put on: nothing above their
+ * level, and nothing a cat could physically wear. Run after every kind switch,
+ * because the parts that fit an explorer are not the parts that fit a dragon.
+ */
+export function wearable(ch: Character, level: number): Character {
+  const next = { ...ch };
+  if ((KIND_BY_ID.get(next.kind)?.level ?? 99) > level) next.kind = 'human';
+  const face = FACES.find((f) => f.id === next.face);
+  if (!face || face.level > level) next.face = 'round';
+  for (const slot of ['hair', 'eyes', 'mouth', 'gear', 'outfit', 'aura'] as const) {
+    const fits = partsFor(slot, next.kind);
+    const open = fits.filter((p) => isPartOpen(next, slot, p, level));
+    if (!open.some((p) => p.id === next[slot])) next[slot] = (open[0] ?? fits[0]).id;
+  }
+  for (const key of ['skin', 'hairColor', 'outfitColor'] as const) {
+    if (!isSwatchOpen(next, key, next[key], level)) next[key] = 0;
+  }
+  return next;
+}
+
+/**
+ * Switch kind. The suggestions are what make the creature read as itself, so
+ * they win — but they only cover the slots that kind actually cares about, and
+ * everything else you picked comes along unchanged.
+ */
+export function applyKind(prev: Character, kindId: string, level: number): Character {
+  const kind = KIND_BY_ID.get(kindId);
+  return wearable({ ...prev, ...kind?.suggests, kind: kindId }, level);
+}
+
 /** Parts of a slot that this kind can wear, in catalogue order. */
 export function partsFor(slot: Exclude<Slot, 'kind' | 'face'>, kindId: string): PartDef[] {
   const kind = KIND_BY_ID.get(kindId) ?? KINDS[0];
@@ -908,22 +982,14 @@ export function partsFor(slot: Exclude<Slot, 'kind' | 'face'>, kindId: string): 
 
 const findPart = (list: PartDef[], id: string) => list.find((p) => p.id === id);
 
-/** Highest level requirement anywhere in a character, i.e. what it takes to wear it. */
+/**
+ * The level you need to wear this character exactly as it is — found by asking
+ * the wardrobe itself, so a creature's own colours never count against it.
+ */
 export function characterLevel(ch: Character): number {
-  const bits = [
-    KIND_BY_ID.get(ch.kind)?.level ?? 0,
-    FACES.find((f) => f.id === ch.face)?.level ?? 0,
-    findPart(HAIRS, ch.hair)?.level ?? 0,
-    findPart(EYES, ch.eyes)?.level ?? 0,
-    findPart(MOUTHS, ch.mouth)?.level ?? 0,
-    findPart(GEARS, ch.gear)?.level ?? 0,
-    findPart(OUTFITS, ch.outfit)?.level ?? 0,
-    findPart(AURAS, ch.aura)?.level ?? 0,
-    SKINS[ch.skin]?.level ?? 0,
-    HAIR_COLORS[ch.hairColor]?.level ?? 0,
-    OUTFIT_COLORS[ch.outfitColor]?.level ?? 0,
-  ];
-  return Math.max(...bits);
+  const want = encodeCharacter(ch);
+  for (let l = 0; l <= 40; l++) if (encodeCharacter(wearable(ch, l)) === want) return l;
+  return 40;
 }
 
 /** Everything that unlocks exactly at this level, for the "recently unlocked" rail. */
@@ -1052,41 +1118,48 @@ const C = (p: Partial<Character>): Character => ({ ...DEFAULT_CHARACTER, ...p })
  * Indices 0-19 are people, 20-24 the animal pals — the order the rest of the
  * app relies on through ANIMAL_START.
  */
-export const PRESET_CHARACTERS: { ch: Character; level: number }[] = [
-  { ch: C({ skin: 0, hairColor: 1, hair: 'short', outfit: 'hoodieK', outfitColor: 0 }), level: 0 },
-  { ch: C({ skin: 1, hairColor: 0, hair: 'spiky', eyes: 'determined', outfit: 'tee', outfitColor: 2 }), level: 0 },
-  { ch: C({ skin: 2, hairColor: 1, hair: 'side', face: 'square', outfit: 'collar', outfitColor: 1 }), level: 0 },
-  { ch: C({ skin: 4, hairColor: 0, hair: 'curls', outfit: 'tee', outfitColor: 3 }), level: 0 },
-  { ch: C({ skin: 3, hairColor: 2, hair: 'long', face: 'oval', outfit: 'hoodie', outfitColor: 4 }), level: 0 },
-  { ch: C({ skin: 5, hairColor: 0, hair: 'flat', outfit: 'tee', outfitColor: 6 }), level: 0 },
-  { ch: C({ skin: 0, hairColor: 4, hair: 'ponytail', mouth: 'grin', outfit: 'jersey', outfitColor: 5 }), level: 2 },
-  { ch: C({ skin: 1, hairColor: 5, hair: 'spiky', gear: 'cap', outfit: 'hoodie', outfitColor: 1 }), level: 2 },
-  { ch: C({ skin: 2, hairColor: 6, hair: 'bob', gear: 'glasses', outfit: 'collar', outfitColor: 7 }), level: 3 },
-  { ch: C({ skin: 0, hairColor: 3, hair: 'short', gear: 'beanie', outfit: 'scarf', outfitColor: 2 }), level: 3 },
-  { ch: C({ skin: 3, hairColor: 9, hair: 'buns', outfit: 'jacket', outfitColor: 6 }), level: 4 },
-  { ch: C({ skin: 1, hairColor: 11, hair: 'braids', mouth: 'smirk', outfit: 'overalls', outfitColor: 8 }), level: 5 },
-  { ch: C({ skin: 2, hairColor: 8, hair: 'afro', gear: 'glasses', outfit: 'labcoat', outfitColor: 0 }), level: 6 },
-  { ch: C({ skin: 4, hairColor: 7, hair: 'mohawk', eyes: 'determined', outfit: 'jacket', outfitColor: 2 }), level: 8 },
-  { ch: C({ kind: 'dragon', skin: 8, hairColor: 3, hair: 'horns', mouth: 'fangs', outfit: 'wings', outfitColor: 3 }), level: 8 },
-  { ch: C({ kind: 'robot', face: 'square', skin: 6, hairColor: 7, hair: 'antenna', eyes: 'led', mouth: 'grid', outfit: 'plating', outfitColor: 2 }), level: 9 },
-  { ch: C({ skin: 9, hairColor: 10, hair: 'long', gear: 'crown', outfit: 'cape', outfitColor: 10 }), level: 10 },
-  { ch: C({ kind: 'wizard', skin: 0, hairColor: 7, hair: 'beard', eyes: 'wise', gear: 'wizardhat', outfit: 'robe', outfitColor: 10 }), level: 11 },
-  { ch: C({ kind: 'astronaut', skin: 1, hair: 'short', hairColor: 1, gear: 'dome', outfit: 'suit', aura: 'stars', outfitColor: 1 }), level: 14 },
-  { ch: C({ kind: 'phoenix', skin: 11, hairColor: 5, hair: 'flame', mouth: 'beak', eyes: 'star', outfit: 'wings', outfitColor: 5, aura: 'embers' }), level: 20 },
-  { ch: C({ kind: 'cat', skin: 6, hairColor: 7, hair: 'tuft', mouth: 'whiskers', outfit: 'tee', outfitColor: 8 }), level: 0 },
-  { ch: C({ kind: 'fox', skin: 1, hairColor: 5, hair: 'tuft', mouth: 'whiskers', outfit: 'tee', outfitColor: 5 }), level: 0 },
-  { ch: C({ kind: 'frog', skin: 8, hairColor: 8, eyes: 'bulge', mouth: 'wide', hair: 'none', outfit: 'tee', outfitColor: 3 }), level: 0 },
-  { ch: C({ kind: 'panda', skin: SNOW_SKIN, hairColor: 0, hair: 'none', mouth: 'small', outfit: 'tee', outfitColor: 2 }), level: 0 },
-  { ch: C({ kind: 'owl', skin: 2, hairColor: 3, eyes: 'huge', mouth: 'beak', hair: 'none', outfit: 'tee', outfitColor: 4 }), level: 0 },
+const PRESET_LIST: Character[] = [
+  C({ skin: 0, hairColor: 1, hair: 'short', outfit: 'hoodieK', outfitColor: 0 }),
+  C({ skin: 1, hairColor: 0, hair: 'spiky', eyes: 'determined', outfit: 'tee', outfitColor: 2 }),
+  C({ skin: 2, hairColor: 1, hair: 'side', face: 'square', outfit: 'collar', outfitColor: 1 }),
+  C({ skin: 4, hairColor: 0, hair: 'curls', outfit: 'tee', outfitColor: 3 }),
+  C({ skin: 3, hairColor: 2, hair: 'long', face: 'oval', outfit: 'hoodie', outfitColor: 4 }),
+  C({ skin: 5, hairColor: 0, hair: 'flat', outfit: 'tee', outfitColor: 6 }),
+  C({ skin: 0, hairColor: 4, hair: 'ponytail', mouth: 'grin', outfit: 'jersey', outfitColor: 5 }),
+  C({ skin: 1, hairColor: 5, hair: 'spiky', gear: 'cap', outfit: 'hoodie', outfitColor: 1 }),
+  C({ skin: 2, hairColor: 6, hair: 'bob', gear: 'glasses', outfit: 'collar', outfitColor: 7 }),
+  C({ skin: 0, hairColor: 3, hair: 'short', gear: 'beanie', outfit: 'scarf', outfitColor: 2 }),
+  C({ skin: 3, hairColor: 9, hair: 'buns', outfit: 'jacket', outfitColor: 6 }),
+  C({ skin: 1, hairColor: 11, hair: 'braids', mouth: 'smirk', outfit: 'overalls', outfitColor: 8 }),
+  C({ skin: 2, hairColor: 8, hair: 'afro', gear: 'glasses', outfit: 'labcoat', outfitColor: 0 }),
+  C({ skin: 4, hairColor: 7, hair: 'mohawk', eyes: 'determined', outfit: 'jacket', outfitColor: 2 }),
+  C({ kind: 'dragon', skin: 8, hairColor: 3, hair: 'horns', mouth: 'fangs', outfit: 'wings', outfitColor: 3 }),
+  C({ kind: 'robot', face: 'square', skin: 6, hairColor: 7, hair: 'antenna', eyes: 'led', mouth: 'grid', outfit: 'plating', outfitColor: 2 }),
+  C({ skin: 9, hairColor: 10, hair: 'long', gear: 'crown', outfit: 'cape', outfitColor: 10 }),
+  C({ kind: 'wizard', skin: 0, hairColor: 7, hair: 'beard', eyes: 'wise', gear: 'wizardhat', outfit: 'robe', outfitColor: 10 }),
+  C({ kind: 'astronaut', skin: 1, hair: 'short', hairColor: 1, gear: 'dome', outfit: 'suit', aura: 'stars', outfitColor: 1 }),
+  C({ kind: 'phoenix', skin: 11, hairColor: 5, hair: 'flame', mouth: 'beak', eyes: 'star', outfit: 'wings', outfitColor: 5, aura: 'embers' }),
+  C({ kind: 'cat', skin: 6, hairColor: 7, hair: 'tuft', mouth: 'whiskers', outfit: 'tee', outfitColor: 6 }),
+  C({ kind: 'fox', skin: 1, hairColor: 5, hair: 'tuft', mouth: 'whiskers', outfit: 'tee', outfitColor: 5 }),
+  C({ kind: 'frog', skin: 8, hairColor: 0, eyes: 'bulge', mouth: 'wide', hair: 'none', outfit: 'tee', outfitColor: 3 }),
+  C({ kind: 'panda', skin: SNOW_SKIN, hairColor: 0, hair: 'none', mouth: 'small', outfit: 'tee', outfitColor: 2 }),
+  C({ kind: 'owl', skin: 2, hairColor: 3, eyes: 'huge', mouth: 'beak', hair: 'none', outfit: 'tee', outfitColor: 4 }),
 ];
 
+/**
+ * Each preset is offered at the level its own parts require, so the grid can
+ * never advertise an explorer you are not allowed to wear.
+ */
+export const PRESET_CHARACTERS: { ch: Character; level: number }[] =
+  PRESET_LIST.map((ch) => ({ ch, level: characterLevel(ch) }));
+
 /** Index of the first animal preset; kid-mode racers draw from this range. */
-export const ANIMAL_START = PRESET_CHARACTERS.length - 5;
+export const ANIMAL_START = PRESET_LIST.length - 5;
 export const ANIMAL_COUNT = 5;
 
 /** Old "bk:<n>" avatars keep their identity by mapping onto the preset list. */
 export function legacyCharacter(n: number): Character {
-  return PRESET_CHARACTERS[Math.abs(n) % PRESET_CHARACTERS.length].ch;
+  return PRESET_LIST[Math.abs(n) % PRESET_LIST.length];
 }
 
 // ---------------------------------------------------------------- shuffling

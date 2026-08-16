@@ -5,11 +5,10 @@ import { Ic } from '../components/icons';
 import { CharacterSprite } from '../components/avatars';
 import { Bar, Btn, Card } from '../components/ui';
 import {
-  AURAS, COLLECTIONS, EYES, FACES, GEARS, HAIRS, HAIR_COLORS, KINDS, KIND_BY_ID,
-  MOUTHS, OUTFITS, OUTFIT_COLORS, SKINS,
-  collectionProgress, decodeCharacter, describeCharacter, encodeCharacter,
-  partsFor, randomCharacter, unlockedCount, unlocksAt,
-  type Character, type Collection, type Expression, type PartDef, type Swatch,
+  COLLECTIONS, FACES, HAIR_COLORS, OUTFIT_COLORS, SKINS,
+  applyKind, collectionProgress, decodeCharacter, describeCharacter, encodeCharacter,
+  isPartOpen, isSwatchOpen, partsFor, randomCharacter, unlockedCount, unlocksAt,
+  type Character, type Collection, type Expression, type PartDef, type Swatch, type SwatchKey,
 } from '../lib/character';
 
 const PART_SLOTS = ['hair', 'eyes', 'mouth', 'gear', 'outfit', 'aura'] as const;
@@ -37,27 +36,6 @@ const EXPRESSIONS: { id: Expression; label: string }[] = [
   { id: 'oops', label: 'Oops!' },
 ];
 
-/**
- * Keep a character wearable: nothing above the current level, nothing a cat
- * could not physically put on. Called after every kind switch, because the
- * parts that fit an explorer are not the parts that fit a dragon.
- */
-function sanitize(ch: Character, level: number): Character {
-  const next = { ...ch };
-  if ((KIND_BY_ID.get(next.kind)?.level ?? 99) > level) next.kind = 'human';
-  const face = FACES.find((f) => f.id === next.face);
-  if (!face || face.level > level) next.face = 'round';
-  for (const slot of PART_SLOTS) {
-    const open = partsFor(slot, next.kind).filter((p) => p.level <= level);
-    if (!open.some((p) => p.id === next[slot])) next[slot] = (open[0] ?? partsFor(slot, next.kind)[0]).id;
-  }
-  const clampSwatch = (list: Swatch[], i: number) => (list[i] && list[i].level <= level ? i : 0);
-  next.skin = clampSwatch(SKINS, next.skin);
-  next.hairColor = clampSwatch(HAIR_COLORS, next.hairColor);
-  next.outfitColor = clampSwatch(OUTFIT_COLORS, next.outfitColor);
-  return next;
-}
-
 export default function ExplorerBuilder() {
   const data = useData();
   const nav = useNavigate();
@@ -76,10 +54,7 @@ export default function ExplorerBuilder() {
   const unlocked = unlockedCount(level);
 
   const set = (p: Partial<Character>) => setDraft((d) => ({ ...d, ...p }));
-  const setKind = (kindId: string) => {
-    const kind = KIND_BY_ID.get(kindId);
-    setDraft((d) => sanitize({ ...d, ...kind?.suggests, kind: kindId }, level));
-  };
+  const setKind = (kindId: string) => setDraft((d) => applyKind(d, kindId, level));
   const save = () => {
     patch((d) => { d.profile.avatar = encodeCharacter(draft); });
     nav('/app/profile');
@@ -214,7 +189,7 @@ function KindPicker({ draft, level, onPick }: { draft: Character; level: number;
             <div className="xb-opts">
               {prog.kinds.map((k) => {
                 const locked = k.level > level;
-                const preview = { ...draft, ...k.suggests, kind: k.id } as Character;
+                const preview = applyKind(draft, k.id, Math.max(level, k.level));
                 return (
                   <button
                     key={k.id} type="button"
@@ -250,7 +225,9 @@ function SlotPicker({ slot, draft, level, onPick }: {
   return (
     <OptionGrid
       title={SLOT_TITLE[slot]}
-      items={parts.map((p) => ({ id: p.id, name: p.name, level: p.level }))}
+      items={parts.map((p) => ({
+        id: p.id, name: p.name, level: p.level, open: isPartOpen(draft, slot, p, level),
+      }))}
       current={draft[slot]} level={level} draft={draft}
       preview={(id) => ({ ...draft, [slot]: id })}
       onPick={(id) => onPick({ [slot]: id } as Partial<Character>)}
@@ -258,16 +235,19 @@ function SlotPicker({ slot, draft, level, onPick }: {
   );
 }
 
+interface Option { id: string; name: string; level: number; open?: boolean }
+
 function OptionGrid({ title, items, current, level, preview, onPick }: {
   title: string;
-  items: { id: string; name: string; level: number }[];
+  items: Option[];
   current: string; level: number; draft: Character;
   preview: (id: string) => Character;
   onPick: (id: string) => void;
 }) {
-  const open = items.filter((i) => i.level <= level);
-  const locked = items.filter((i) => i.level > level);
-  const tile = (i: { id: string; name: string; level: number }, isLocked: boolean) => (
+  const isOpen = (i: Option) => i.open ?? i.level <= level;
+  const open = items.filter(isOpen);
+  const locked = items.filter((i) => !isOpen(i));
+  const tile = (i: Option, isLocked: boolean) => (
     <button
       key={i.id} type="button"
       className={`xb-opt ${current === i.id ? 'on' : ''} ${isLocked ? 'locked' : ''}`}
@@ -299,9 +279,9 @@ function OptionGrid({ title, items, current, level, preview, onPick }: {
 function ColourPicker({ draft, level, onPick }: {
   draft: Character; level: number; onPick: (p: Partial<Character>) => void;
 }) {
-  const rows: { label: string; list: Swatch[]; value: number; key: keyof Character }[] = [
-    { label: 'Skin', list: SKINS, value: draft.skin, key: 'skin' },
-    { label: 'Hair and fur', list: HAIR_COLORS, value: draft.hairColor, key: 'hairColor' },
+  const rows: { label: string; list: Swatch[]; value: number; key: SwatchKey }[] = [
+    { label: 'Skin, fur and scales', list: SKINS, value: draft.skin, key: 'skin' },
+    { label: 'Hair, feathers and manes', list: HAIR_COLORS, value: draft.hairColor, key: 'hairColor' },
     { label: 'Outfit', list: OUTFIT_COLORS, value: draft.outfitColor, key: 'outfitColor' },
   ];
   return (
@@ -312,9 +292,9 @@ function ColourPicker({ draft, level, onPick }: {
           <div className="xb-swatches">
             {r.list
               .map((s, i) => ({ s, i }))
-              .sort((a, b) => Number(a.s.level > level) - Number(b.s.level > level))
+              .sort((a, b) => Number(!isSwatchOpen(draft, r.key, a.i, level)) - Number(!isSwatchOpen(draft, r.key, b.i, level)))
               .map(({ s, i }) => {
-              const locked = s.level > level;
+              const locked = !isSwatchOpen(draft, r.key, i, level);
               return (
                 <button
                   key={s.id} type="button"
@@ -334,7 +314,8 @@ function ColourPicker({ draft, level, onPick }: {
         </section>
       ))}
       <p className="small muted">
-        Hair colour also paints fur, feathers and scales, so a teal dragon is one tap away.
+        A creature's own colours come with it, so a frog is green from the start. The rest
+        of the palette opens as you level up.
       </p>
     </div>
   );
