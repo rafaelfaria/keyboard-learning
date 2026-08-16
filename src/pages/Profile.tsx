@@ -5,7 +5,8 @@ import { auth } from '../lib/auth';
 import { account, useAccount } from '../lib/account';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { Ic } from '../components/icons';
-import { Avatar, BlockAvatar, AVATAR_PRESETS } from '../components/avatars';
+import { Avatar, BlockAvatar, PRESET_CHARACTERS, presetValue } from '../components/avatars';
+import { decodeCharacter, describeCharacter, unlockedCount } from '../lib/character';
 import { Bar, Btn, Card, Modal, Stat } from '../components/ui';
 import { curriculumProgress } from '../lib/curriculum';
 import { fmtDuration, relTime, RANK_TIERS } from '../lib/metrics';
@@ -28,6 +29,7 @@ export default function Profile() {
   const lvl = levelInfo(data.xp);
   const streak = currentStreak(data);
   const prog = curriculumProgress(data);
+  const parts = unlockedCount(lvl.level);
   const totalSec = data.sessions.reduce((a, s) => a + s.seconds, 0);
   const badges = Object.keys(data.badges).length;
   const others = Object.values(profiles).filter((p) => p.profile.id !== activeId);
@@ -90,11 +92,21 @@ export default function Profile() {
             value={data.profile.name}
             onChange={(e) => patch((d) => { d.profile.name = e.target.value; })}
           />
-          <label className="small muted">Block explorer, more unlock as you level</label>
-          <div className="avatar-grid" style={{ marginTop: 6 }}>
-            {AVATAR_PRESETS.map((p, i) => {
+          <label className="small muted">Your explorer</label>
+          <div className="pf-explorer">
+            <Avatar v={data.profile.avatar} size={84} />
+            <div className="pf-explorer-txt">
+              <strong>{describeCharacter(decodeCharacter(data.profile.avatar))}</strong>
+              <small className="muted">{parts.have} of {parts.total} parts unlocked at level {lvl.level}</small>
+              <Btn kind="soft" onClick={() => nav('/app/explorer')}>
+                <Ic n="palette" size={15} /> Customise explorer
+              </Btn>
+            </div>
+          </div>
+          <div className="avatar-grid" style={{ marginTop: 12 }}>
+            {PRESET_CHARACTERS.map((p, i) => {
               const locked = lvl.level < p.level;
-              const v = `bk:${i}`;
+              const v = presetValue(i);
               return (
                 <button
                   key={i} type="button"
@@ -109,6 +121,9 @@ export default function Profile() {
               );
             })}
           </div>
+          <p className="small muted" style={{ marginTop: 8 }}>
+            Ready-made explorers to start from. The builder takes it further.
+          </p>
           <h3 style={{ marginTop: 18 }}>Coach personality</h3>
           <p className="small muted" style={{ marginTop: 4 }}>Same advice after every session, delivered in the voice you pick.</p>
           <div className="coach-grid">

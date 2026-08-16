@@ -12,7 +12,7 @@ import { mulberry32, pickN, pick } from '../lib/rng';
 import { median, rankOf } from '../lib/metrics';
 import { snd } from '../lib/sound';
 import { Ic } from '../components/icons';
-import { BlockAvatar, AVATAR_PRESETS } from '../components/avatars';
+import { BlockAvatar, PRESET_CHARACTERS, presetValue } from '../components/avatars';
 
 type StepId = 'welcome' | 'age' | 'identity' | 'goal' | 'habits' | 'setup' | 'access' | 'assessIntro' | 'tap' | 'words' | 'sentence' | 'computing' | 'plan';
 
@@ -156,7 +156,7 @@ export default function Onboarding() {
     path: 'place',
     age: isRetest ? existing!.profile.ageGroup : 'adult',
     ageLabel: '18+',
-    name: '', avatar: 'bk:0', goal: 'basics',
+    name: '', avatar: presetValue(0), goal: 'basics',
     looks: isRetest ? existing!.profile.looksAtKeyboard : 'sometimes',
     exp: isRetest ? (existing!.profile.experience === 'new' ? 'some' : existing!.profile.experience) : 'some',
     layout: isRetest ? existing!.profile.layout : 'qwerty',
@@ -382,9 +382,9 @@ export default function Onboarding() {
           </div>
           <label className="small muted">Your block explorer, more unlock as you level up</label>
           <div className="avatar-grid" style={{ marginTop: 6 }}>
-            {AVATAR_PRESETS.map((p, i) => {
+            {PRESET_CHARACTERS.map((p, i) => {
               const locked = p.level > 0;
-              const v = `bk:${i}`;
+              const v = presetValue(i);
               return (
                 <button
                   key={i} type="button"
