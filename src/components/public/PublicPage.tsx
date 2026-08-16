@@ -34,13 +34,12 @@ function Breadcrumbs({ page }: { page: PageDef }) {
 }
 
 export function PublicPage({
-  page, lede, children, wide,
+  page, lede, children,
 }: {
   page: PageDef;
   /** The visible sub-heading. Distinct from the meta description on purpose. */
   lede: ReactNode;
   children: ReactNode;
-  wide?: boolean;
 }) {
   // Both hooks are no-ops during prerender: effects do not run under
   // renderToStaticMarkup, so the static HTML is the finished page.
@@ -50,7 +49,7 @@ export function PublicPage({
     <div className="pub-root" data-page={page.path}>
       <Seo path={page.path} />
       <SiteHeader />
-      <main className={`pub-main${wide ? ' pub-main-wide' : ''}`} id="main">
+      <main className="pub-main" id="main">
         <PublicHero path={page.path}>
           <Breadcrumbs page={page} />
           <h1 className="pub-h1">{page.title.replace(/ \| .*$/, '')}</h1>

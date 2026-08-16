@@ -4,8 +4,10 @@ import { useData, useStore, levelInfo, currentStreak, MAX_PROFILES } from '../li
 import { auth } from '../lib/auth';
 import { account, useAccount } from '../lib/account';
 import { isSupabaseConfigured } from '../lib/supabase';
+import { useSync, visibleProfileIds } from '../lib/syncEngine';
 import { Ic } from '../components/icons';
-import { Avatar, BlockAvatar, AVATAR_PRESETS } from '../components/avatars';
+import { Avatar, BlockAvatar, PRESET_CHARACTERS, presetValue } from '../components/avatars';
+import { decodeCharacter, describeCharacter, unlockedCount } from '../lib/character';
 import { Bar, Btn, Card, Modal, Stat } from '../components/ui';
 import { curriculumProgress } from '../lib/curriculum';
 import { fmtDuration, relTime, RANK_TIERS } from '../lib/metrics';
@@ -21,6 +23,7 @@ export default function Profile() {
   const profiles = useStore((s) => s.profiles);
   const activeId = useStore((s) => s.activeId);
   const user = useAccount((s) => s.user);
+  const owners = useSync((s) => s.owners);
   const [confirmReset, setConfirmReset] = useState(false);
   const [showRanks, setShowRanks] = useState(false);
   if (!data) return null;
@@ -28,9 +31,15 @@ export default function Profile() {
   const lvl = levelInfo(data.xp);
   const streak = currentStreak(data);
   const prog = curriculumProgress(data);
+  const parts = unlockedCount(lvl.level);
   const totalSec = data.sessions.reduce((a, s) => a + s.seconds, 0);
   const badges = Object.keys(data.badges).length;
-  const others = Object.values(profiles).filter((p) => p.profile.id !== activeId);
+  // Only this account's explorers. A shared browser can hold another
+  // household's profiles in the same local cache; listing them here showed
+  // four explorers on a device whose picker only ever offered one, and counted
+  // strangers against this account's allowance.
+  const mine = visibleProfileIds(Object.keys(profiles), user?.id ?? null, owners);
+  const others = mine.filter((id) => id !== activeId).map((id) => profiles[id]);
   const rank = data.assessment?.rank ?? 'Sprout I';
   const email = user?.email ?? (user?.user_metadata?.name as string | undefined);
 
@@ -90,11 +99,21 @@ export default function Profile() {
             value={data.profile.name}
             onChange={(e) => patch((d) => { d.profile.name = e.target.value; })}
           />
-          <label className="small muted">Block explorer, more unlock as you level</label>
-          <div className="avatar-grid" style={{ marginTop: 6 }}>
-            {AVATAR_PRESETS.map((p, i) => {
+          <label className="small muted">Your explorer</label>
+          <div className="pf-explorer">
+            <Avatar v={data.profile.avatar} size={84} />
+            <div className="pf-explorer-txt">
+              <strong>{describeCharacter(decodeCharacter(data.profile.avatar))}</strong>
+              <small className="muted">{parts.have} of {parts.total} parts unlocked at level {lvl.level}</small>
+              <Btn kind="soft" onClick={() => nav('/app/explorer')}>
+                <Ic n="palette" size={15} /> Customise explorer
+              </Btn>
+            </div>
+          </div>
+          <div className="avatar-grid" style={{ marginTop: 12 }}>
+            {PRESET_CHARACTERS.map((p, i) => {
               const locked = lvl.level < p.level;
-              const v = `bk:${i}`;
+              const v = presetValue(i);
               return (
                 <button
                   key={i} type="button"
@@ -109,6 +128,9 @@ export default function Profile() {
               );
             })}
           </div>
+          <p className="small muted" style={{ marginTop: 8 }}>
+            Ready-made explorers to start from. The builder takes it further.
+          </p>
           <h3 style={{ marginTop: 18 }}>Coach personality</h3>
           <p className="small muted" style={{ marginTop: 4 }}>Same advice after every session, delivered in the voice you pick.</p>
           <div className="coach-grid">
@@ -150,16 +172,24 @@ export default function Profile() {
               )
               : <p className="small muted">Up to {MAX_PROFILES} family members can each have their own world here.</p>}
             <div className="col" style={{ gap: 6, marginTop: 10 }}>
+              {/* The card is called Explorers, so the one you are using belongs in
+                  it — leaving it out meant a character you had just built could
+                  not be seen here at all. It sits first and does not switch. */}
+              <div className="opt-tile is-you">
+                <Avatar v={data.profile.avatar} size={34} />
+                <span><strong>{data.profile.name}</strong><small>Level {lvl.level}</small></span>
+                <span className="chip chip-accent small push-right">You</span>
+              </div>
               {others.map((p) => (
                 <button key={p.profile.id} type="button" className="opt-tile" onClick={async () => { await auth.signIn(p.profile.id); nav('/app'); }}>
                   <Avatar v={p.profile.avatar} size={34} />
                   <span><strong>{p.profile.name}</strong><small>Level {levelInfo(p.xp).level}</small></span>
                 </button>
               ))}
-              {Object.keys(profiles).length < MAX_PROFILES
+              {mine.length < MAX_PROFILES
                 ? <Btn kind="soft" onClick={() => nav('/onboarding')}><Ic n="user-plus" size={15} /> Add another explorer</Btn>
                 : <p className="small muted">This device holds the maximum of {MAX_PROFILES} explorers. Delete one to add someone new.</p>}
-              <Btn kind="soft" onClick={async () => { await auth.signOut(); nav('/who'); }}><Ic n="users" size={15} /> Switch explorer</Btn>
+              <Btn kind="soft" onClick={() => nav('/who')}><Ic n="users" size={15} /> Switch explorer</Btn>
               <p className="small muted" style={{ marginTop: 2 }}>Switching just changes who's typing. Nothing is deleted, and everyone's progress stays saved.</p>
             </div>
             {isSupabaseConfigured && user && (

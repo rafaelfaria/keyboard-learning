@@ -37,6 +37,7 @@ import ProgressHub from './pages/ProgressHub';
 import BadgesPage from './pages/BadgesPage';
 import Family from './pages/Family';
 import Profile from './pages/Profile';
+import ExplorerBuilder from './pages/ExplorerBuilder';
 import Settings from './pages/Settings';
 import {
   AdaptivePracticePage, AnalyticsPage, CurriculumPage, FaqPage, GlossaryPage,
@@ -157,6 +158,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route path="badges" element={<BadgesPage />} />
           <Route path="family" element={<Family />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="explorer" element={<ExplorerBuilder />} />
           <Route path="settings" element={<Settings />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />

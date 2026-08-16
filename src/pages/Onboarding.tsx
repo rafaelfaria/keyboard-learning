@@ -4,6 +4,8 @@ import { Btn, Logo, Bar, Chip } from '../components/ui';
 import { GhostInput, TypingText, useTypingSession, combineResults } from '../components/typing';
 import { KeyboardVisual } from '../components/KeyboardVisual';
 import { useStore, useData, randomKidName, MAX_PROFILES } from '../lib/store';
+import { useAccount } from '../lib/account';
+import { useSync, visibleProfileIds } from '../lib/syncEngine';
 import type { AgeGroup, AssessmentResult, CoachStyle, Goal, LayoutId, SessionResult } from '../lib/types';
 import { COACH_STYLES } from '../lib/coach';
 import { LAYOUT_NAMES, layoutGroups } from '../lib/keyboard';
@@ -12,7 +14,7 @@ import { mulberry32, pickN, pick } from '../lib/rng';
 import { median, rankOf } from '../lib/metrics';
 import { snd } from '../lib/sound';
 import { Ic } from '../components/icons';
-import { BlockAvatar, AVATAR_PRESETS } from '../components/avatars';
+import { BlockAvatar, PRESET_CHARACTERS, presetValue } from '../components/avatars';
 
 type StepId = 'welcome' | 'age' | 'identity' | 'goal' | 'habits' | 'setup' | 'access' | 'assessIntro' | 'tap' | 'words' | 'sentence' | 'computing' | 'plan';
 
@@ -149,14 +151,18 @@ export default function Onboarding() {
   const createProfile = useStore((s) => s.createProfile);
   const finishAssessment = useStore((s) => s.finishAssessment);
   const hasProfile = useStore((s) => !!s.activeId);
-  const full = useStore((s) => Object.keys(s.profiles).length >= MAX_PROFILES);
+  const allProfiles = useStore((s) => s.profiles);
+  const obUser = useAccount((s) => s.user);
+  const obOwners = useSync((s) => s.owners);
+  // Another household's cached profiles must not count against this account.
+  const full = visibleProfileIds(Object.keys(allProfiles), obUser?.id ?? null, obOwners).length >= MAX_PROFILES;
 
   const isRetest = params.get('retest') === '1' && !!existing;
   const [a, setA] = useState<Answers>(() => ({
     path: 'place',
     age: isRetest ? existing!.profile.ageGroup : 'adult',
     ageLabel: '18+',
-    name: '', avatar: 'bk:0', goal: 'basics',
+    name: '', avatar: presetValue(0), goal: 'basics',
     looks: isRetest ? existing!.profile.looksAtKeyboard : 'sometimes',
     exp: isRetest ? (existing!.profile.experience === 'new' ? 'some' : existing!.profile.experience) : 'some',
     layout: isRetest ? existing!.profile.layout : 'qwerty',
@@ -382,9 +388,9 @@ export default function Onboarding() {
           </div>
           <label className="small muted">Your block explorer, more unlock as you level up</label>
           <div className="avatar-grid" style={{ marginTop: 6 }}>
-            {AVATAR_PRESETS.map((p, i) => {
+            {PRESET_CHARACTERS.map((p, i) => {
               const locked = p.level > 0;
-              const v = `bk:${i}`;
+              const v = presetValue(i);
               return (
                 <button
                   key={i} type="button"

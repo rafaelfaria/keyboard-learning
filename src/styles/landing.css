@@ -108,9 +108,11 @@
 }
 
 /* Shared section scaffolding */
-.land-section { position: relative; z-index: 2; background: var(--lbg); padding: clamp(60px, 9vw, 110px) 18px; }
+.land-section { position: relative; z-index: 2; background: var(--lbg); padding: clamp(60px, 9vw, 110px) var(--gutter); }
 .land-section:nth-of-type(odd) { background: #0d1226; }
-.land-inner { max-width: 1080px; margin: 0 auto; }
+/* The shell, so the landing's sections line up with the header above them
+   and the footer below them rather than sitting 18px inside both. */
+.land-inner { max-width: var(--shell); margin: 0 auto; }
 .land-section h2 { font-size: clamp(1.7rem, 4vw, 2.6rem); letter-spacing: -0.02em; margin-bottom: 12px; }
 .land-section h2 em { font-style: normal; color: #14d8c4; }
 .land-lede { max-width: 640px; font-size: 1.05rem; margin-bottom: 40px; }
